@@ -1,0 +1,15 @@
+<% content_for :title, "Log Event" %>
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><%= link_to "Events", events_path %></li>
+    <li class="breadcrumb-item active" aria-current="page">New</li>
+  </ol>
+</nav>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h1 class="h3 mb-4">Log an Event</h1>
+    <%= render "form", event: @event %>
+  </div>
+</div>

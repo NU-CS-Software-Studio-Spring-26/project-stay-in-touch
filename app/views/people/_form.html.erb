@@ -1,0 +1,57 @@
+<%= form_with model: person, class: "vstack gap-3" do |f| %>
+  <% if person.errors.any? %>
+    <div class="alert alert-danger">
+      <strong><%= pluralize(person.errors.count, "error") %> prevented this person from being saved:</strong>
+      <ul class="mb-0"><% person.errors.full_messages.each { |m| %><li><%= m %></li><% } %></ul>
+    </div>
+  <% end %>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <%= f.label :name, class: "form-label" %>
+      <%= f.text_field :name, class: "form-control", required: true %>
+    </div>
+    <div class="col-md-6">
+      <%= f.label :email, class: "form-label" %>
+      <%= f.email_field :email, class: "form-control", required: true %>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <%= f.label :timezone, class: "form-label" %>
+      <%= f.select :timezone,
+            ActiveSupport::TimeZone::MAPPING.values.sort,
+            { selected: person.timezone || "America/Chicago" },
+            class: "form-select" %>
+      <div class="form-text">IANA identifier (e.g., America/Chicago).</div>
+    </div>
+    <div class="col-md-6">
+      <%= f.label :frequency_weeks, "Frequency (weeks)", class: "form-label" %>
+      <%= f.number_field :frequency_weeks, step: 0.5, min: 0.5, class: "form-control", required: true %>
+      <div class="form-text">How often you'd like to catch up.</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <%= f.label :preferred_start_hour, "Preferred start hour (0-23)", class: "form-label" %>
+      <%= f.number_field :preferred_start_hour, min: 0, max: 23, class: "form-control", required: true %>
+    </div>
+    <div class="col-md-6">
+      <%= f.label :preferred_end_hour, "Preferred end hour (0-23)", class: "form-label" %>
+      <%= f.number_field :preferred_end_hour, min: 0, max: 23, class: "form-control", required: true %>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :notes, class: "form-label" %>
+    <%= f.text_area :notes, rows: 4, class: "form-control" %>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", (person.persisted? ? person_path(person) : people_path),
+          class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>
