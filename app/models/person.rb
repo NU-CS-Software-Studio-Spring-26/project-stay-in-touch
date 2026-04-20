@@ -1,0 +1,55 @@
+# A Person you want to stay in touch with. Stores contact identity plus the
+# two inputs that drive future reach-out reminders (Serendipity roadmap):
+# the preferred-hours window (for availability matching) and a target
+# `frequency_weeks` (how often you'd like to catch up).
+class Person < ApplicationRecord
+  HOUR_RANGE = (0..23).freeze
+  EMAIL_FORMAT = URI::MailTo::EMAIL_REGEXP
+
+  has_many :event_participants, dependent: :destroy
+  has_many :events, through: :event_participants
+
+  validates :name, presence: true
+  validates :email,
+            presence: true,
+            format: { with: EMAIL_FORMAT },
+            uniqueness: { case_sensitive: false }
+  # Store IANA identifiers like "America/Chicago" so the future Serendipity
+  # scheduler (Python) can consume the field unchanged.
+  validates :timezone,
+            presence: true,
+            inclusion: { in: ActiveSupport::TimeZone::MAPPING.values }
+  validates :preferred_start_hour,
+            presence: true,
+            numericality: { only_integer: true, in: HOUR_RANGE }
+  validates :preferred_end_hour,
+            presence: true,
+            numericality: { only_integer: true, in: HOUR_RANGE }
+  validates :frequency_weeks,
+            presence: true,
+            numericality: { greater_than: 0, less_than_or_equal_to: 520 }
+  validate  :preferred_window_ordered
+
+  # Most recent Event for this Person, or nil if none yet.
+  def latest_event
+    events.order(occurred_at: :desc).first
+  end
+
+  # Days until the next reach-out is "due" per frequency_weeks.
+  # Negative values mean overdue; nil when no prior events.
+  def days_until_due
+    return nil unless latest_event
+
+    deadline = latest_event.occurred_at + (frequency_weeks * 7).days
+    ((deadline - Time.current) / 1.day).round
+  end
+
+  private
+
+  def preferred_window_ordered
+    return if preferred_start_hour.nil? || preferred_end_hour.nil?
+    return if preferred_start_hour <= preferred_end_hour
+
+    errors.add(:preferred_end_hour, "must be greater than or equal to preferred_start_hour")
+  end
+end
