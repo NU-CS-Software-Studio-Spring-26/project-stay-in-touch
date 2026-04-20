@@ -1,6 +1,12 @@
 # A logged catch-up — call, coffee, text, etc. One Event may involve many
 # People (group dinner, conference call), so the join lives in
 # EventParticipant rather than a direct belongs_to.
+#
+# Schema (see db/schema.rb for the authoritative version):
+#   occurred_at  :datetime not null  (indexed)
+#   medium       :string   not null  (one of Event::MEDIA)
+#   title        :string   nullable  (falls back to "<medium> on <date>")
+#   notes        :text     nullable
 class Event < ApplicationRecord
   MEDIA = %w[call coffee text video in_person other].freeze
 

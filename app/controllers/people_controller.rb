@@ -1,3 +1,6 @@
+# Standard REST controller for Person. Nothing clever here — the show page
+# pulls Person#events (via the EventParticipant join) for the timeline
+# section, and the index sorts alphabetically by name.
 class PeopleController < ApplicationController
   before_action :set_person, only: %i[show edit update destroy]
 

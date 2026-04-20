@@ -57,6 +57,14 @@ heroku open
 
 The `Procfile` runs `rails db:migrate` automatically in the release phase, so subsequent deploys just need `git push heroku main`.
 
+## Terminology
+
+- **Person** — A contact you want to stay in touch with. Stores `name`, `email`, `timezone` (IANA, e.g. `America/Chicago`), a preferred-hours window, and a target catch-up `frequency_weeks`. Not an authenticated user account — user accounts arrive in a later milestone.
+- **Event** — A logged catch-up: call, coffee, video, text, in-person, or other. Each event has an `occurred_at`, a `medium`, an optional `title`, optional `notes`, and **one or more** participating People.
+- **EventParticipant** — Join model between Person and Event. Deliberately a real model (not `has_and_belongs_to_many`) so future fields like `rsvp_status`, `role`, or `was_organizer` can be added without another migration.
+
+More on the domain model and future direction in `wiki.md`.
+
 ## Project layout
 
 - `app/models/` - `Person`, `Event`, `EventParticipant` (join model enabling group events).

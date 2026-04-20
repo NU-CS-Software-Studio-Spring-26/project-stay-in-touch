@@ -2,6 +2,15 @@
 # two inputs that drive future reach-out reminders (Serendipity roadmap):
 # the preferred-hours window (for availability matching) and a target
 # `frequency_weeks` (how often you'd like to catch up).
+#
+# Schema (see db/schema.rb for the authoritative version):
+#   name                  :string  not null
+#   email                 :string  not null  (case-insensitive unique index)
+#   timezone              :string  not null  default "America/Chicago"  (IANA)
+#   preferred_start_hour  :integer not null  default 9    (0..23)
+#   preferred_end_hour    :integer not null  default 21   (0..23)
+#   frequency_weeks       :decimal not null  default 4.0  precision 5 scale 2
+#   notes                 :text    nullable
 class Person < ApplicationRecord
   HOUR_RANGE = (0..23).freeze
   EMAIL_FORMAT = URI::MailTo::EMAIL_REGEXP

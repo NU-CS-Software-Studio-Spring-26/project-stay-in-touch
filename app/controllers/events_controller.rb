@@ -1,3 +1,8 @@
+# Standard REST controller for Event. The one non-obvious piece:
+# the Event form in app/views/events/_form.html.erb submits a list of
+# `event[person_ids][]` values (one per checked Person). Rails maps that
+# array directly onto the has_many :through participants association
+# during Event.new / Event#update.
 class EventsController < ApplicationController
   before_action :set_event, only: %i[show edit update destroy]
 
