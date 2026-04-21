@@ -21,7 +21,7 @@ The long-term vision (see `wiki.md`) builds on top of this foundation: mutual op
 
 ## Live app
 
-> Heroku URL: _TODO — add once `heroku create` is run_
+> Heroku URL: https://stay-in-touch-cs396-743fabf79c08.herokuapp.com/
 
 ## Local development
 
@@ -79,10 +79,10 @@ More on the domain model and future direction in `wiki.md`.
 
 The team has agreed on these ground rules for the rest of the class:
 
-- **Primary channel:** Group chat (set at project kickoff) for day-to-day coordination; GitHub Issues for tracked work.
+- **Primary channel:** Slack group chat (set at project kickoff) for coordination; GitHub Issues for tracked work.
 - **Decision rule:** Lazy consensus within 24 hours. If nobody objects to a proposal in chat or on the relevant PR within 24 h, it's approved. Anything contentious moves to a majority vote in chat.
 - **Response-time expectation:** Messages acknowledged within 24 h on weekdays. Urgent items (blocking a teammate) tagged `@channel` and expected sooner.
 - **Standups:** Short async status update in chat every Monday and Thursday: what I shipped, what I'm working on next, anything I'm blocked on.
-- **Work assignment:** Each milestone's tasks are filed as GitHub Issues and self-assigned. No issue should go more than 48 h without a "working on it" comment once assigned.
-- **Code review:** At least one teammate reviews every PR before it merges to `main`. Squash-merge by default.
-- **Meetings:** One 30-minute weekly sync (day/time TBD at kickoff); ad-hoc calls as needed.
+- **Work assignment:** Tasks are claimed on a first-come, first-served basis via GitHub Issues. Once assigned, no issue should go more than 48 hours without a “working on it” update. Workload distribution will be reviewed in the next team meeting to ensure balanced contributions across all collaborators.
+- **Code review:** At least one teammate reviews every PR before it merges to `main` and we also try to merge in person while checking the correct functionality. Squash-merge by default.
+- **Meetings:** One 1hr weekly meeting on Tuesday from 2:30 to 3:40 pm; ad-hoc calls as needed.
