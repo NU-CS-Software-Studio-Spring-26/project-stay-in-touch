@@ -51,16 +51,34 @@ _TODO: add link to team Miro board with class diagram and user flow._
 
 ## Future features (post-M0 roadmap)
 
+### Top priorities (M1)
+
+These are the two load-bearing items for the rest of the class. Nothing else in the roadmap below can ship without them — mutual pairing needs authenticated users, and the automatic scheduler needs calendar access.
+
+1. **User login / authentication.**
+   - Introduces a `User` model distinct from `Person`: a `Person` is a contact record that anybody might have on file, a `User` is an account-holder who can log in.
+   - Every `Person` becomes owned by a `User` (`belongs_to :user`), and every controller action scopes to `current_user.people` / `current_user.events` so one user can't read another's contacts.
+   - Implementation path: Rails 8's built-in `rails generate authentication` generators (session-based, cookie auth, password digest, reset mailer). Devise is a fallback if the built-in generator runs short.
+   - UI: `/signup`, `/login`, `/logout`, plus a `before_action :require_login` on People/Events controllers and a small "Signed in as ..." affordance in the navbar.
+   - Out of scope for M1: OAuth / social login, email verification, organizations/teams, multi-factor auth.
+
+2. **Google Calendar integration.**
+   - Adds an OAuth2 "Connect Google Calendar" flow on the user's profile; we store the refresh token encrypted in the `users` table and exchange it for short-lived access tokens on demand.
+   - Read-only to start: pull the user's free/busy windows for the next 7 days and intersect them with their `preferred_start_hour`..`preferred_end_hour` from the Person record to get candidate slots.
+   - Lays the groundwork for the **Automatic scheduler** (item below) — once both parties in a pairing have connected Google Calendar, the scheduler can pick a mutually-free slot and drop a Meet link.
+   - Scopes requested: `calendar.readonly` and `calendar.events` (the second is only required once we move from "read availability" to "create events"; request it up-front so we don't have to re-prompt).
+   - Out of scope for M1: Outlook / iCloud / CalDAV support, write-back to the calendar (that's part of the scheduler milestone), multi-calendar-per-user.
+
+### Remaining roadmap
+
 Rough order; details in the Python prototype.
 
-1. **User authentication.** Bring auth in before multi-user features so every Person is owned by a User.
-2. **Mutual opt-in pairing.** Only schedule catch-ups when both parties have listed each other. Compute effective frequency as the geometric mean of each party's preference (per the Python prototype).
-3. **"Who to reach out to" page.** Personalized feed sorted by days-overdue.
-4. **Google Calendar integration.** Read free/busy windows for both parties over the next 7 days, intersected with both users' preferred hours.
-5. **Automatic scheduler.** Daily job (Heroku Scheduler) that picks mutual pairs due for catch-up, drops a random slot in both calendars with a Meet link, and emails both parties. The slot randomness preserves the "manufactured serendipity" feel.
-6. **Notifications.** Gentle email nudges when someone is significantly overdue.
-7. **Admin dashboard.** Moderation / debugging / seeding scheduled calls manually.
-8. **Mobile-first UX polish.** The Bootstrap base is responsive; add PWA install, offline-friendly viewing, timezone-aware form UX.
+- **Mutual opt-in pairing.** Only schedule catch-ups when both parties have listed each other. Compute effective frequency as the geometric mean of each party's preference (per the Python prototype).
+- **"Who to reach out to" page.** Personalized feed sorted by days-overdue.
+- **Automatic scheduler.** Daily job (Heroku Scheduler) that picks mutual pairs due for catch-up, drops a random slot in both calendars with a Meet link, and emails both parties. The slot randomness preserves the "manufactured serendipity" feel.
+- **Notifications.** Gentle email nudges when someone is significantly overdue.
+- **Admin dashboard.** Moderation / debugging / seeding scheduled calls manually.
+- **Mobile-first UX polish.** The Bootstrap base is responsive; add PWA install, offline-friendly viewing, timezone-aware form UX.
 
 ## Similar products
 
