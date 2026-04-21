@@ -1,0 +1,15 @@
+<% content_for :title, "New Person" %>
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><%= link_to "People", people_path %></li>
+    <li class="breadcrumb-item active" aria-current="page">New</li>
+  </ol>
+</nav>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h1 class="h3 mb-4">Add a Person</h1>
+    <%= render "form", person: @person %>
+  </div>
+</div>

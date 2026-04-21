@@ -1,0 +1,17 @@
+In the Software Studio class, the teacher is very clear that AI use is essential to getting all of the requirements done in time. The class expects the outputs to be in Ruby. This is the description for the first deliverable:
+
+Milestone 0 checklist (minimum requirements, other enhancements as deemed necessary by the teams):
+
+Basic functionality (min 2 models, 4 views (all entries and each individual entry for each model), associations between models are not required for this milestone but are welcome)
+Create-update-delete for individual entries is implemented
+Min 20 entries seeded using db:seed
+Uses CSS
+Uses Bootstrap for frontend (at least table, buttons, form, the more the better)
+Consistent links between the four views are present, giving a feel of one product rather than disconnected pages
+Runs on Heroku
+Commits from all team members on public project Github
+.gitignore file is present and lists project files that should not be tracked
+Code is covered with basic unit tests (generated with AI assistance, hw2 also has examples) and test run automatically on Github (see hw2 for an example .github/workflows), can be AI generated.
+Repository contains a readme.md file that formulates MVP, lists names of all team members,  and a link to Heroku deployment. Readme file contains "Communication" section that describes the communication and decision-making rules that the team agrees on for the remainder of the class. 
+Repository contains a wiki.md file with additional information about the project. Includes anything relevant to understanding or working on the project, such as description of the task the project is solving, a link to Miro board with OO design, list of future features that are not a part of MVP, links to similar products, ideas, etc.
+All team members are able to perform all the above tasks
