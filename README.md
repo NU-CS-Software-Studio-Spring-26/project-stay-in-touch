@@ -15,9 +15,9 @@ The long-term vision (see `wiki.md`) builds on top of this foundation: mutual op
 | Name | GitHub |
 |---|---|
 | Matthew Khoriaty | [@AMindToThink](https://github.com/AMindToThink) |
-| Andre | [@akurdia](https://github.com/akurdia) |
-| Jos Yao | [@josyao1](https://github.com/josyao1) |
-| MJ Gaughan | [@mjgaughan](https://github.com/mjgaughan) |
+| Rohit Katakam | [@rohitkatakam](https://github.com/rohitkatakam) |
+| Joshua Yao | [@josyao1](https://github.com/josyao1) |
+| Tais Martinez | [@taismartinezz](https://github.com/taismartinezz) |
 
 ## Live app
 
