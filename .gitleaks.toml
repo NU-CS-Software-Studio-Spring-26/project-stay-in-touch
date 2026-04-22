@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Claude Code conversation transcripts. These are session logs, not source code — high-entropy strings captured in Rails test output (CSRF tokens, session ids) get flagged as API keys."
+paths = [
+  '''logs/conversation/.*''',
+]
