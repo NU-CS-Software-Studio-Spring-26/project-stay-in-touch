@@ -6,8 +6,24 @@
 class EventsController < ApplicationController
   before_action :set_event, only: %i[show edit update destroy]
 
+  SORTABLE_COLUMNS = %w[date title medium participants].freeze
+
   def index
-    @events = Event.recent.includes(:people)
+    @sort      = SORTABLE_COLUMNS.include?(params[:sort]) ? params[:sort] : "date"
+    @direction = params[:direction] == "asc" ? "asc" : "desc"
+
+    case @sort
+    when "title"
+      @events = Event.includes(:people)
+                     .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@direction}"))
+    when "medium"
+      @events = Event.includes(:people).order(medium: @direction)
+    when "participants"
+      events = Event.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
+      @events = @direction == "asc" ? events : events.reverse
+    else
+      @events = Event.includes(:people).order(occurred_at: @direction)
+    end
   end
 
   def show; end
