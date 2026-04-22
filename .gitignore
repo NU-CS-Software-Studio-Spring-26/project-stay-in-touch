@@ -53,3 +53,6 @@
 # Node (if ever used).
 /node_modules
 /yarn-error.log
+
+# Personal Claude Code settings (per-user overrides).
+/.claude/settings.local.json
