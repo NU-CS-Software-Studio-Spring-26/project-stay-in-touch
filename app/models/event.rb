@@ -19,7 +19,6 @@ class Event < ApplicationRecord
 
   scope :recent, -> { order(occurred_at: :desc) }
 
-  # Display-friendly title fallback when a Person may have left the title blank.
   def display_title
     title.presence || "#{medium.titleize} on #{occurred_at.to_date}"
   end

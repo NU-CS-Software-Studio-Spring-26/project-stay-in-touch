@@ -63,8 +63,6 @@ class EventsController < ApplicationController
   end
 
   def event_params
-    # `person_ids: []` is the ActiveRecord idiom for has_many :through assignment.
-    # Blank values come in as [""] from unchecked boxes; compact them out.
     permitted = params.require(:event).permit(
       :occurred_at,
       :medium,
