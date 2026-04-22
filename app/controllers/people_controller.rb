@@ -4,8 +4,21 @@
 class PeopleController < ApplicationController
   before_action :set_person, only: %i[show edit update destroy]
 
+  SORTABLE_COLUMNS = %w[name frequency status].freeze
+
   def index
-    @people = Person.order(:name)
+    @sort = SORTABLE_COLUMNS.include?(params[:sort]) ? params[:sort] : "name"
+    @direction = params[:direction] == "desc" ? "desc" : "asc"
+
+    case @sort
+    when "frequency"
+      @people = Person.order(frequency_weeks: @direction)
+    when "status"
+      people = Person.includes(:events).sort_by { |p| p.days_until_due || -Float::INFINITY }
+      @people = @direction == "desc" ? people.reverse : people
+    else
+      @people = Person.order(name: @direction)
+    end
   end
 
   def show

@@ -12,22 +12,20 @@ module ApplicationHelper
   # Bootstrap badge color for an Event medium.
   def medium_badge_class(medium)
     case medium
-    when "call"      then "bg-primary"
-    when "video"     then "bg-info text-dark"
-    when "coffee"    then "bg-warning text-dark"
-    when "text"      then "bg-secondary"
-    when "in_person" then "bg-success"
-    else                   "bg-dark"
+    when "call"      then "badge-medium-call"
+    when "video"     then "badge-medium-video"
+    when "coffee"    then "badge-medium-coffee"
+    when "text"      then "badge-medium-text"
+    when "in_person" then "badge-medium-in-person"
+    else                  "badge-medium-other"
     end
   end
 
-  # Present a "days until due" number in words with a matching Bootstrap badge.
-  # Returns `[label, css_class]` so callers can render however they like.
   def days_until_due_badge(days)
-    return ["No events yet", "bg-secondary"] if days.nil?
-    return ["Due today", "bg-warning text-dark"] if days.zero?
-    return ["#{days.abs} days overdue", "bg-danger"] if days.negative?
+    return ["No events yet", "badge-none"]     if days.nil?
+    return ["Due today",     "badge-due-today"] if days.zero?
+    return ["#{days.abs}d overdue", "badge-overdue"] if days.negative?
 
-    ["Due in #{days} days", "bg-success"]
+    ["Due in #{days}d", "badge-upcoming"]
   end
 end

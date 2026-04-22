@@ -58,3 +58,20 @@ jobs:
 
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, scan_ruby, scan_js]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.13.15
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: stay-in-touch-cs396
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}

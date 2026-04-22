@@ -49,11 +49,11 @@ RSpec.describe "Events", type: :request do
       expect(response).to have_http_status(:unprocessable_content)
     end
 
-    it "fails when occurred_at is in the future" do
+    it "succeeds when occurred_at is in the future" do
       expect {
         post events_path, params: { event: valid_attrs.merge(occurred_at: 1.day.from_now) }
-      }.not_to change(Event, :count)
-      expect(response).to have_http_status(:unprocessable_content)
+      }.to change(Event, :count).by(1)
+      expect(response).to redirect_to(event_path(Event.last))
     end
   end
 

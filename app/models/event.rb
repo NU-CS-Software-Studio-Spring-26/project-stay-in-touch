@@ -14,25 +14,16 @@ class Event < ApplicationRecord
   has_many :people, through: :event_participants
 
   validates :occurred_at, presence: true
-  validate  :occurred_at_not_in_future
   validates :medium, presence: true, inclusion: { in: MEDIA }
   validate  :must_have_at_least_one_person
 
   scope :recent, -> { order(occurred_at: :desc) }
 
-  # Display-friendly title fallback when a Person may have left the title blank.
   def display_title
     title.presence || "#{medium.titleize} on #{occurred_at.to_date}"
   end
 
   private
-
-  def occurred_at_not_in_future
-    return if occurred_at.blank?
-    return if occurred_at <= Time.current
-
-    errors.add(:occurred_at, "cannot be in the future")
-  end
 
   def must_have_at_least_one_person
     return if event_participants.any? || people.any?

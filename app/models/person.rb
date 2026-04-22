@@ -41,7 +41,7 @@ class Person < ApplicationRecord
 
   # Most recent Event for this Person, or nil if none yet.
   def latest_event
-    events.order(occurred_at: :desc).first
+    events.loaded? ? events.max_by(&:occurred_at) : events.order(occurred_at: :desc).first
   end
 
   # Days until the next reach-out is "due" per frequency_weeks.
