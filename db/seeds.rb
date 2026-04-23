@@ -1,10 +1,19 @@
 # Idempotent seed script. `bin/rails db:seed` can be re-run safely.
 # Delete order respects the foreign-key graph: join rows first, then Events,
-# then People.
+# then People, then Sessions, then Users.
 puts "Clearing existing data..."
 EventParticipant.delete_all
 Event.delete_all
 Person.delete_all
+Session.delete_all
+User.delete_all
+
+puts "Creating demo user..."
+demo_user = User.create!(
+  email: "demo@example.com",
+  password: "password12345",
+  password_confirmation: "password12345"
+)
 
 puts "Seeding people..."
 
@@ -24,7 +33,7 @@ people_data = [
 ]
 
 people = people_data.map do |row|
-  Person.create!(
+  demo_user.people.create!(
     name: row[:name],
     email: row[:email],
     timezone: row[:tz],
@@ -59,7 +68,7 @@ events_data = [
 
 events_data.each do |row|
   participants = row[:participants].map { |name| by_name.fetch(name) }
-  Event.create!(
+  demo_user.events.create!(
     occurred_at: row[:days_ago].days.ago,
     medium: row[:medium],
     title: row[:title],
@@ -68,4 +77,4 @@ events_data.each do |row|
   )
 end
 
-puts "Seeded #{Person.count} people, #{Event.count} events, #{EventParticipant.count} event_participants."
+puts "Seeded 1 user (demo@example.com / password12345), #{Person.count} people, #{Event.count} events."

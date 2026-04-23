@@ -15,6 +15,7 @@ class Person < ApplicationRecord
   HOUR_RANGE = (0..23).freeze
   EMAIL_FORMAT = URI::MailTo::EMAIL_REGEXP
 
+  belongs_to :user
   has_many :event_participants, dependent: :destroy
   has_many :events, through: :event_participants
 
@@ -22,7 +23,7 @@ class Person < ApplicationRecord
   validates :email,
             presence: true,
             format: { with: EMAIL_FORMAT },
-            uniqueness: { case_sensitive: false }
+            uniqueness: { scope: :user_id, case_sensitive: false }
   # Store IANA identifiers like "America/Chicago" so the future Serendipity
   # scheduler (Python) can consume the field unchanged.
   validates :timezone,

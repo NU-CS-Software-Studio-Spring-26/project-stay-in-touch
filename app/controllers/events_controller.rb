@@ -1,8 +1,3 @@
-# Standard REST controller for Event. The one non-obvious piece:
-# the Event form in app/views/events/_form.html.erb submits a list of
-# `event[person_ids][]` values (one per checked Person). Rails maps that
-# array directly onto the has_many :through participants association
-# during Event.new / Event#update.
 class EventsController < ApplicationController
   before_action :set_event, only: %i[show edit update destroy]
 
@@ -14,31 +9,35 @@ class EventsController < ApplicationController
 
     case @sort
     when "title"
-      @events = Event.includes(:people)
-                     .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@direction}"))
+      @events = current_user.events.includes(:people)
+                            .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@direction}"))
     when "medium"
-      @events = Event.includes(:people).order(medium: @direction)
+      @events = current_user.events.includes(:people).order(medium: @direction)
     when "participants"
-      events = Event.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
+      events = current_user.events.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
       @events = @direction == "asc" ? events : events.reverse
     else
-      @events = Event.includes(:people).order(occurred_at: @direction)
+      @events = current_user.events.includes(:people).order(occurred_at: @direction)
     end
   end
 
   def show; end
 
   def new
-    @event = Event.new(occurred_at: Time.current)
+    @event = current_user.events.build(occurred_at: Time.current)
+    @people = current_user.people.order(:name)
   end
 
-  def edit; end
+  def edit
+    @people = current_user.people.order(:name)
+  end
 
   def create
-    @event = Event.new(event_params)
+    @event = current_user.events.build(event_params)
     if @event.save
       redirect_to @event, notice: "Event was successfully created."
     else
+      @people = current_user.people.order(:name)
       render :new, status: :unprocessable_content
     end
   end
@@ -47,6 +46,7 @@ class EventsController < ApplicationController
     if @event.update(event_params)
       redirect_to @event, notice: "Event was successfully updated."
     else
+      @people = current_user.people.order(:name)
       render :edit, status: :unprocessable_content
     end
   end
@@ -59,7 +59,7 @@ class EventsController < ApplicationController
   private
 
   def set_event
-    @event = Event.find(params[:id])
+    @event = current_user.events.find(params[:id])
   end
 
   def event_params
@@ -70,7 +70,11 @@ class EventsController < ApplicationController
       :notes,
       person_ids: []
     )
-    permitted[:person_ids] = Array(permitted[:person_ids]).reject(&:blank?)
+    permitted[:person_ids] = sanitize_person_ids(Array(permitted[:person_ids]).reject(&:blank?))
     permitted
+  end
+
+  def sanitize_person_ids(ids)
+    current_user.people.where(id: ids).pluck(:id).map(&:to_s)
   end
 end
