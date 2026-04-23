@@ -18,9 +18,18 @@
                 class: "nav-link #{'active' if current_page?(events_path)}" %>
         </li>
       </ul>
-      <div class="d-flex gap-2">
-        <%= link_to "Add Person", new_person_path, class: "btn btn-outline-secondary btn-sm" %>
-        <%= link_to "Log Event",  new_event_path,  class: "btn btn-primary btn-sm" %>
+      <div class="d-flex align-items-center gap-2">
+        <% if authenticated? %>
+          <span class="navbar-text text-muted small me-1">
+            Signed in as <strong><%= current_user.email %></strong>
+          </span>
+          <%= link_to "Add Person", new_person_path, class: "btn btn-outline-secondary btn-sm" %>
+          <%= link_to "Log Event",  new_event_path,  class: "btn btn-primary btn-sm" %>
+          <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-outline-danger btn-sm" %>
+        <% else %>
+          <%= link_to "Log In",  login_path,  class: "btn btn-outline-secondary btn-sm" %>
+          <%= link_to "Sign Up", signup_path, class: "btn btn-primary btn-sm" %>
+        <% end %>
       </div>
     </div>
   </div>

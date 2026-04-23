@@ -31,14 +31,13 @@
 
   <div>
     <%= f.label :person_ids, "Participants", class: "form-label fw-semibold" %>
-    <% people = Person.order(:name) %>
-    <% if people.empty? %>
+    <% if @people.empty? %>
       <div class="alert alert-warning mb-0">
         Add a <%= link_to "Person", new_person_path, class: "alert-link" %> first.
       </div>
     <% else %>
       <div class="border rounded p-3 bg-white" style="max-height: 260px; overflow-y: auto;">
-        <% people.each do |person| %>
+        <% @people.each do |person| %>
           <div class="form-check">
             <%= check_box_tag "event[person_ids][]", person.id,
                   event.person_ids.include?(person.id),

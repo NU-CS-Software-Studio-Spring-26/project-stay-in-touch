@@ -10,6 +10,7 @@
 class Event < ApplicationRecord
   MEDIA = %w[call coffee text video in_person other].freeze
 
+  belongs_to :user
   has_many :event_participants, dependent: :destroy
   has_many :people, through: :event_participants
 

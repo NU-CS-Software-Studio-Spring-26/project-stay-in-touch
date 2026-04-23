@@ -1,0 +1,44 @@
+<% content_for :title, "Sign Up" %>
+
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h3 mb-4 text-center">Create Account</h1>
+        <%= form_with model: @user, url: signup_path, class: "vstack gap-3" do |f| %>
+          <% if @user.errors.any? %>
+            <div class="alert alert-danger">
+              <strong><%= pluralize(@user.errors.count, "error") %>:</strong>
+              <ul class="mb-0">
+                <% @user.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <div>
+            <%= f.label :email, class: "form-label" %>
+            <%= f.email_field :email, required: true, autofocus: true,
+                  autocomplete: "username", class: "form-control" %>
+          </div>
+          <div>
+            <%= f.label :password, class: "form-label" %>
+            <%= f.password_field :password, required: true,
+                  autocomplete: "new-password", class: "form-control" %>
+            <div class="form-text">Minimum 12 characters.</div>
+          </div>
+          <div>
+            <%= f.label :password_confirmation, "Confirm Password", class: "form-label" %>
+            <%= f.password_field :password_confirmation, required: true,
+                  autocomplete: "new-password", class: "form-control" %>
+          </div>
+          <%= f.submit "Sign Up", class: "btn btn-primary w-100" %>
+        <% end %>
+        <hr>
+        <p class="text-center mb-0 small">
+          Already have an account? <%= link_to "Log in", login_path %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
