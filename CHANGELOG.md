@@ -1,5 +1,18 @@
 # Changelog
 
+## [v1.1.0] — 2026-04-27 — User Authentication & Per-User Data
+
+### Added
+- User accounts: sign-up, login, and logout via Rails 8 session-based authentication
+- All People and Events are now scoped per-user — each user sees only their own data
+- IDOR prevention in EventsController: participant IDs are validated against the current user's people before saving
+- Email uniqueness for People is now scoped per user (two users can each have a contact with the same email)
+- Demo seed user created automatically on `db:seed`
+
+### Changed
+- People and Events tables gained a non-nullable `user_id` foreign key (added nullable in the first deploy, constraint tightened after production backfill via a follow-up migration)
+- Navbar shows Login / Sign Up when logged out, and a Logout link when authenticated
+
 ## [v1.0.0] — 2026-04-22 — MVP Release
 
 ### Added
