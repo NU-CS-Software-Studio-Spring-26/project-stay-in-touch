@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --bs-font-sans-serif: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --bs-primary: #4F46E5;
+  --bs-primary-rgb: 79, 70, 229;
+  --bs-body-bg: #ffffff;
+  --bs-border-color: #E5E7EB;
+  --bs-card-border-color: #E5E7EB;
+}
+
+body {
+  font-family: var(--bs-font-sans-serif);
+  color: #111827;
+}
+
+/* ── Navbar ─────────────────────────────────────────────── */
+.navbar-app {
+  background: #fff;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.navbar-app .navbar-brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+.navbar-app .nav-link {
+  color: #6B7280;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar-app .nav-link:hover,
+.navbar-app .nav-link.active {
+  color: #111827;
+  background: #F3F4F6;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn-primary {
+  background-color: #4F46E5;
+  border-color: #4F46E5;
+}
+.btn-primary:hover {
+  background-color: #4338CA;
+  border-color: #4338CA;
+}
+.btn-outline-primary {
+  color: #4F46E5;
+  border-color: #4F46E5;
+}
+.btn-outline-primary:hover {
+  background-color: #4F46E5;
+  border-color: #4F46E5;
+}
+.btn {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* ── Cards ───────────────────────────────────────────────── */
+.card {
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+/* ── Tables ──────────────────────────────────────────────── */
+.table {
+  font-size: 0.875rem;
+}
+.table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6B7280;
+  border-bottom: 1px solid #E5E7EB;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+.table tbody tr {
+  border-bottom: 1px solid #F3F4F6;
+  transition: background 0.1s;
+}
+.table tbody tr:hover {
+  background-color: #F9FAFB;
+}
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+.table-light {
+  --bs-table-bg: #FAFAFA;
+}
+
+/* ── Status badges ───────────────────────────────────────── */
+.badge {
+  font-weight: 500;
+  font-size: 0.72rem;
+  padding: 0.3em 0.65em;
+  border-radius: 999px;
+}
+.badge-overdue {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+.badge-due-today {
+  background: #FEF3C7;
+  color: #92400E;
+}
+.badge-upcoming {
+  background: #D1FAE5;
+  color: #065F46;
+}
+.badge-none {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+/* Medium badges */
+.badge-medium-call      { background: #EEF2FF; color: #4338CA; }
+.badge-medium-video     { background: #E0F2FE; color: #075985; }
+.badge-medium-coffee    { background: #FEF3C7; color: #92400E; }
+.badge-medium-text      { background: #F3F4F6; color: #374151; }
+.badge-medium-in-person { background: #D1FAE5; color: #065F46; }
+.badge-medium-other     { background: #F5F3FF; color: #5B21B6; }
+
+/* ── Avatar initials ─────────────────────────────────────── */
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+/* ── Sort links ──────────────────────────────────────────── */
+th a.sort-link {
+  color: #6B7280;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color 0.15s;
+}
+th a.sort-link:hover {
+  color: #111827;
+}
+th a.sort-link.active {
+  color: #4F46E5;
+}
+
+/* ── Dropdown menus ──────────────────────────────────────── */
+.dropdown-menu {
+  font-size: 0.875rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 0.35rem;
+  min-width: 130px;
+}
+.dropdown-item {
+  border-radius: 5px;
+  padding: 0.4rem 0.65rem;
+}
+.dropdown-item.text-danger:hover {
+  background: #FEE2E2;
+  color: #B91C1C !important;
+}
+
+/* ── Flash ───────────────────────────────────────────────── */
+.alert {
+  font-size: 0.875rem;
+  border-radius: 8px;
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+footer {
+  font-size: 0.78rem;
+}

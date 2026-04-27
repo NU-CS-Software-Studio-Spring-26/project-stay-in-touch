@@ -2,6 +2,7 @@ require "rails_helper"
 
 RSpec.describe Person, type: :model do
   describe "associations" do
+    it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:event_participants).dependent(:destroy) }
     it { is_expected.to have_many(:events).through(:event_participants) }
   end
@@ -11,7 +12,7 @@ RSpec.describe Person, type: :model do
 
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:email) }
-    it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
+    it { is_expected.to validate_uniqueness_of(:email).case_insensitive.scoped_to(:user_id) }
     it { is_expected.to validate_presence_of(:timezone) }
     it { is_expected.to allow_value("America/Chicago").for(:timezone) }
     it { is_expected.not_to allow_value("Not/A_Zone").for(:timezone) }

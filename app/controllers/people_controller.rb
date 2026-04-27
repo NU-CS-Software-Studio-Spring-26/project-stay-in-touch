@@ -1,11 +1,21 @@
-# Standard REST controller for Person. Nothing clever here — the show page
-# pulls Person#events (via the EventParticipant join) for the timeline
-# section, and the index sorts alphabetically by name.
 class PeopleController < ApplicationController
   before_action :set_person, only: %i[show edit update destroy]
 
+  SORTABLE_COLUMNS = %w[name frequency status].freeze
+
   def index
-    @people = Person.order(:name)
+    @sort = SORTABLE_COLUMNS.include?(params[:sort]) ? params[:sort] : "name"
+    @direction = params[:direction] == "desc" ? "desc" : "asc"
+
+    case @sort
+    when "frequency"
+      @people = current_user.people.order(frequency_weeks: @direction)
+    when "status"
+      people = current_user.people.includes(:events).sort_by { |p| p.days_until_due || -Float::INFINITY }
+      @people = @direction == "desc" ? people.reverse : people
+    else
+      @people = current_user.people.order(name: @direction)
+    end
   end
 
   def show
@@ -13,13 +23,13 @@ class PeopleController < ApplicationController
   end
 
   def new
-    @person = Person.new
+    @person = current_user.people.build
   end
 
   def edit; end
 
   def create
-    @person = Person.new(person_params)
+    @person = current_user.people.build(person_params)
     if @person.save
       redirect_to @person, notice: "Person was successfully created."
     else
@@ -43,7 +53,7 @@ class PeopleController < ApplicationController
   private
 
   def set_person
-    @person = Person.find(params[:id])
+    @person = current_user.people.find(params[:id])
   end
 
   def person_params

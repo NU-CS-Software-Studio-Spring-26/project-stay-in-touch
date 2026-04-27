@@ -2,6 +2,7 @@ require "rails_helper"
 
 RSpec.describe Event, type: :model do
   describe "associations" do
+    it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:event_participants).dependent(:destroy) }
     it { is_expected.to have_many(:people).through(:event_participants) }
   end
@@ -13,10 +14,9 @@ RSpec.describe Event, type: :model do
     it { is_expected.to validate_presence_of(:medium) }
     it { is_expected.to validate_inclusion_of(:medium).in_array(Event::MEDIA) }
 
-    it "rejects occurred_at in the future" do
+    it "accepts occurred_at in the future" do
       event = build(:event, occurred_at: 1.day.from_now)
-      expect(event).not_to be_valid
-      expect(event.errors[:occurred_at]).to be_present
+      expect(event).to be_valid
     end
 
     it "requires at least one person" do

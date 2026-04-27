@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_20_192508) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_23_205744) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -28,7 +28,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_20_192508) do
     t.datetime "occurred_at", null: false
     t.string "title"
     t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
     t.index ["occurred_at"], name: "index_events_on_occurred_at"
+    t.index ["user_id"], name: "index_events_on_user_id"
   end
 
   create_table "people", force: :cascade do |t|
@@ -41,9 +43,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_20_192508) do
     t.integer "preferred_start_hour", default: 9, null: false
     t.string "timezone", default: "America/Chicago", null: false
     t.datetime "updated_at", null: false
-    t.index "LOWER(email)", name: "index_people_on_lower_email", unique: true
+    t.integer "user_id", null: false
+    t.index ["user_id", "email"], name: "index_people_on_user_id_and_email", unique: true
+    t.index ["user_id"], name: "index_people_on_user_id"
+  end
+
+  create_table "sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "people"
+  add_foreign_key "events", "users"
+  add_foreign_key "people", "users"
+  add_foreign_key "sessions", "users"
 end

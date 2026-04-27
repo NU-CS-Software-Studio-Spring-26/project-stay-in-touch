@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :person do
+    association :user
     sequence(:name)  { |n| "Person #{n}" }
     sequence(:email) { |n| "person#{n}@example.com" }
     timezone               { "America/Chicago" }
