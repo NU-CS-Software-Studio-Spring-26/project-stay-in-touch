@@ -1,0 +1,54 @@
+# Overcommit configuration for stay-in-touch.
+#
+# Overcommit is a git-hook framework that runs fast local checks before a
+# commit lands. We keep the pre-commit runner minimal and fast on purpose:
+# heavier checks (rubocop, brakeman, rspec, bundler-audit) run in CI.
+#
+# See: https://github.com/sds/overcommit
+# Teammate setup guide: docs/setup/overcommit.md
+
+# Custom hooks live under .git-hooks/pre_commit/.
+plugin_directory: '.git-hooks'
+
+# Overcommit refuses to run hooks whose signatures have changed since the last
+# `overcommit --sign` run. This prevents a malicious branch from silently
+# adding a hook that runs on your machine.
+verify_signatures: true
+
+PreCommit:
+  # Catches merge markers (<<<<<<<, =======, >>>>>>>) that slipped through.
+  MergeConflicts:
+    enabled: true
+    description: 'Check for merge conflict markers'
+
+  # Parses every staged YAML/YML file. Catches typos in config/*.yml,
+  # .github/workflows/*.yml, etc. before they break boot or CI.
+  YamlSyntax:
+    enabled: true
+    description: 'Check YAML syntax'
+    include:
+      - '**/*.yaml'
+      - '**/*.yml'
+
+  # Secret scanner (custom plugin in .git-hooks/pre_commit/gitleaks.rb).
+  # Scans only the staged diff (`gitleaks git --staged`), not full history,
+  # so the commit stays fast.
+  Gitleaks:
+    enabled: true
+    description: 'Scan staged changes for secrets with gitleaks'
+    required_executable: 'gitleaks'
+    install_command: 'brew install gitleaks  # or see https://github.com/gitleaks/gitleaks'
+    # --staged: scan only what is about to be committed.
+    # --no-banner: quiet output when clean.
+    # --redact: don't echo the actual secret value back to the terminal.
+    # --exit-code 1: non-zero on findings (default; explicit for clarity).
+    flags:
+      - 'git'
+      - '--staged'
+      - '--no-banner'
+      - '--redact'
+      - '--verbose'
+      - '--exit-code'
+      - '1'
+    # Run once per commit, not once per file.
+    requires_files: false
