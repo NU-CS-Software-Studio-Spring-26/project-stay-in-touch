@@ -51,11 +51,16 @@ First-time setup from the project root:
 heroku create stay-in-touch-<team-suffix>        # pick a unique suffix
 heroku addons:create heroku-postgresql:essential-0
 git push heroku claude/m0-rails-foundation:main   # or main once merged
-heroku run rails db:seed
 heroku open
 ```
 
 The `Procfile` runs `rails db:migrate` automatically in the release phase, so subsequent deploys just need `git push heroku main`.
+
+> **Do not run `rails db:seed` against production.** The seed file is
+> development-only — it deletes every row in the People, Events, and Users
+> tables and creates a demo account whose password is committed to this
+> repo. The script will refuse to run if `RAILS_ENV=production`. Sign up a
+> real account through the UI instead.
 
 ## Terminology
 

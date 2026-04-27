@@ -1,4 +1,15 @@
-# Idempotent seed script. `bin/rails db:seed` can be re-run safely.
+# Development/test-only seed script. Re-runnable: wipes every row in the
+# tables below and re-creates a demo user plus example data.
+#
+# Refuse to run against production: the script is destructive (User.delete_all
+# would wipe every real account) and creates a demo account whose password is
+# committed to this public repo. Both behaviors are intentional for local dev
+# and unsafe for prod. See GitHub issues #23 and #24.
+if Rails.env.production?
+  abort "db/seeds.rb is development-only — refusing to run in #{Rails.env}. " \
+        "If you really need to seed prod, do it from the rails console with explicit data."
+end
+
 # Delete order respects the foreign-key graph: join rows first, then Events,
 # then People, then Sessions, then Users.
 puts "Clearing existing data..."

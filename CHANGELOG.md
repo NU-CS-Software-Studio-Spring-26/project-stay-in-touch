@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Security
+- `db/seeds.rb` now refuses to run against `production` (closes #23, #24). The
+  script is destructive (`User.delete_all`, etc.) and creates a demo user with
+  a hardcoded password — both intentional for local dev and unsafe for prod.
+- `README.md` no longer instructs running `heroku run rails db:seed`. Real
+  users should sign up through the UI on the live deployment.
+
 ## [v1.1.0] — 2026-04-27 — User Authentication & Per-User Data
 
 ### Added
