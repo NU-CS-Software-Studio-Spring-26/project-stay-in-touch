@@ -43,6 +43,40 @@ bundle exec rspec
 
 Tests cover model validations, associations, helper methods, and the full CRUD request flow for both resources. The same command runs in CI on every push and pull request.
 
+## Google Calendar integration
+
+Users can optionally connect their Google Calendar so that every new catch-up Event is automatically pushed as a calendar event. The feature is fully optional — if a user hasn't connected, the app works exactly as before.
+
+### How it works
+
+1. User clicks **Connect Google Calendar** on the People page.
+2. They are redirected to Google's OAuth consent screen and grant the `calendar.events` scope.
+3. The resulting tokens are stored in the `google_credentials` table (one record per user).
+4. On every successful `Event#create`, `GoogleCalendarService#push_event` fires and creates a matching Google Calendar event using the person's timezone.
+
+### Local setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → Create credentials → OAuth 2.0 Client ID → Web application.
+2. Add `http://localhost:3000/google/oauth/callback` as an **Authorized redirect URI**.
+3. Copy the credentials and set them in your environment:
+
+```bash
+cp .env.example .env
+# then fill in GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
+```
+
+4. Load them before starting the server (e.g. via `dotenv-rails`, `direnv`, or your shell profile).
+
+### Heroku setup
+
+```bash
+heroku config:set GOOGLE_CLIENT_ID=...
+heroku config:set GOOGLE_CLIENT_SECRET=...
+heroku config:set GOOGLE_REDIRECT_URI=https://<your-app>.herokuapp.com/google/oauth/callback
+```
+
+Add the production redirect URI in the Google Cloud Console as well.
+
 ## Deployment (Heroku)
 
 First-time setup from the project root:
