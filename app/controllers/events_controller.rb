@@ -35,6 +35,7 @@ class EventsController < ApplicationController
   def create
     @event = current_user.events.build(event_params)
     if @event.save
+      push_to_google_calendar(@event) if current_user.google_calendar_connected?
       redirect_to @event, notice: "Event was successfully created."
     else
       @people = current_user.people.order(:name)
@@ -60,6 +61,13 @@ class EventsController < ApplicationController
 
   def set_event
     @event = current_user.events.find(params[:id])
+  end
+
+  def push_to_google_calendar(event)
+    people = event.people.to_a
+    GoogleCalendarService.new(current_user).push_event(event, people)
+  rescue StandardError => e
+    Rails.logger.warn("GoogleCalendarService failed for event #{event.id}: #{e.message}")
   end
 
   def event_params
