@@ -8,6 +8,13 @@ Rails.application.routes.draw do
 
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Google Calendar OAuth
+  namespace :google do
+    get  "oauth/authorize", to: "oauth#authorize", as: :oauth_authorize
+    get  "oauth/callback",  to: "oauth#callback",  as: :oauth_callback
+    delete "oauth",         to: "oauth#destroy",   as: :oauth_disconnect
+  end
+
   resources :people
   resources :events
 

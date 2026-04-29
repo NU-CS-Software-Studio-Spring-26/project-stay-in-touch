@@ -7,6 +7,18 @@ class User < ApplicationRecord
 
   normalizes :email, with: ->(e) { e.strip.downcase }
 
+  def create_or_update_google_credential!(attrs)
+    if google_credential
+      google_credential.update!(attrs)
+    else
+      create_google_credential!(attrs)
+    end
+  end
+
+  def google_calendar_connected?
+    google_credential.present?
+  end
+
   validates :email,    presence: true,
                        uniqueness: { case_sensitive: false },
                        format: { with: URI::MailTo::EMAIL_REGEXP }
