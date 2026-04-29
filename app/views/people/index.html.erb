@@ -12,7 +12,22 @@ end %>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="h4 mb-0 fw-bold">People</h1>
-  <%= link_to "Add Person", new_person_path, class: "btn btn-primary" %>
+  <div class="d-flex gap-2 align-items-center">
+    <% if current_user.google_calendar_connected? %>
+      <span class="text-success small fw-medium">
+        <i class="bi bi-check-circle-fill me-1"></i>Google Calendar connected
+      </span>
+      <%= button_to "Disconnect", google_oauth_disconnect_path,
+            method: :delete,
+            class: "btn btn-sm btn-outline-secondary",
+            form: { data: { turbo_confirm: "Disconnect Google Calendar?" } } %>
+    <% else %>
+      <%= link_to google_oauth_authorize_path, class: "btn btn-sm btn-outline-secondary" do %>
+        <i class="bi bi-google me-1"></i>Connect Google Calendar
+      <% end %>
+    <% end %>
+    <%= link_to "Add Person", new_person_path, class: "btn btn-primary" %>
+  </div>
 </div>
 
 <turbo-frame id="people-table">
