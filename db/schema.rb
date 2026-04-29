@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_23_205744) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_29_182830) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -31,6 +31,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_23_205744) do
     t.integer "user_id", null: false
     t.index ["occurred_at"], name: "index_events_on_occurred_at"
     t.index ["user_id"], name: "index_events_on_user_id"
+  end
+
+  create_table "google_credentials", force: :cascade do |t|
+    t.string "access_token", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "refresh_token", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_google_credentials_on_user_id", unique: true
   end
 
   create_table "people", force: :cascade do |t|
@@ -68,6 +78,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_23_205744) do
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "people"
   add_foreign_key "events", "users"
+  add_foreign_key "google_credentials", "users"
   add_foreign_key "people", "users"
   add_foreign_key "sessions", "users"
 end

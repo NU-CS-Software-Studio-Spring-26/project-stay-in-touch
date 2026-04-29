@@ -1,8 +1,9 @@
 class User < ApplicationRecord
   has_secure_password
-  has_many :sessions, dependent: :destroy
-  has_many :people,   dependent: :destroy
-  has_many :events,   dependent: :destroy
+  has_many :sessions,           dependent: :destroy
+  has_many :people,             dependent: :destroy
+  has_many :events,             dependent: :destroy
+  has_one  :google_credential,  dependent: :destroy
 
   normalizes :email, with: ->(e) { e.strip.downcase }
 
