@@ -101,6 +101,10 @@ GEM
       reline (>= 0.3.8)
     declarative (0.0.20)
     diff-lcs (1.6.2)
+    dotenv (3.2.0)
+    dotenv-rails (3.2.0)
+      dotenv (= 3.2.0)
+      railties (>= 6.1)
     drb (2.2.3)
     erb (6.0.3)
     erubi (1.13.1)
@@ -396,6 +400,7 @@ DEPENDENCIES
   brakeman
   bundler-audit
   debug
+  dotenv-rails (~> 3.2)
   factory_bot_rails (~> 6.4)
   google-apis-calendar_v3 (~> 0.17)
   googleauth (~> 1.11)
@@ -445,6 +450,8 @@ CHECKSUMS
   debug (1.11.1) sha256=2e0b0ac6119f2207a6f8ac7d4a73ca8eb4e440f64da0a3136c30343146e952b6
   declarative (0.0.20) sha256=8021dd6cb17ab2b61233c56903d3f5a259c5cf43c80ff332d447d395b17d9ff9
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
+  dotenv (3.2.0) sha256=e375b83121ea7ca4ce20f214740076129ab8514cd81378161f11c03853fe619d
+  dotenv-rails (3.2.0) sha256=657e25554ba622ffc95d8c4f1670286510f47f2edda9f68293c3f661b303beab
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   erb (6.0.3) sha256=e43685a8a0a0ea6a924871b2162e8953ef73147ce46b75b36d1f6774fd286e91
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
