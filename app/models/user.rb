@@ -23,7 +23,9 @@ class User < ApplicationRecord
                     uniqueness: { case_sensitive: false },
                     format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  validate :password_complexity, if: -> { password.present? }
+  attr_accessor :skip_password_complexity
+
+  validate :password_complexity, if: -> { password.present? && !skip_password_complexity }
 
   private
 
