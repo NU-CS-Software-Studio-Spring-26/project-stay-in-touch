@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "confirm", "toggleBtn", "length", "uppercase", "lowercase", "number", "special"]
+  static targets = ["input", "length", "uppercase", "lowercase", "number", "special"]
 
   check() {
     const val = this.inputTarget.value
@@ -13,13 +13,15 @@ export default class extends Controller {
     this.#rule(this.specialTarget,   /[^A-Za-z\d\s]/.test(val))
   }
 
-  toggle() {
-    const input = this.inputTarget
-    const isPassword = input.type === "password"
-    input.type = isPassword ? "text" : "password"
-    this.toggleBtnTarget.innerHTML = isPassword
-      ? '<i class="bi bi-eye-slash"></i>'
-      : '<i class="bi bi-eye"></i>'
+  // Works for any input-group toggle button — finds its own sibling input.
+  toggle(event) {
+    const btn   = event.currentTarget
+    const input = btn.closest(".input-group").querySelector("input")
+    const showing = input.type === "text"
+    input.type  = showing ? "password" : "text"
+    btn.innerHTML = showing
+      ? '<i class="bi bi-eye"></i>'
+      : '<i class="bi bi-eye-slash"></i>'
   }
 
   #rule(el, passing) {

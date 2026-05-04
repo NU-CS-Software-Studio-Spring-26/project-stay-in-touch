@@ -28,7 +28,6 @@
                     autocomplete: "new-password", class: "form-control",
                     data: { "password-strength-target": "input", action: "input->password-strength#check" } %>
               <button class="btn btn-outline-secondary" type="button"
-                      data-password-strength-target="toggleBtn"
                       data-action="click->password-strength#toggle"
                       tabindex="-1" aria-label="Show/hide password">
                 <i class="bi bi-eye"></i>
@@ -52,12 +51,19 @@
                 <i class="bi bi-circle"></i> At least one special character (!@#$…)
               </li>
             </ul>
-          </div>
 
-          <div>
-            <%= f.label :password_confirmation, "Confirm Password", class: "form-label" %>
-            <%= f.password_field :password_confirmation, required: true,
-                  autocomplete: "new-password", class: "form-control" %>
+            <div class="mt-3">
+              <%= f.label :password_confirmation, "Confirm Password", class: "form-label" %>
+              <div class="input-group">
+                <%= f.password_field :password_confirmation, required: true,
+                      autocomplete: "new-password", class: "form-control" %>
+                <button class="btn btn-outline-secondary" type="button"
+                        data-action="click->password-strength#toggle"
+                        tabindex="-1" aria-label="Show/hide confirm password">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
           </div>
           <%= f.submit "Sign Up", class: "btn btn-primary w-100" %>
         <% end %>
