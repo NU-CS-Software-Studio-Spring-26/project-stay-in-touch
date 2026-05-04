@@ -1,5 +1,5 @@
 module AuthHelpers
-  def sign_in(user, password: "password12345")
+  def sign_in(user, password: "Password1!secure")
     post login_path, params: { email: user.email, password: password }
   end
 end

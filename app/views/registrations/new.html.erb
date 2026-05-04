@@ -21,12 +21,39 @@
             <%= f.email_field :email, required: true, autofocus: true,
                   autocomplete: "username", class: "form-control" %>
           </div>
-          <div>
+          <div data-controller="password-strength">
             <%= f.label :password, class: "form-label" %>
-            <%= f.password_field :password, required: true,
-                  autocomplete: "new-password", class: "form-control" %>
-            <div class="form-text">Minimum 12 characters.</div>
+            <div class="input-group">
+              <%= f.password_field :password, required: true,
+                    autocomplete: "new-password", class: "form-control",
+                    data: { "password-strength-target": "input", action: "input->password-strength#check" } %>
+              <button class="btn btn-outline-secondary" type="button"
+                      data-password-strength-target="toggleBtn"
+                      data-action="click->password-strength#toggle"
+                      tabindex="-1" aria-label="Show/hide password">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+
+            <ul class="list-unstyled mt-2 mb-0 small ps-1" style="line-height: 1.8">
+              <li class="text-secondary" data-password-strength-target="length">
+                <i class="bi bi-circle"></i> More than 10 characters
+              </li>
+              <li class="text-secondary" data-password-strength-target="uppercase">
+                <i class="bi bi-circle"></i> At least one uppercase letter
+              </li>
+              <li class="text-secondary" data-password-strength-target="lowercase">
+                <i class="bi bi-circle"></i> At least one lowercase letter
+              </li>
+              <li class="text-secondary" data-password-strength-target="number">
+                <i class="bi bi-circle"></i> At least one number
+              </li>
+              <li class="text-secondary" data-password-strength-target="special">
+                <i class="bi bi-circle"></i> At least one special character (!@#$…)
+              </li>
+            </ul>
           </div>
+
           <div>
             <%= f.label :password_confirmation, "Confirm Password", class: "form-label" %>
             <%= f.password_field :password_confirmation, required: true,

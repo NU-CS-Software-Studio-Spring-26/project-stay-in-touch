@@ -22,12 +22,38 @@ RSpec.describe User, type: :model do
       expect(user.reload.email).to eq("test@example.com")
     end
 
-    it "requires password of at least 12 characters" do
-      expect(build(:user, password: "tooshort123", password_confirmation: "tooshort123")).not_to be_valid
-    end
+    describe "password complexity" do
+      let(:base) { "Password1!" }
 
-    it "is valid with a 12-character password" do
-      expect(build(:user, password: "password12345", password_confirmation: "password12345")).to be_valid
+      it "is invalid when 10 characters or fewer" do
+        pw = "Passw0rd!x"[0, 10]
+        expect(build(:user, password: pw, password_confirmation: pw)).not_to be_valid
+      end
+
+      it "is invalid without an uppercase letter" do
+        pw = "password1!secure"
+        expect(build(:user, password: pw, password_confirmation: pw)).not_to be_valid
+      end
+
+      it "is invalid without a lowercase letter" do
+        pw = "PASSWORD1!SECURE"
+        expect(build(:user, password: pw, password_confirmation: pw)).not_to be_valid
+      end
+
+      it "is invalid without a number" do
+        pw = "Password!!secure"
+        expect(build(:user, password: pw, password_confirmation: pw)).not_to be_valid
+      end
+
+      it "is invalid without a special character" do
+        pw = "Password1secure"
+        expect(build(:user, password: pw, password_confirmation: pw)).not_to be_valid
+      end
+
+      it "is valid when all requirements are met" do
+        pw = "Password1!secure"
+        expect(build(:user, password: pw, password_confirmation: pw)).to be_valid
+      end
     end
   end
 end

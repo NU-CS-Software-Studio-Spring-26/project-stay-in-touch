@@ -19,8 +19,19 @@ class User < ApplicationRecord
     google_credential.present?
   end
 
-  validates :email,    presence: true,
-                       uniqueness: { case_sensitive: false },
-                       format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :password, length: { minimum: 12 }, allow_nil: true
+  validates :email, presence: true,
+                    uniqueness: { case_sensitive: false },
+                    format: { with: URI::MailTo::EMAIL_REGEXP }
+
+  validate :password_complexity, if: -> { password.present? }
+
+  private
+
+  def password_complexity
+    errors.add(:password, "must be more than 10 characters")      if password.length <= 10
+    errors.add(:password, "must include at least one uppercase letter") unless password.match?(/[A-Z]/)
+    errors.add(:password, "must include at least one lowercase letter") unless password.match?(/[a-z]/)
+    errors.add(:password, "must include at least one number")           unless password.match?(/\d/)
+    errors.add(:password, "must include at least one special character") unless password.match?(/[^A-Za-z\d\s]/)
+  end
 end
