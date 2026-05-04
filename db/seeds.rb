@@ -1,4 +1,10 @@
-# Idempotent seed script. `bin/rails db:seed` can be re-run safely.
+# Idempotent seed script for development/test only.
+# NEVER run db:seed in production — it wipes all data.
+if Rails.env.production?
+  puts "Skipping seeds in production."
+  return
+end
+
 # Delete order respects the foreign-key graph: join rows first, then Events,
 # then People, then Sessions, then Users.
 puts "Clearing existing data..."
@@ -8,11 +14,14 @@ Person.delete_all
 Session.delete_all
 User.delete_all
 
-puts "Creating demo user..."
+seed_email    = ENV.fetch("SEED_USER_EMAIL",    "demo@example.com")
+seed_password = ENV.fetch("SEED_USER_PASSWORD", "Demo1!password")
+
+puts "Creating demo user (#{seed_email})..."
 demo_user = User.create!(
-  email: "demo@example.com",
-  password: "password12345",
-  password_confirmation: "password12345"
+  email: seed_email,
+  password: seed_password,
+  password_confirmation: seed_password
 )
 
 puts "Seeding people..."
@@ -77,4 +86,4 @@ events_data.each do |row|
   )
 end
 
-puts "Seeded 1 user (demo@example.com / password12345), #{Person.count} people, #{Event.count} events."
+puts "Seeded 1 user (#{seed_email}), #{Person.count} people, #{Event.count} events."
