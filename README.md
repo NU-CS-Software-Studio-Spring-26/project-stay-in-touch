@@ -20,8 +20,7 @@ The long-term vision (see `wiki.md`) builds on top of this foundation: mutual op
 | Tais Martinez | [@taismartinezz](https://github.com/taismartinezz) |
 
 ## Live app
-
-> Heroku URL: https://stay-in-touch-cs396-743fabf79c08.herokuapp.com/
+> Heroku URL: https://rocky-cove-15980-acbcac59777d.herokuapp.com/
 
 ## Local development
 
