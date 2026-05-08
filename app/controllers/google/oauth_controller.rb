@@ -4,6 +4,7 @@ require "json"
 module Google
   class OauthController < ApplicationController
     allow_unauthenticated_access only: [ :authorize, :callback ]
+    before_action :require_google_credentials, only: [ :authorize, :callback ]
 
     CALENDAR_SCOPES = %w[https://www.googleapis.com/auth/calendar.events].freeze
     SIGNIN_SCOPES   = %w[openid
@@ -113,6 +114,14 @@ module Google
     end
 
     # ── Shared ─────────────────────────────────────────────────────────────────
+
+    def require_google_credentials
+      missing = %w[GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REDIRECT_URI].reject { |k| ENV[k].present? }
+      return if missing.empty?
+
+      Rails.logger.error("Google OAuth missing env vars: #{missing.join(', ')}")
+      redirect_to login_path, alert: "Google sign-in is not configured. Please contact support."
+    end
 
     def build_client(scopes)
       Signet::OAuth2::Client.new(
