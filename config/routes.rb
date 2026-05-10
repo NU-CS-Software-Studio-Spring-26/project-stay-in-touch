@@ -18,6 +18,9 @@ Rails.application.routes.draw do
   get "privacy", to: "pages#privacy"
   get "about",   to: "pages#about"
 
+  get "manifest", to: "pwa#manifest", defaults: { format: :json }
+  get "offline",  to: "pwa#offline"
+
   resources :people
   resources :events
 
