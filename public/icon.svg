@@ -1,3 +1,18 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- White iOS/Android-style App Background -->
+  <rect width="512" height="512" rx="115" fill="#FFFFFF"/>
+  
+  <!-- Back Speech Bubble (Solid Indigo, Top-Left) -->
+  <path d="M320 200 C320 266.27 266.27 320 200 320 C180.26 320 161.64 315.24 145.2 306.8 L80 320 L93.2 254.8 C84.76 238.36 80 219.74 80 200 C80 133.73 133.73 80 200 80 C266.27 80 320 133.73 320 200 Z" fill="#4F46E5"/>
+  
+  <!-- Clock Icon inside Back Bubble (White) -->
+  <circle cx="200" cy="200" r="42" fill="none" stroke="#FFFFFF" stroke-width="12"/>
+  <path d="M200 170 L200 200 L216 216" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Front Speech Bubble (White Fill, Thick Outline, Bottom-Right) -->
+  <path d="M432 312 C432 245.73 378.27 192 312 192 C245.73 192 192 245.73 192 312 C192 378.27 245.73 432 312 432 C331.74 432 350.36 427.24 366.8 418.8 L432 432 L418.8 366.8 C427.24 350.36 432 331.74 432 312 Z" fill="#FFFFFF" stroke="#4F46E5" stroke-width="22" stroke-linejoin="round"/>
+
+  <!-- Friend / Person Icon inside Front Bubble (Indigo) -->
+  <circle cx="312" cy="280" r="28" fill="#4F46E5"/>
+  <path d="M360 355 C360 335 340 325 312 325 C284 325 264 335 264 355 L264 360 L360 360 Z" fill="#4F46E5"/>
 </svg>
