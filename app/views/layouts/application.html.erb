@@ -43,7 +43,14 @@
 
     <footer class="bg-white border-top py-3 mt-auto">
       <div class="container text-center text-muted small">
-        Stay In Touch - Northwestern CS Software Studio, Spring 2026
+        <span>Stay In Touch &mdash; Northwestern CS Software Studio, Spring 2026</span>
+        <span class="mx-2">&middot;</span>
+        <%= link_to "Privacy Policy", privacy_path, class: "text-muted" %>
+        <span class="mx-2">&middot;</span>
+        <%= link_to "About", about_path, class: "text-muted" %>
+        <span class="mx-2">&middot;</span>
+        <%= link_to "GitHub", "https://github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch",
+              target: "_blank", rel: "noopener noreferrer", class: "text-muted" %>
       </div>
     </footer>
 
