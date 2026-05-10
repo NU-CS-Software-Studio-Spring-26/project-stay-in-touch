@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- RuboCop added to CI pipeline as a `lint` job; deploy gate now requires lint to pass
+- Configured `.rubocop.yml` to allow `%i[ ]` / `%w[ ]` bracket style produced by Rails generators
+
 ## [v1.2.0] — 2026-05-10 — Pagination & Large Dataset Support
 
 ### Added
