@@ -15,6 +15,9 @@ Rails.application.routes.draw do
     delete "oauth",         to: "oauth#destroy",   as: :oauth_disconnect
   end
 
+  get "privacy", to: "pages#privacy"
+  get "about",   to: "pages#about"
+
   resources :people
   resources :events
 

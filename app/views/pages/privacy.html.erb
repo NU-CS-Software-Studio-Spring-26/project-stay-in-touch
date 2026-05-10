@@ -1,0 +1,40 @@
+<% content_for :title, "Privacy Policy" %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <h1 class="h3 fw-bold mb-1">Privacy Policy</h1>
+    <p class="text-muted small mb-4">Last updated: May 2026</p>
+
+    <div class="vstack gap-4">
+      <section>
+        <h2 class="h5 fw-semibold">What we collect</h2>
+        <ul class="text-muted">
+          <li><strong>Account:</strong> your email address and a hashed password (or a Google-verified email if you sign in with Google).</li>
+          <li><strong>Contacts:</strong> names, email addresses, timezones, preferred hours, and notes you enter for the people you want to stay in touch with.</li>
+          <li><strong>Events:</strong> dates, types, titles, and notes for the catch-ups you log.</li>
+          <li><strong>Session data:</strong> IP address and user-agent stored temporarily to keep you logged in.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="h5 fw-semibold">How we use it</h2>
+        <p class="text-muted">Your data is used solely to provide the Stay In Touch service — showing you who to reach out to and keeping a history of your catch-ups. We do not sell, share, or use your data for advertising.</p>
+      </section>
+
+      <section>
+        <h2 class="h5 fw-semibold">How to request deletion</h2>
+        <p class="text-muted">To delete your account and all associated data, email us at
+          <a href="mailto:stayintouch.cs396@gmail.com">stayintouch.cs396@gmail.com</a>
+          with the subject line <em>"Delete my account"</em>. We will permanently remove your data within 7 days.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="h5 fw-semibold">Third-party services</h2>
+        <p class="text-muted">If you connect Google Calendar, we store an OAuth access token to write events on your behalf. You can disconnect this at any time from the People page. We do not read your existing calendar data.</p>
+      </section>
+    </div>
+
+    <p class="mt-4"><%= link_to "← Back", :back, class: "text-muted small" %></p>
+  </div>
+</div>

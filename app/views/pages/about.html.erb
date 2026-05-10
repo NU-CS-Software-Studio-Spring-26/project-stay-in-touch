@@ -1,0 +1,36 @@
+<% content_for :title, "About" %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <h1 class="h3 fw-bold mb-1">About Stay In Touch</h1>
+    <p class="text-muted small mb-4">Northwestern CS Software Studio, Spring 2026</p>
+
+    <div class="vstack gap-4">
+      <section>
+        <p class="text-muted">Stay In Touch is a personal CRM for maintaining friendships intentionally. Track the people you care about, log your catch-ups, and see at a glance who you're overdue to reach out to — without the awkwardness of a formal reminder.</p>
+        <p class="text-muted">Built as a class project for Northwestern University's CS Software Studio course.</p>
+      </section>
+
+      <section>
+        <h2 class="h5 fw-semibold">Team</h2>
+        <ul class="text-muted">
+          <li>Matthew Khoriaty</li>
+          <li>Rohit Katakam</li>
+          <li>Joshua Yao</li>
+          <li>Tais Martinez</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="h5 fw-semibold">Source code</h2>
+        <p class="text-muted">
+          <%= link_to "github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch",
+                "https://github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch",
+                target: "_blank", rel: "noopener noreferrer" %>
+        </p>
+      </section>
+    </div>
+
+    <p class="mt-4"><%= link_to "← Back", :back, class: "text-muted small" %></p>
+  </div>
+</div>

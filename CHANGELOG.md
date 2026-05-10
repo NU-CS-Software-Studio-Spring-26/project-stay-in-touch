@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+- Privacy Policy page (`/privacy`) describing data collected, how it's used, and deletion instructions
+- About page (`/about`) with team roster and link to the GitHub repo
+- Footer links to Privacy Policy, About, and GitHub on every page — both pages are accessible without login
+
 ### Changed
 - RuboCop added to CI pipeline as a `lint` job; deploy gate now requires lint to pass
 - Configured `.rubocop.yml` to allow `%i[ ]` / `%w[ ]` bracket style produced by Rails generators
