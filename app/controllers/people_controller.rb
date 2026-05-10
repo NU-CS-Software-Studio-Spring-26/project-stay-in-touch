@@ -9,12 +9,13 @@ class PeopleController < ApplicationController
 
     case @sort
     when "frequency"
-      @people = current_user.people.order(frequency_weeks: @direction)
+      @pagy, @people = pagy(current_user.people.order(frequency_weeks: @direction))
     when "status"
-      people = current_user.people.includes(:events).sort_by { |p| p.days_until_due || -Float::INFINITY }
-      @people = @direction == "desc" ? people.reverse : people
+      sorted = current_user.people.includes(:events).sort_by { |p| p.days_until_due || -Float::INFINITY }
+      sorted = sorted.reverse if @direction == "desc"
+      @pagy, @people = pagy_array(sorted)
     else
-      @people = current_user.people.order(name: @direction)
+      @pagy, @people = pagy(current_user.people.order(name: @direction))
     end
   end
 

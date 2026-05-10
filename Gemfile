@@ -40,6 +40,7 @@ group :development, :test do
   # RSpec-based testing harness (matches class hw2 convention)
   gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.4"
+  gem "faker", "~> 3.5"
 end
 
 group :test do
@@ -58,6 +59,7 @@ group :development do
 end
 
 gem "bcrypt", "~> 3.1"
+gem "pagy", "~> 9.3"
 
 # Google Calendar integration
 gem "google-apis-calendar_v3", "~> 0.17"

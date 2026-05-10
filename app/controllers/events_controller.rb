@@ -9,15 +9,16 @@ class EventsController < ApplicationController
 
     case @sort
     when "title"
-      @events = current_user.events.includes(:people)
-                            .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@direction}"))
+      @pagy, @events = pagy(current_user.events.includes(:people)
+                                         .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@direction}")))
     when "medium"
-      @events = current_user.events.includes(:people).order(medium: @direction)
+      @pagy, @events = pagy(current_user.events.includes(:people).order(medium: @direction))
     when "participants"
-      events = current_user.events.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
-      @events = @direction == "asc" ? events : events.reverse
+      sorted = current_user.events.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
+      sorted = sorted.reverse if @direction == "asc"
+      @pagy, @events = pagy_array(sorted)
     else
-      @events = current_user.events.includes(:people).order(occurred_at: @direction)
+      @pagy, @events = pagy(current_user.events.includes(:people).order(occurred_at: @direction))
     end
   end
 

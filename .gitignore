@@ -39,6 +39,9 @@
 .env.*
 !.env.example
 
+# Claude Code local settings (machine-specific).
+.claude/
+
 # macOS metadata.
 .DS_Store
 
@@ -53,3 +56,5 @@
 # Node (if ever used).
 /node_modules
 /yarn-error.log
+
+CLAUDE.md
