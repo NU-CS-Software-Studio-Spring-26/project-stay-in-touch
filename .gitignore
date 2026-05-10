@@ -39,6 +39,9 @@
 .env.*
 !.env.example
 
+# Claude Code local settings (machine-specific).
+.claude/
+
 # macOS metadata.
 .DS_Store
 

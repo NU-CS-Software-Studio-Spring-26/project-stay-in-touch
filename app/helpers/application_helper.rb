@@ -1,4 +1,5 @@
 module ApplicationHelper
+  include Pagy::Frontend
   # Map Rails flash types to Bootstrap contextual classes.
   def flash_bootstrap_class(flash_type)
     case flash_type.to_s

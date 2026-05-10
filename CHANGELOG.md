@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.2.0] — 2026-05-10 — Pagination & Large Dataset Support
+
+### Added
+- Pagy pagination (25 per page) on People and Events index pages — both DB-sorted and Ruby-sorted columns work correctly
+- Bootstrap pagination nav renders only when there is more than one page; empty-state messages still display correctly with zero records
+- Large seed dataset: 10 demo users, 550 people, 1650 events (demo login: `demo@example.com` / `Demo1!password`; extra users `user2–10@example.com` same password)
+- Faker gem added to dev/test for realistic generated names and emails
+
 ## [v1.1.0] — 2026-04-27 — User Authentication & Per-User Data
 
 ### Added

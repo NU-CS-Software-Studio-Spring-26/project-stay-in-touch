@@ -13,7 +13,7 @@ end %>
   <%= link_to "Log Event", new_event_path, class: "btn btn-primary" %>
 </div>
 
-<% if @events.empty? %>
+<% if @events.none? %>
   <div class="alert alert-info">
     No events logged yet. <%= link_to "Log your first one", new_event_path, class: "alert-link" %>.
   </div>
@@ -67,4 +67,9 @@ end %>
       </table>
     </div>
   </div>
+  <% if @pagy&.pages.to_i > 1 %>
+    <div class="d-flex justify-content-center mt-3">
+      <%== pagy_bootstrap_nav(@pagy) %>
+    </div>
+  <% end %>
 <% end %>
