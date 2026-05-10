@@ -14,8 +14,12 @@ class Event < ApplicationRecord
   has_many :event_participants, dependent: :destroy
   has_many :people, through: :event_participants
 
+  normalizes :title, with: ->(t) { t.strip }
+
   validates :occurred_at, presence: true
   validates :medium, presence: true, inclusion: { in: MEDIA }
+  validates :title, length: { maximum: 255 }, allow_blank: true
+  validates :notes, length: { maximum: 5000 }, allow_blank: true
   validate  :must_have_at_least_one_person
 
   scope :recent, -> { order(occurred_at: :desc) }
