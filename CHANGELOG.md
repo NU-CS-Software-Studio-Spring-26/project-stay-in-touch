@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Added
+- Length limits on all free-text fields: `name`/`email`/`title` capped at 255 chars, `notes` at 5000 chars — validated server-side and enforced via `maxlength` on form inputs
+- `normalizes :name` on Person and `normalizes :title` on Event to strip leading/trailing whitespace before saving
 - Privacy Policy page (`/privacy`) describing data collected, how it's used, and deletion instructions
 - About page (`/about`) with team roster and link to the GitHub repo
 - Footer links to Privacy Policy, About, and GitHub on every page — both pages are accessible without login
