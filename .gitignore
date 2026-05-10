@@ -56,3 +56,5 @@
 # Node (if ever used).
 /node_modules
 /yarn-error.log
+
+CLAUDE.md
