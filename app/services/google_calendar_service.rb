@@ -16,6 +16,60 @@ class GoogleCalendarService
     service.insert_event("primary", calendar_event)
   end
 
+  # Returns up to max_slots suggested 30-min meeting start times (as TimeWithZone in
+  # person's timezone) that are free on both the user's and person's calendar and fall
+  # within the person's preferred hours.
+  def suggest_times(person, days_ahead: 7, max_slots: 5)
+    service   = build_service
+    now       = Time.now.utc
+    window_end = (now + days_ahead.days)
+
+    request = Google::Apis::CalendarV3::FreeBusyRequest.new(
+      time_min: now.iso8601,
+      time_max: window_end.iso8601,
+      items:    [ { id: "primary" }, { id: person.email } ]
+    )
+    response = service.query_freebusy(request)
+
+    busy = []
+    response.calendars.each_value do |cal|
+      next if cal.errors&.any?
+      cal.busy.each do |slot|
+        busy << [ slot.start, slot.end ]
+      end
+    end
+
+    busy.sort_by!(&:first)
+    merged = busy.each_with_object([]) do |(s, e), acc|
+      if acc.empty? || s > acc.last[1]
+        acc << [ s, e ]
+      else
+        acc.last[1] = [ acc.last[1], e ].max
+      end
+    end
+
+    tz       = person.timezone
+    start_h  = person.preferred_start_hour
+    end_h    = person.preferred_end_hour
+    duration = 30.minutes
+    cursor   = now.ceil(30.minutes)
+    slots    = []
+
+    while cursor + duration <= window_end && slots.size < max_slots
+      local = cursor.in_time_zone(tz)
+      if local.hour >= start_h && local.hour < end_h
+        slot_end   = cursor + duration
+        overlaps   = merged.any? { |s, e| cursor < e && slot_end > s }
+        slots << local unless overlaps
+      end
+      cursor += duration
+    end
+
+    slots
+  rescue StandardError
+    []
+  end
+
   private
 
   def build_service

@@ -47,6 +47,31 @@
   </div>
 </div>
 
+<% if current_user.google_calendar_connected? %>
+  <% if @suggested_times.any? %>
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Suggested meeting times</h2>
+        <ul class="list-unstyled mb-0">
+          <% @suggested_times.each do |slot| %>
+            <li class="mb-1">
+              <span class="text-body-secondary"><%= slot.strftime("%a %b %-d") %></span>
+              &middot;
+              <strong><%= slot.strftime("%-I:%M %p %Z") %></strong>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body text-muted small">
+      <%= link_to "Connect Google Calendar", google_oauth_authorize_path %> to see suggested meeting times.
+    </div>
+  </div>
+<% end %>
+
 <div class="d-flex justify-content-between align-items-center mb-2">
   <h2 class="h5 mb-0">Recent events</h2>
   <%= link_to "Log Event", new_event_path, class: "btn btn-sm btn-primary" %>

@@ -21,6 +21,11 @@ class PeopleController < ApplicationController
 
   def show
     @events = @person.events.recent
+    @suggested_times = if current_user.google_calendar_connected?
+      GoogleCalendarService.new(current_user).suggest_times(@person)
+    else
+      []
+    end
   end
 
   def new
