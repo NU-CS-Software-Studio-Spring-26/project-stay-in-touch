@@ -41,7 +41,7 @@ group :development, :test do
   gem "erb_lint", require: false
 
   # RSpec-based testing harness (matches class hw2 convention)
-  gem "rspec-rails", "~> 7.1"
+  gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails", "~> 6.4"
   gem "faker", "~> 3.5"
 end
