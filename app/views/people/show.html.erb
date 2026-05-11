@@ -47,6 +47,18 @@
   </div>
 </div>
 
+<% if @suggested_message.present? %>
+  <div class="card shadow-sm mb-4" data-controller="clipboard">
+    <div class="card-body">
+      <h2 class="h6 mb-2">AI-suggested message — edit before sending.</h2>
+      <textarea class="form-control mb-2" rows="3" data-clipboard-target="source"><%= @suggested_message %></textarea>
+      <button class="btn btn-sm btn-outline-secondary" data-action="click->clipboard#copy">
+        Copy to clipboard
+      </button>
+    </div>
+  </div>
+<% end %>
+
 <% if current_user.google_calendar_connected? %>
   <% if @suggested_times.any? %>
     <div class="card shadow-sm mb-4">
