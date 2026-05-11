@@ -49,6 +49,48 @@ RSpec.describe "People", type: :request do
       get person_path(other_person)
       expect(response).to redirect_to(root_path)
     end
+
+    context "AI reconnect message card" do
+      let(:person) { create(:person, user: user) }
+
+      context "when OPENROUTER_API_KEY is set and the service returns a message" do
+        before do
+          stub_const("ENV", ENV.to_h.merge("OPENROUTER_API_KEY" => "sk-test"))
+          allow_any_instance_of(ReconnectMessageService).to receive(:call).and_return("Hey, let's catch up!")
+        end
+
+        it "shows the AI message card" do
+          get person_path(person)
+          expect(response.body).to include("Hey, let&#39;s catch up!")
+          expect(response.body).to include("AI-suggested message")
+        end
+      end
+
+      context "when OPENROUTER_API_KEY is not set" do
+        before do
+          stub_const("ENV", ENV.to_h.except("OPENROUTER_API_KEY"))
+        end
+
+        it "omits the AI message card without error" do
+          get person_path(person)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).not_to include("AI-suggested message")
+        end
+      end
+
+      context "when OPENROUTER_API_KEY is set but the service returns nil (API error)" do
+        before do
+          stub_const("ENV", ENV.to_h.merge("OPENROUTER_API_KEY" => "sk-test"))
+          allow_any_instance_of(ReconnectMessageService).to receive(:call).and_return(nil)
+        end
+
+        it "omits the AI message card without error" do
+          get person_path(person)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).not_to include("AI-suggested message")
+        end
+      end
+    end
   end
 
   describe "GET /people/new" do

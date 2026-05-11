@@ -66,3 +66,6 @@ gem "google-apis-calendar_v3", "~> 0.17"
 gem "googleauth", "~> 1.11"
 
 gem "dotenv-rails", "~> 3.2", groups: [:development, :test]
+
+# OpenAI-compatible client for AI message generation via OpenRouter
+gem "ruby-openai"

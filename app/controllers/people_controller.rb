@@ -26,6 +26,9 @@ class PeopleController < ApplicationController
     else
       []
     end
+    if ENV["OPENROUTER_API_KEY"].present?
+      @suggested_message = ReconnectMessageService.new(@person, current_user).call
+    end
   end
 
   def new
