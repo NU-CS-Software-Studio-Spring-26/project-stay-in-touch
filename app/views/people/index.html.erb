@@ -30,6 +30,19 @@ end %>
   </div>
 </div>
 
+<div data-controller="people-search">
+  <div class="mb-3">
+    <label for="people-search-input" class="visually-hidden">Filter people</label>
+    <input type="text"
+           id="people-search-input"
+           class="form-control"
+           placeholder="Filter by name…"
+           autocomplete="off"
+           data-people-search-target="input"
+           data-action="input->people-search#filter"
+           aria-label="Filter people">
+  </div>
+
 <turbo-frame id="people-table">
   <% if @people.empty? %>
     <div class="alert alert-info">
@@ -52,7 +65,7 @@ end %>
             <% @people.each do |person| %>
               <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
               <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
-              <tr>
+              <tr data-people-search-target="row" data-name="<%= person.name %>">
                 <td>
                   <div class="d-flex align-items-center gap-2">
                     <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
@@ -107,3 +120,4 @@ end %>
     </div>
   <% end %>
 </turbo-frame>
+</div>
