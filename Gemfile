@@ -48,7 +48,7 @@ end
 
 group :test do
   # Concise validation/association matchers for RSpec
-  gem "shoulda-matchers", "~> 6.4"
+  gem "shoulda-matchers", "~> 7.0"
 end
 
 group :production do
