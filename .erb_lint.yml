@@ -1,0 +1,12 @@
+---
+EnableDefaultLinters: true
+linters:
+  ErbSafety:
+    enabled: true
+  # RuboCop already lints .rb files separately; disabling it here avoids
+  # false positives on inline Ruby expressions inside ERB tags.
+  Rubocop:
+    enabled: false
+  # SpaceInHtmlTag produces false positives on inline SVG <path d="..."> data.
+  SpaceInHtmlTag:
+    enabled: false

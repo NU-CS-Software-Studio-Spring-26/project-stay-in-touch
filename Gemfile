@@ -37,6 +37,9 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
+  # ERB template linting [https://github.com/Shopify/erb-lint]
+  gem "erb_lint", require: false
+
   # RSpec-based testing harness (matches class hw2 convention)
   gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.4"
