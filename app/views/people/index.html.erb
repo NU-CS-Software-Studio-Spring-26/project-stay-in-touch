@@ -65,8 +65,8 @@ end %>
                 </td>
                 <td class="text-muted d-none d-md-table-cell">
                   <%= person.email %>
-                  <%= link_to "mailto:#{person.email}", title: "Send email", class: "ms-1 text-muted" do %>
-                    <i class="bi bi-envelope"></i>
+                  <%= link_to "mailto:#{person.email}", aria: { label: "Send email to #{person.email}" }, class: "ms-1 text-muted" do %>
+                    <i class="bi bi-envelope" aria-hidden="true"></i>
                   <% end %>
                 </td>
                 <td class="text-end text-muted"><%= "every %g wk" % person.frequency_weeks %></td>

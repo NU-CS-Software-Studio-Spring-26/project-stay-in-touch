@@ -28,7 +28,7 @@ body {
 }
 
 .navbar-app .nav-link {
-  color: #6B7280;
+  color: #4B5563;
   font-weight: 500;
   font-size: 0.875rem;
   padding: 0.35rem 0.65rem;
@@ -80,7 +80,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #6B7280;
+  color: #4B5563;
   border-bottom: 1px solid #E5E7EB;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
@@ -120,7 +120,7 @@ body {
 }
 .badge-none {
   background: #F3F4F6;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 /* Medium badges */
@@ -147,7 +147,7 @@ body {
 
 /* ── Sort links ──────────────────────────────────────────── */
 th a.sort-link {
-  color: #6B7280;
+  color: #4B5563;
   text-decoration: none;
   font-size: 0.75rem;
   font-weight: 600;
