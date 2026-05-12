@@ -1,12 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
+/*
+ * Palette — verified against WCAG 2.1 (webaim.org/resources/contrastchecker)
+ *
+ *   body text  #111827 on #FFFFFF  17.74:1  AAA
+ *   primary    #FFFFFF on #4338CA   7.90:1  AAA   (was 6.29:1 on #4F46E5)
+ *   link       #3730A3 on #FFFFFF   9.93:1  AAA   (was 4.50:1 on #0d6efd)
+ *   muted      #4B5563 on #FFFFFF   7.56:1  AAA   (was 6.76:1 composited)
+ */
 :root {
   --bs-font-sans-serif: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --bs-primary: #4F46E5;
-  --bs-primary-rgb: 79, 70, 229;
+  --bs-primary: #4338CA;
+  --bs-primary-rgb: 67, 56, 202;
   --bs-body-bg: #ffffff;
   --bs-border-color: #E5E7EB;
   --bs-card-border-color: #E5E7EB;
+  --bs-secondary-color: #4B5563;
+  --bs-secondary-color-rgb: 75, 85, 99;
+  --bs-link-color: #3730A3;
+  --bs-link-color-rgb: 55, 48, 163;
+  --bs-link-hover-color: #1E1B4B;
+  --bs-link-hover-color-rgb: 30, 27, 75;
 }
 
 body {
@@ -44,20 +58,20 @@ body {
 
 /* ── Buttons ─────────────────────────────────────────────── */
 .btn-primary {
-  background-color: #4F46E5;
-  border-color: #4F46E5;
-}
-.btn-primary:hover {
   background-color: #4338CA;
   border-color: #4338CA;
 }
+.btn-primary:hover {
+  background-color: #3730A3;
+  border-color: #3730A3;
+}
 .btn-outline-primary {
-  color: #4F46E5;
-  border-color: #4F46E5;
+  color: #4338CA;
+  border-color: #4338CA;
 }
 .btn-outline-primary:hover {
-  background-color: #4F46E5;
-  border-color: #4F46E5;
+  background-color: #4338CA;
+  border-color: #4338CA;
 }
 .btn {
   font-weight: 500;
@@ -159,7 +173,7 @@ th a.sort-link:hover {
   color: #111827;
 }
 th a.sort-link.active {
-  color: #4F46E5;
+  color: #4338CA;
 }
 
 /* ── Dropdown menus ──────────────────────────────────────── */
