@@ -189,3 +189,16 @@ th a.sort-link.active {
 footer {
   font-size: 0.78rem;
 }
+
+/* ── Keyboard focus indicator ────────────────────────────── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.btn:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid #4338CA;
+  outline-offset: 2px;
+  box-shadow: none;
+}
