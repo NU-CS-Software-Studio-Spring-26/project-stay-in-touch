@@ -85,13 +85,13 @@ end %>
                 <td class="text-end text-muted"><%= "every %g wk" % person.frequency_weeks %></td>
                 <td>
                   <% label, css = days_until_due_badge(person.days_until_due) %>
-                  <span class="badge <%= css %>"><%= label %></span>
+                  <span class="badge <%= css %>"><i class="bi bi-clock" aria-hidden="true"></i> <%= label %></span>
                 </td>
                 <td class="text-end text-nowrap">
                   <div class="dropdown">
                     <button class="btn btn-sm btn-outline-secondary px-2" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false"
-                            aria-label="Options for <%= person.name %>">
+                            aria-label="More options for <%= person.name %>">
                       &#8943;
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm">
