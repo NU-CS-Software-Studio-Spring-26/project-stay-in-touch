@@ -190,6 +190,28 @@ footer {
   font-size: 0.78rem;
 }
 
+/* ── Skip link ───────────────────────────────────────────── */
+.skip-link:focus,
+.skip-link:focus-visible {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1080;
+  padding: 0.5rem 0.85rem;
+  background: #4338CA;
+  color: #ffffff;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+#main-content:focus {
+  outline: none;
+}
+
 /* ── Keyboard focus indicator ────────────────────────────── */
 a:focus-visible,
 button:focus-visible,
