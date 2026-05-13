@@ -53,9 +53,9 @@ end %>
           <thead>
             <tr>
               <th><%= sort_link.call("name", "Name") %></th>
-              <th class="d-none d-md-table-cell">Email</th>
-              <th class="text-end"><%= sort_link.call("frequency", "Frequency") %></th>
-              <th><%= sort_link.call("status", "Status") %></th>
+              <th class="d-none d-md-table-cell">Contact</th>
+              <th class="text-end"><%= sort_link.call("frequency", "Catch up every") %></th>
+              <th><%= sort_link.call("status", "Due") %></th>
               <th style="width: 1%;"></th>
             </tr>
           </thead>
@@ -147,9 +147,9 @@ end %>
           <thead>
             <tr>
               <th><%= event_sort_link.call("date", "When") %></th>
-              <th><%= event_sort_link.call("title", "Title") %></th>
-              <th><%= event_sort_link.call("medium", "Medium") %></th>
-              <th><%= event_sort_link.call("participants", "Participants") %></th>
+              <th><%= event_sort_link.call("title", "Event") %></th>
+              <th><%= event_sort_link.call("medium", "Via") %></th>
+              <th><%= event_sort_link.call("participants", "With") %></th>
               <th style="width: 1%;"></th>
             </tr>
           </thead>
