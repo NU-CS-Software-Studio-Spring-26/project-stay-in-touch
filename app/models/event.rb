@@ -5,7 +5,7 @@
 # Schema (see db/schema.rb for the authoritative version):
 #   occurred_at  :datetime not null  (indexed)
 #   medium       :string   not null  (one of Event::MEDIA)
-#   title        :string   nullable  (falls back to "<medium> on <date>")
+#   title        :string   nullable  (falls back to medium name)
 #   notes        :text     nullable
 class Event < ApplicationRecord
   MEDIA = %w[call coffee text video in_person other].freeze
@@ -25,7 +25,7 @@ class Event < ApplicationRecord
   scope :recent, -> { order(occurred_at: :desc) }
 
   def display_title
-    title.presence || "#{medium.titleize} on #{occurred_at.to_date}"
+    title.presence || medium.titleize
   end
 
   private
