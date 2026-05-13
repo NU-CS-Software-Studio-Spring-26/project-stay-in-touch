@@ -31,4 +31,4 @@ en:
   hello: "Hello world"
   time:
     formats:
-      datetime: "%B %-d, %Y %-l:%M%P"
+      datetime: "%m/%d at %H:%M"
