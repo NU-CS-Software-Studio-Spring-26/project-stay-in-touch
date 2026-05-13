@@ -44,6 +44,15 @@
   <% end %>
 
   <div>
+    <%= f.label :duration_minutes, "How long?", class: "form-label fw-semibold" %>
+    <%= f.select :duration_minutes,
+          [["15 minutes", 15], ["30 minutes", 30], ["45 minutes", 45],
+           ["1 hour", 60], ["1.5 hours", 90], ["2 hours", 120]],
+          { selected: (event.duration_minutes.presence || 60) },
+          class: "form-select" %>
+  </div>
+
+  <div>
     <%= f.label :medium, class: "form-label" %>
     <%= f.select :medium,
           Event::MEDIA.map { |m| [m.titleize, m] },

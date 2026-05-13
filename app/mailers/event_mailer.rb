@@ -1,9 +1,12 @@
 class EventMailer < ApplicationMailer
+  CHICAGO_TZ = "America/Chicago"
+
   def calendar_invite(event, person, organizer)
-    @event     = event
-    @person    = person
-    @organizer = organizer
-    @slot_time = event.occurred_at.in_time_zone(person.timezone.presence || "UTC")
+    @event          = event
+    @person         = person
+    @organizer      = organizer
+    @slot_time      = event.occurred_at.in_time_zone(person.timezone.presence || CHICAGO_TZ)
+    @duration_label = format_duration(event.duration_minutes || 60)
 
     attachments["invite.ics"] = {
       mime_type: "text/calendar; method=REQUEST",
@@ -19,9 +22,11 @@ class EventMailer < ApplicationMailer
   private
 
   def generate_ical
-    start_utc = @event.occurred_at.utc
-    end_utc   = (@event.occurred_at + 30.minutes).utc
-    fmt       = "%Y%m%dT%H%M%SZ"
+    tz_name     = CHICAGO_TZ
+    local_start = @event.occurred_at.in_time_zone(tz_name)
+    local_end   = local_start + (@event.duration_minutes || 60).minutes
+    fmt_local   = "%Y%m%dT%H%M%S"
+    fmt_utc     = "%Y%m%dT%H%M%SZ"
 
     lines = [
       "BEGIN:VCALENDAR",
@@ -31,9 +36,9 @@ class EventMailer < ApplicationMailer
       "METHOD:REQUEST",
       "BEGIN:VEVENT",
       "UID:event-#{@event.id}-#{SecureRandom.hex(6)}@stayintouch",
-      "DTSTAMP:#{Time.now.utc.strftime(fmt)}",
-      "DTSTART:#{start_utc.strftime(fmt)}",
-      "DTEND:#{end_utc.strftime(fmt)}",
+      "DTSTAMP:#{Time.now.utc.strftime(fmt_utc)}",
+      "DTSTART;TZID=#{tz_name}:#{local_start.strftime(fmt_local)}",
+      "DTEND;TZID=#{tz_name}:#{local_end.strftime(fmt_local)}",
       fold_line("SUMMARY:#{@event.display_title}"),
       fold_line("ORGANIZER;CN=\"#{@organizer.email}\":mailto:#{@organizer.email}"),
       fold_line("ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;" \
@@ -45,6 +50,18 @@ class EventMailer < ApplicationMailer
     ]
 
     lines.join("\r\n") + "\r\n"
+  end
+
+  def format_duration(minutes)
+    case minutes.to_i
+    when 15  then "15 minutes"
+    when 30  then "30 minutes"
+    when 45  then "45 minutes"
+    when 60  then "1 hour"
+    when 90  then "1.5 hours"
+    when 120 then "2 hours"
+    else          "#{minutes} minutes"
+    end
   end
 
   def fold_line(line)

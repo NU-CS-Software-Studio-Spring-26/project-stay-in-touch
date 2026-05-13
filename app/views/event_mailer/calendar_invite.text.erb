@@ -4,7 +4,7 @@ Hi <%= @person.name.split.first %>,
 
   <%= @event.display_title %>
   When: <%= @slot_time.strftime("%A, %B %-d at %-I:%M %p %Z") %>
-  Duration: 30 minutes
+  Duration: <%= @duration_label %>
   Organized by: <%= @organizer.email %>
 
 Open the attached .ics file to accept or decline this invitation.

@@ -68,8 +68,11 @@ class EventsController < ApplicationController
   end
 
   def find_scheduled_slot
-    window_days = params.dig(:event, :window_days).to_i
-    window_days = 3 if window_days < 1
+    window_days  = params.dig(:event, :window_days).to_i
+    window_days  = 3 if window_days < 1
+
+    duration_min = params.dig(:event, :duration_minutes).to_i
+    duration_min = 60 if duration_min < 15
 
     from_h, from_m = parse_time_param(params.dig(:event, :preferred_from))
     to_h,   _to_m  = parse_time_param(params.dig(:event, :preferred_to))
@@ -77,7 +80,12 @@ class EventsController < ApplicationController
 
     if current_user.google_calendar_connected?
       GoogleCalendarService.new(current_user)
-                           .find_earliest_slot(window_days: window_days, from_hour: from_h, to_hour: to_h)
+                           .find_earliest_slot(
+                             window_days:   window_days,
+                             from_hour:     from_h,
+                             to_hour:       to_h,
+                             slot_duration: duration_min.minutes
+                           )
     end || default_slot(window_days, from_h, from_m)
   end
 
@@ -111,6 +119,7 @@ class EventsController < ApplicationController
   def event_params
     permitted = params.require(:event).permit(
       :occurred_at,
+      :duration_minutes,
       :medium,
       :title,
       :notes,
