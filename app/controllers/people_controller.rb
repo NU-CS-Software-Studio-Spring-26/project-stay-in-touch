@@ -9,13 +9,31 @@ class PeopleController < ApplicationController
 
     case @sort
     when "frequency"
-      @pagy, @people = pagy(current_user.people.order(frequency_weeks: @direction))
+      @people_pagy, @people = pagy(current_user.people.order(frequency_weeks: @direction))
     when "status"
       sorted = current_user.people.includes(:events).sort_by { |p| p.days_until_due || -Float::INFINITY }
       sorted = sorted.reverse if @direction == "desc"
-      @pagy, @people = pagy_array(sorted)
+      @people_pagy, @people = pagy_array(sorted)
     else
-      @pagy, @people = pagy(current_user.people.order(name: @direction))
+      @people_pagy, @people = pagy(current_user.people.order(name: @direction))
+    end
+
+    event_sortable = %w[date title medium participants]
+    @event_sort      = event_sortable.include?(params[:event_sort]) ? params[:event_sort] : "date"
+    @event_direction = params[:event_direction] == "asc" ? "asc" : "desc"
+
+    case @event_sort
+    when "title"
+      @event_pagy, @events = pagy(current_user.events.includes(:people)
+                                    .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@event_direction}")))
+    when "medium"
+      @event_pagy, @events = pagy(current_user.events.includes(:people).order(medium: @event_direction))
+    when "participants"
+      sorted = current_user.events.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
+      sorted = sorted.reverse if @event_direction == "asc"
+      @event_pagy, @events = pagy_array(sorted)
+    else
+      @event_pagy, @events = pagy(current_user.events.includes(:people).order(occurred_at: @event_direction))
     end
   end
 
