@@ -156,7 +156,7 @@ end %>
           <tbody>
             <% @events.each do |event| %>
               <tr>
-                <td class="text-nowrap text-muted"><%= l event.occurred_at.to_date %></td>
+                <td class="text-nowrap text-muted"><%= l event.occurred_at, format: :datetime %></td>
                 <td><%= link_to event.display_title, event_path(event), class: "text-decoration-none fw-medium text-dark" %></td>
                 <td><span class="badge <%= medium_badge_class(event.medium) %>"><%= event.medium.titleize %></span></td>
                 <td>
