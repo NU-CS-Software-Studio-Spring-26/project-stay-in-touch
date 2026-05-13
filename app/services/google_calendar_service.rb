@@ -40,6 +40,42 @@ class GoogleCalendarService
     []
   end
 
+  # Finds the earliest 15-min-aligned free 30-min slot within the next window_days days,
+  # restricted to hours [from_hour, to_hour) in the user's timezone. Returns a UTC Time,
+  # or nil if no slot found.
+  def find_earliest_slot(window_days:, from_hour:, to_hour:, buffer: 15.minutes)
+    service    = build_service
+    now        = Time.current
+    window_end = now + window_days.days
+
+    request = Google::Apis::CalendarV3::FreeBusyRequest.new(
+      time_min: now.iso8601,
+      time_max: window_end.iso8601,
+      items:    [{ id: "primary" }]
+    )
+    response = service.query_freebusy(request)
+    cal  = response.calendars["primary"] || response.calendars.values.first
+    busy = (cal && !cal.errors&.any?) ? cal.busy.map { |s| [s.start, s.end] } : []
+
+    cursor = now.ceil(15.minutes)
+    tz     = Time.zone
+
+    while cursor + 30.minutes <= window_end
+      local = cursor.in_time_zone(tz)
+      if local.hour >= from_hour && local.hour < to_hour
+        slot_end = cursor + 30.minutes
+        free = busy.none? { |s, e| cursor < e + buffer && slot_end > s - buffer }
+        return cursor if free
+      end
+      cursor += 15.minutes
+    end
+
+    nil
+  rescue StandardError => e
+    Rails.logger.warn("find_earliest_slot failed: #{e.message}")
+    nil
+  end
+
   # Returns up to max_slots suggested 30-min meeting start times (as TimeWithZone in
   # person's timezone) that are free on both the user's and person's calendar and fall
   # within the person's preferred hours.

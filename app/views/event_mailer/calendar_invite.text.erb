@@ -1,0 +1,13 @@
+Hi <%= @person.name.split.first %>,
+
+<%= @organizer.email.split("@").first %> has scheduled a catch-up with you.
+
+  <%= @event.display_title %>
+  When: <%= @slot_time.strftime("%A, %B %-d at %-I:%M %p %Z") %>
+  Duration: 30 minutes
+  Organized by: <%= @organizer.email %>
+
+Open the attached .ics file to accept or decline this invitation.
+
+---
+Does this time not work for you? Join Stay In Touch at <%= signup_url %> and connect your Google Calendar for more precise scheduling.

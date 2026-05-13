@@ -22,9 +22,7 @@ Rails.application.routes.draw do
   get "offline",  to: "pwa#offline"
 
   resources :people
-  resources :events do
-    collection { get :available_slots }
-  end
+  resources :events
 
   root "people#index"
 end

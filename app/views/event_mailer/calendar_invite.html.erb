@@ -1,0 +1,25 @@
+<p>Hi <%= @person.name.split.first %>,</p>
+
+<p><strong><%= @organizer.email.split("@").first %></strong> has scheduled a catch-up with you.</p>
+
+<div class="event-card">
+  <h2><%= @event.display_title %></h2>
+  <p><strong>When:</strong> <%= @slot_time.strftime("%A, %B %-d at %-I:%M %p %Z") %></p>
+  <p><strong>Duration:</strong> 30 minutes</p>
+  <p><strong>Organized by:</strong> <%= @organizer.email %></p>
+</div>
+
+<p>This event appears in your calendar as <strong>tentative</strong>. Open the attached calendar file to accept or decline — your email app will show Accept / Decline / Maybe buttons automatically.</p>
+
+<div class="rsvp">
+  <span class="btn btn-accept" style="color:#fff;">✓ Accept in your email app</span>
+  <span class="btn btn-decline">✗ Decline in your email app</span>
+</div>
+
+<div class="footer">
+  <p>
+    Does this time not work for you?
+    <%= link_to "Join Stay In Touch", signup_url %> and connect your Google Calendar for more precise scheduling.
+  </p>
+  <p style="margin-top: 8px;">This invitation was sent via Stay In Touch on behalf of <%= @organizer.email %>.</p>
+</div>

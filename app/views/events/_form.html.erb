@@ -6,31 +6,56 @@
     </div>
   <% end %>
 
-  <div class="row g-3" data-controller="time-slots">
-    <div class="col-md-6">
+  <% if event.new_record? %>
+    <div>
+      <span class="form-label d-block fw-semibold mb-2">When</span>
+      <div class="vstack gap-1 mb-3">
+        <% [["3", "In the next 3 days"], ["5", "In the next 5 days"], ["10", "In the next 10 days"], ["30", "In the next month"]].each do |val, label| %>
+          <div class="form-check">
+            <%= radio_button_tag "event[window_days]", val, val == "3",
+                  class: "form-check-input", id: "window_#{val}" %>
+            <%= label_tag "window_#{val}", label, class: "form-check-label" %>
+          </div>
+        <% end %>
+      </div>
+      <div class="row g-2">
+        <div class="col">
+          <label for="event_preferred_from" class="form-label small text-muted">Preferred from</label>
+          <%= time_field_tag "event[preferred_from]", "09:00",
+                class: "form-control", id: "event_preferred_from" %>
+        </div>
+        <div class="col">
+          <label for="event_preferred_to" class="form-label small text-muted">Preferred until</label>
+          <%= time_field_tag "event[preferred_to]", "17:00",
+                class: "form-control", id: "event_preferred_to" %>
+        </div>
+      </div>
+      <div class="form-text">
+        We'll find the earliest open slot in your calendar within this window and time range.
+      </div>
+    </div>
+  <% else %>
+    <div>
       <%= f.label :occurred_at, "When", class: "form-label" %>
       <%= f.datetime_local_field :occurred_at,
-            value: (event.occurred_at || Time.current).strftime("%Y-%m-%dT%H:%M"),
-            class: "form-control", required: true,
-            data: { "time-slots-target": "dateInput", action: "change->time-slots#onDateChange" } %>
-      <% if current_user.google_calendar_connected? %>
-        <div data-time-slots-target="slots" class="mt-2"></div>
-      <% end %>
+            value: event.occurred_at.strftime("%Y-%m-%dT%H:%M"),
+            class: "form-control", required: true %>
     </div>
-    <div class="col-md-6">
-      <%= f.label :medium, class: "form-label" %>
-      <%= f.select :medium,
-            Event::MEDIA.map { |m| [m.titleize, m] },
-            { prompt: "Select a medium" },
-            class: "form-select", required: true %>
-    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :medium, class: "form-label" %>
+    <%= f.select :medium,
+          Event::MEDIA.map { |m| [m.titleize, m] },
+          { prompt: "Select a medium" },
+          class: "form-select", required: true %>
   </div>
 
   <div>
     <%= f.label :title, "Title (optional)", class: "form-label" %>
     <%= f.text_field :title, class: "form-control",
           placeholder: "e.g., Birthday dinner", maxlength: 255 %>
-    <div class="form-text">Leave blank to auto-label as "&lt;medium&gt; on &lt;date&gt;".</div>
+    <div class="form-text">Give it a name, or leave blank and we'll figure it out.</div>
   </div>
 
   <fieldset>
@@ -51,7 +76,7 @@
           </div>
         <% end %>
       </div>
-      <div class="form-text">Select every person involved - pick multiple for group catch-ups.</div>
+      <div class="form-text">Select every person involved — pick multiple for group catch-ups.</div>
     <% end %>
   </fieldset>
 
@@ -62,8 +87,8 @@
   </div>
 
   <div class="d-flex gap-2">
-    <%= f.submit class: "btn btn-primary" %>
-    <%= link_to "Cancel", (event.persisted? ? event_path(event) : events_path),
+    <%= f.submit (event.new_record? ? "Schedule Catch-Up" : "Update Event"), class: "btn btn-primary" %>
+    <%= link_to "Cancel", (event.persisted? ? event_path(event) : root_path),
           class: "btn btn-outline-secondary" %>
   </div>
 <% end %>
