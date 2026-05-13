@@ -217,6 +217,76 @@ footer {
   box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.15);
 }
 
+/* ── Avatar XL ───────────────────────────────────────────── */
+.avatar-xl {
+  width: 64px;
+  height: 64px;
+  font-size: 1.25rem;
+}
+
+/* ── Stat chips ──────────────────────────────────────────── */
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #F3F4F6;
+  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+/* ── Suggested time slot chips ───────────────────────────── */
+.slot-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color: #111827;
+}
+.slot-chip:hover {
+  border-color: #4338CA;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+  color: #4338CA;
+}
+
+/* ── Event timeline ──────────────────────────────────────── */
+.event-timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+.event-timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: #E5E7EB;
+}
+.event-timeline-item {
+  position: relative;
+  margin-bottom: 1rem;
+}
+.event-timeline-dot {
+  position: absolute;
+  left: -1.5rem;
+  top: 1rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #E5E7EB;
+}
+.event-timeline-body {
+  margin-left: 0.25rem;
+}
+
 /* ── Medium filter pills ─────────────────────────────────── */
 [data-medium="all"].active        { background: #4338CA; color: #fff; border-color: #4338CA; }
 [data-medium="call"].active       { background: #4338CA; color: #fff; border-color: #4338CA; }
