@@ -46,9 +46,9 @@ RSpec.describe Event, type: :model do
       expect(event.display_title).to eq("Birthday dinner")
     end
 
-    it "falls back to medium + date when title blank" do
+    it "falls back to medium name when title blank" do
       event = build(:event, title: "", medium: "call", occurred_at: Time.zone.local(2026, 1, 5))
-      expect(event.display_title).to eq("Call on 2026-01-05")
+      expect(event.display_title).to eq("Call")
     end
   end
 end
