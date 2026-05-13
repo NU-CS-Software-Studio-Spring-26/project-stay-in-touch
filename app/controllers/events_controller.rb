@@ -22,6 +22,37 @@ class EventsController < ApplicationController
     end
   end
 
+  def available_slots
+    return render json: [] if params[:date].blank?
+
+    begin
+      date = Date.parse(params[:date])
+    rescue ArgumentError
+      return render json: []
+    end
+
+    tz        = Time.find_zone(params[:tz]) || Time.zone
+    day_start = tz.local(date.year, date.month, date.day, 8, 0)
+    day_end   = tz.local(date.year, date.month, date.day, 20, 0)
+
+    busy = begin
+      current_user.google_calendar_connected? ?
+        GoogleCalendarService.new(current_user).busy_for_day(date, tz) : []
+    rescue StandardError
+      []
+    end
+
+    slots  = []
+    cursor = day_start
+    while cursor + 15.minutes <= day_end
+      blocked = busy.any? { |s, e| cursor < e + 15.minutes && cursor + 15.minutes > s }
+      slots << cursor unless blocked
+      cursor += 15.minutes
+    end
+
+    render json: slots.map { |t| { value: t.strftime("%H:%M"), label: t.strftime("%-I:%M %p") } }
+  end
+
   def show; end
 
   def new

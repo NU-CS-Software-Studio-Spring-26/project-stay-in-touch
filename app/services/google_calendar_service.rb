@@ -16,6 +16,30 @@ class GoogleCalendarService
     service.insert_event("primary", calendar_event)
   end
 
+  # Returns busy [start, end] Time pairs for the user's primary calendar on a given date.
+  def busy_for_day(date, tz)
+    service  = build_service
+    time_min = tz.local(date.year, date.month, date.day, 0, 0).iso8601
+    time_max = tz.local(date.year, date.month, date.day, 23, 59, 59).iso8601
+
+    result = service.list_events(
+      "primary",
+      time_min:      time_min,
+      time_max:      time_max,
+      single_events: true,
+      order_by:      "startTime"
+    )
+
+    (result.items || []).filter_map do |ev|
+      next if ev.start.nil? || ev.end.nil?
+      s = ev.start.date_time || Time.parse(ev.start.date.to_s)
+      e = ev.end.date_time   || Time.parse(ev.end.date.to_s)
+      [s, e]
+    end
+  rescue StandardError
+    []
+  end
+
   # Returns up to max_slots suggested 30-min meeting start times (as TimeWithZone in
   # person's timezone) that are free on both the user's and person's calendar and fall
   # within the person's preferred hours.
