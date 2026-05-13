@@ -8,17 +8,7 @@
     </button>
 
     <div class="collapse navbar-collapse" id="primary-nav">
-      <ul class="navbar-nav me-auto gap-1">
-        <li class="nav-item">
-          <%= link_to "People", people_path,
-                class: "nav-link #{'active' if current_page?(people_path)}" %>
-        </li>
-        <li class="nav-item">
-          <%= link_to "Events", events_path,
-                class: "nav-link #{'active' if current_page?(events_path)}" %>
-        </li>
-      </ul>
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2 ms-auto">
         <% if authenticated? %>
           <span class="navbar-text text-muted small me-1">
             Signed in as <strong><%= current_user.email %></strong>
