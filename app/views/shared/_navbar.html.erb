@@ -8,14 +8,28 @@
     </button>
 
     <div class="collapse navbar-collapse" id="primary-nav">
+      <% if authenticated? %>
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <%= link_to "People", root_path,
+                  class: "nav-link #{"active fw-semibold" if request.path == root_path || request.path.start_with?(people_path)}" %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "Events", events_path,
+                  class: "nav-link #{"active fw-semibold" if request.path.start_with?(events_path)}" %>
+          </li>
+        </ul>
+      <% end %>
       <div class="d-flex align-items-center gap-2 ms-auto">
         <% if authenticated? %>
           <span class="navbar-text text-muted small me-1">
             Signed in as <strong><%= current_user.email %></strong>
           </span>
-          <%= link_to "Add Person", new_person_path, class: "btn btn-outline-secondary btn-sm" %>
-          <%= link_to "Log Event",  new_event_path,  class: "btn btn-primary btn-sm" %>
+          <%= link_to "Log Event", new_event_path, class: "btn btn-primary btn-sm" %>
           <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-outline-danger btn-sm" %>
+          <%= link_to edit_settings_path, class: "text-muted", aria: { label: "Settings" } do %>
+            <i class="bi bi-gear fs-5"></i>
+          <% end %>
         <% else %>
           <%= link_to "Log In",  login_path,  class: "btn btn-outline-secondary btn-sm" %>
           <%= link_to "Sign Up", signup_path, class: "btn btn-primary btn-sm" %>

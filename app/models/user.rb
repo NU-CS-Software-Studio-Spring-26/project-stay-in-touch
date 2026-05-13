@@ -22,6 +22,8 @@ class User < ApplicationRecord
   validates :email, presence: true,
                     uniqueness: { case_sensitive: false },
                     format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :timezone, presence: true,
+                       inclusion: { in: ActiveSupport::TimeZone::MAPPING.values }
 
   attr_accessor :skip_password_complexity
 

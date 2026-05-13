@@ -28,18 +28,54 @@ end %>
   </div>
 </div>
 
-<div data-controller="people-search">
-  <div class="mb-3">
-    <label for="people-search-input" class="visually-hidden">Filter people</label>
+<% if @overdue_people.any? %>
+  <div class="card border-warning mb-4" style="background: #FFFBEB;">
+    <div class="card-body">
+      <h2 class="h6 fw-semibold text-warning-emphasis mb-3">
+        <i class="bi bi-clock-history me-1"></i>Time to reach out
+      </h2>
+      <ul class="list-unstyled mb-0 vstack gap-2">
+        <% @overdue_people.each do |person| %>
+          <% days_ago = ((Time.current - person.latest_event.occurred_at) / 1.day).round %>
+          <li class="d-flex justify-content-between align-items-center">
+            <span>
+              You haven't caught up with
+              <%= link_to person.name, person_path(person), class: "fw-semibold text-decoration-none" %>
+              in <strong><%= days_ago %> days</strong>
+              <span class="text-muted small">(every <%= "%g wk" % person.frequency_weeks %>)</span>
+            </span>
+            <%= link_to "Log catch-up", new_event_path(person_id: person.id), class: "btn btn-sm btn-warning" %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>
+
+<%= form_with url: root_path, method: :get,
+      data: { controller: "auto-submit", turbo_frame: "people-table" },
+      class: "mb-3" do %>
+  <label for="people-search-input" class="visually-hidden">Search people</label>
+  <div class="input-group">
     <input type="text"
            id="people-search-input"
+           name="q"
+           value="<%= params[:q] %>"
            class="form-control"
-           placeholder="Filter by name…"
+           placeholder="Search by name…"
            autocomplete="off"
-           data-people-search-target="input"
-           data-action="input->people-search#filter"
-           aria-label="Filter people">
+           aria-label="Search people"
+           data-auto-submit-target="input"
+           data-action="input->auto-submit#inputChanged">
+    <button class="btn btn-outline-secondary" type="submit">
+      <i class="bi bi-search"></i>
+    </button>
   </div>
+  <input type="hidden" name="sort" value="<%= @sort %>">
+  <input type="hidden" name="direction" value="<%= @direction %>">
+<% end %>
+
+<div>
 
 <turbo-frame id="people-table">
   <% if @people.empty? %>
@@ -63,15 +99,17 @@ end %>
             <% @people.each do |person| %>
               <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
               <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
-              <tr data-people-search-target="row" data-name="<%= person.name %>">
+              <tr>
                 <td>
                   <div class="d-flex align-items-center gap-2">
                     <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
                       <%= initials %>
                     </span>
-                    <%= link_to person.name, person_path(person),
+                    <%= link_to person_path(person),
                           class: "text-decoration-none fw-medium text-dark",
-                          data: { turbo_frame: "_top" } %>
+                          data: { turbo_frame: "_top" } do %>
+                      <%= highlight_match(person.name, params[:q]) %>
+                    <% end %>
                   </div>
                 </td>
                 <td class="text-muted d-none d-md-table-cell">
@@ -119,81 +157,3 @@ end %>
   <% end %>
 </turbo-frame>
 </div>
-
-<hr class="my-5">
-
-<% event_sort_link = ->(col, label) do
-  next_dir = (@event_sort == col && @event_direction == "desc") ? "asc" : "desc"
-  arrow = @event_sort == col ? (@event_direction == "desc" ? " ▼" : " ▲") : ""
-  active_class = @event_sort == col ? "active" : ""
-  link_to "#{label}#{arrow}", root_path(event_sort: col, event_direction: next_dir),
-    class: "sort-link #{active_class}"
-end %>
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="h4 mb-0 fw-bold">Events</h2>
-  <%= link_to "Log Event", new_event_path, class: "btn btn-primary" %>
-</div>
-
-<turbo-frame id="events-table">
-  <% if @events.none? %>
-    <div class="alert alert-info">
-      No events logged yet. <%= link_to "Log your first one", new_event_path, class: "alert-link" %>.
-    </div>
-  <% else %>
-    <div class="card" style="overflow: visible;">
-      <div class="table-responsive" style="overflow: visible;">
-        <table class="table table-hover mb-0 align-middle">
-          <thead>
-            <tr>
-              <th><%= event_sort_link.call("date", "When") %></th>
-              <th><%= event_sort_link.call("title", "Event") %></th>
-              <th><%= event_sort_link.call("medium", "Via") %></th>
-              <th><%= event_sort_link.call("participants", "With") %></th>
-              <th style="width: 1%;"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @events.each do |event| %>
-              <tr>
-                <td class="text-nowrap text-muted"><%= l event.occurred_at, format: :datetime %></td>
-                <td><%= link_to event.display_title, event_path(event), class: "text-decoration-none fw-medium text-dark" %></td>
-                <td><span class="badge <%= medium_badge_class(event.medium) %>"><%= event.medium.titleize %></span></td>
-                <td>
-                  <%= safe_join(event.people.map { |p|
-                        link_to p.name, person_path(p), class: "text-decoration-none text-muted"
-                      }, ", ") %>
-                </td>
-                <td class="text-end text-nowrap">
-                  <div class="dropup">
-                    <button class="btn btn-sm border-0 bg-transparent px-2" type="button"
-                            data-bs-toggle="dropdown" data-bs-strategy="fixed" aria-expanded="false"
-                            aria-label="More options for <%= event.display_title %>">
-                      &#8943;
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                      <li><%= link_to "View", event_path(event), class: "dropdown-item" %></li>
-                      <li><%= link_to "Edit", edit_event_path(event), class: "dropdown-item" %></li>
-                      <li><hr class="dropdown-divider"></li>
-                      <li>
-                        <%= button_to "Delete", event_path(event),
-                              method: :delete,
-                              form: { data: { turbo_confirm: "Remove this event?" } },
-                              class: "dropdown-item text-danger" %>
-                      </li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  <% end %>
-  <% if @event_pagy&.pages.to_i > 1 %>
-    <div class="d-flex justify-content-center mt-3">
-      <%== pagy_bootstrap_nav(@event_pagy) %>
-    </div>
-  <% end %>
-</turbo-frame>

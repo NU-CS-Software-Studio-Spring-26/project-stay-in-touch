@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_13_200424) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_13_214915) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -48,20 +48,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_13_200424) do
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.decimal "frequency_weeks", precision: 5, scale: 2, default: "4.0", null: false
-    t.datetime "invited_at"
-    t.string "invitee_access_token"
-    t.string "invitee_refresh_token"
-    t.datetime "invitee_token_expires_at"
     t.string "name", null: false
     t.text "notes"
     t.integer "preferred_end_hour", default: 21, null: false
     t.integer "preferred_start_hour", default: 9, null: false
-    t.integer "scheduling_status", default: 0, null: false
-    t.string "scheduling_token"
     t.string "timezone", default: "America/Chicago", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
-    t.index ["scheduling_token"], name: "index_people_on_scheduling_token", unique: true
     t.index ["user_id", "email"], name: "index_people_on_user_id_and_email", unique: true
     t.index ["user_id"], name: "index_people_on_user_id"
   end
@@ -81,6 +74,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_13_200424) do
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.string "password_digest", null: false
+    t.string "timezone", default: "America/Chicago", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end

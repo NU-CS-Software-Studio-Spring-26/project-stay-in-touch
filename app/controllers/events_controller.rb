@@ -7,18 +7,27 @@ class EventsController < ApplicationController
     @sort      = SORTABLE_COLUMNS.include?(params[:sort]) ? params[:sort] : "date"
     @direction = params[:direction] == "asc" ? "asc" : "desc"
 
+    events_scope = current_user.events
+    if params[:q].present?
+      q = "%#{params[:q].downcase}%"
+      events_scope = events_scope
+        .joins("LEFT JOIN event_participants ep ON ep.event_id = events.id LEFT JOIN people ON people.id = ep.person_id")
+        .where("LOWER(COALESCE(events.title, '')) LIKE ? OR LOWER(events.medium) LIKE ? OR LOWER(people.name) LIKE ?", q, q, q)
+        .distinct
+    end
+
     case @sort
     when "title"
-      @pagy, @events = pagy(current_user.events.includes(:people)
-                                         .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@direction}")))
+      @pagy, @events = pagy(events_scope.includes(:people)
+                                        .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@direction}")))
     when "medium"
-      @pagy, @events = pagy(current_user.events.includes(:people).order(medium: @direction))
+      @pagy, @events = pagy(events_scope.includes(:people).order(medium: @direction))
     when "participants"
-      sorted = current_user.events.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
+      sorted = events_scope.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
       sorted = sorted.reverse if @direction == "asc"
       @pagy, @events = pagy_array(sorted)
     else
-      @pagy, @events = pagy(current_user.events.includes(:people).order(occurred_at: @direction))
+      @pagy, @events = pagy(events_scope.includes(:people).order(occurred_at: @direction))
     end
   end
 
@@ -26,6 +35,9 @@ class EventsController < ApplicationController
 
   def new
     @event  = current_user.events.build
+    if params[:person_id].present? && current_user.people.exists?(params[:person_id])
+      @event.person_ids = [params[:person_id]]
+    end
     @people = current_user.people.order(:name)
   end
 
