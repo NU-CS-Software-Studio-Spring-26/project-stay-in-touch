@@ -22,12 +22,12 @@
         <div class="col">
           <label for="event_preferred_from" class="form-label small text-muted">Preferred from</label>
           <%= time_field_tag "event[preferred_from]", "09:00",
-                class: "form-control", id: "event_preferred_from" %>
+                class: "form-control", id: "event_preferred_from", autocomplete: "off" %>
         </div>
         <div class="col">
           <label for="event_preferred_to" class="form-label small text-muted">Preferred until</label>
           <%= time_field_tag "event[preferred_to]", "17:00",
-                class: "form-control", id: "event_preferred_to" %>
+                class: "form-control", id: "event_preferred_to", autocomplete: "off" %>
         </div>
       </div>
       <div class="form-text">
