@@ -27,6 +27,9 @@
           </span>
           <%= link_to "Log Event", new_event_path, class: "btn btn-primary btn-sm" %>
           <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-outline-danger btn-sm" %>
+          <%= link_to edit_settings_path, class: "text-muted", aria: { label: "Settings" } do %>
+            <i class="bi bi-gear fs-5"></i>
+          <% end %>
         <% else %>
           <%= link_to "Log In",  login_path,  class: "btn btn-outline-secondary btn-sm" %>
           <%= link_to "Sign Up", signup_path, class: "btn btn-primary btn-sm" %>

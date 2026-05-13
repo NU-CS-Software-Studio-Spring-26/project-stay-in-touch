@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_13_200424) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_13_214915) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -74,6 +74,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_13_200424) do
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.string "password_digest", null: false
+    t.string "timezone", default: "America/Chicago", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end

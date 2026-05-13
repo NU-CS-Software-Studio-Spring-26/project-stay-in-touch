@@ -31,7 +31,20 @@
       <dd class="col-sm-9"><%= "%g week(s)" % @person.frequency_weeks %></dd>
 
       <dt class="col-sm-3">Preferred hours</dt>
-      <dd class="col-sm-9"><%= "%02d:00 - %02d:00" % [@person.preferred_start_hour, @person.preferred_end_hour] %></dd>
+      <dd class="col-sm-9">
+        <% person_tz = ActiveSupport::TimeZone[@person.timezone] %>
+        <% user_tz   = ActiveSupport::TimeZone[current_user.timezone] %>
+        <% today     = Time.current.to_date %>
+        <% p_start   = person_tz.local(today.year, today.month, today.day, @person.preferred_start_hour) %>
+        <% p_end     = person_tz.local(today.year, today.month, today.day, @person.preferred_end_hour) %>
+        <%= p_start.strftime("%-I:%M %p") %> – <%= p_end.strftime("%-I:%M %p") %>
+        <span class="text-muted small">(<%= person_tz.tzinfo.abbreviation %>)</span>
+        <% if person_tz.utc_offset != user_tz.utc_offset %>
+          <span class="text-muted small">
+            &middot; <%= p_start.in_time_zone(user_tz).strftime("%-I:%M %p") %> – <%= p_end.in_time_zone(user_tz).strftime("%-I:%M %p") %> your time
+          </span>
+        <% end %>
+      </dd>
 
       <dt class="col-sm-3">Status</dt>
       <dd class="col-sm-9">
