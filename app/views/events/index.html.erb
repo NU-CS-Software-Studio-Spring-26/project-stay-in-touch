@@ -13,7 +13,7 @@ end %>
   <%= link_to "Log Event", new_event_path, class: "btn btn-primary" %>
 </div>
 
-<div data-controller="people-search">
+<div data-controller="people-search medium-filter">
   <div class="mb-3">
     <label for="events-search-input" class="visually-hidden">Filter events</label>
     <input type="text"
@@ -24,6 +24,19 @@ end %>
            data-people-search-target="input"
            data-action="input->people-search#filter"
            aria-label="Filter events">
+  </div>
+
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <button class="btn btn-sm btn-outline-secondary active"
+            data-medium="all"
+            data-medium-filter-target="pill"
+            data-action="click->medium-filter#filter">All</button>
+    <% Event::MEDIA.each do |medium| %>
+      <button class="btn btn-sm btn-outline-secondary"
+              data-medium="<%= medium %>"
+              data-medium-filter-target="pill"
+              data-action="click->medium-filter#filter"><%= medium.titleize %></button>
+    <% end %>
   </div>
 
 <% if @events.none? %>
@@ -46,7 +59,10 @@ end %>
         <tbody>
           <% @events.each do |event| %>
             <% search_name = ([event.display_title] + event.people.map(&:name)).join(" ") %>
-            <tr data-people-search-target="row" data-name="<%= search_name %>">
+            <tr data-people-search-target="row"
+                data-medium-filter-target="row"
+                data-name="<%= search_name %>"
+                data-medium="<%= event.medium %>">
               <td class="text-nowrap text-muted"><%= l event.occurred_at.to_date %></td>
               <td><%= link_to event.display_title, event_path(event), class: "text-decoration-none fw-medium text-dark" %></td>
               <td><span class="badge <%= medium_badge_class(event.medium) %>"><%= event.medium.titleize %></span></td>
