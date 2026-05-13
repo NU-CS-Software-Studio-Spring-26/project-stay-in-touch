@@ -26,6 +26,9 @@ class EventsController < ApplicationController
 
   def new
     @event  = current_user.events.build
+    if params[:person_id].present? && current_user.people.exists?(params[:person_id])
+      @event.person_ids = [params[:person_id]]
+    end
     @people = current_user.people.order(:name)
   end
 
