@@ -92,7 +92,7 @@ RSpec.describe "Events", type: :request do
         delete event_path(event)
       }.to change(Event, :count).by(-1)
         .and change(EventParticipant, :count).by(-2)
-      expect(response).to redirect_to(events_path)
+      expect(response).to redirect_to(root_path)
     end
   end
 
