@@ -52,18 +52,30 @@ end %>
   </div>
 <% end %>
 
-<div data-controller="people-search">
-  <div class="mb-3">
-    <label for="people-search-input" class="visually-hidden">Filter people</label>
+<%= form_with url: root_path, method: :get,
+      data: { controller: "auto-submit", turbo_frame: "people-table" },
+      class: "mb-3" do %>
+  <label for="people-search-input" class="visually-hidden">Search people</label>
+  <div class="input-group">
     <input type="text"
            id="people-search-input"
+           name="q"
+           value="<%= params[:q] %>"
            class="form-control"
-           placeholder="Filter by name…"
+           placeholder="Search by name…"
            autocomplete="off"
-           data-people-search-target="input"
-           data-action="input->people-search#filter"
-           aria-label="Filter people">
+           aria-label="Search people"
+           data-auto-submit-target="input"
+           data-action="input->auto-submit#inputChanged">
+    <button class="btn btn-outline-secondary" type="submit">
+      <i class="bi bi-search"></i>
+    </button>
   </div>
+  <input type="hidden" name="sort" value="<%= @sort %>">
+  <input type="hidden" name="direction" value="<%= @direction %>">
+<% end %>
+
+<div>
 
 <turbo-frame id="people-table">
   <% if @people.empty? %>
@@ -87,15 +99,17 @@ end %>
             <% @people.each do |person| %>
               <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
               <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
-              <tr data-people-search-target="row" data-name="<%= person.name %>">
+              <tr>
                 <td>
                   <div class="d-flex align-items-center gap-2">
                     <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
                       <%= initials %>
                     </span>
-                    <%= link_to person.name, person_path(person),
+                    <%= link_to person_path(person),
                           class: "text-decoration-none fw-medium text-dark",
-                          data: { turbo_frame: "_top" } %>
+                          data: { turbo_frame: "_top" } do %>
+                      <%= highlight_match(person.name, params[:q]) %>
+                    <% end %>
                   </div>
                 </td>
                 <td class="text-muted d-none d-md-table-cell">

@@ -7,15 +7,20 @@ class PeopleController < ApplicationController
     @sort = SORTABLE_COLUMNS.include?(params[:sort]) ? params[:sort] : "name"
     @direction = params[:direction] == "desc" ? "desc" : "asc"
 
+    people_scope = current_user.people
+    if params[:q].present?
+      people_scope = people_scope.where("LOWER(name) LIKE ?", "%#{params[:q].downcase}%")
+    end
+
     case @sort
     when "frequency"
-      @people_pagy, @people = pagy(current_user.people.order(frequency_weeks: @direction))
+      @people_pagy, @people = pagy(people_scope.order(frequency_weeks: @direction))
     when "status"
-      sorted = current_user.people.includes(:events).sort_by { |p| p.days_until_due || -Float::INFINITY }
+      sorted = people_scope.includes(:events).sort_by { |p| p.days_until_due || -Float::INFINITY }
       sorted = sorted.reverse if @direction == "desc"
       @people_pagy, @people = pagy_array(sorted)
     else
-      @people_pagy, @people = pagy(current_user.people.order(name: @direction))
+      @people_pagy, @people = pagy(people_scope.order(name: @direction))
     end
 
     @overdue_people = current_user.people.includes(:events)

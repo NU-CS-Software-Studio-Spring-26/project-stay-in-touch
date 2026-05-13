@@ -13,18 +13,29 @@ end %>
   <%= link_to "Log Event", new_event_path, class: "btn btn-primary" %>
 </div>
 
-<div data-controller="people-search medium-filter">
-  <div class="mb-3">
-    <label for="events-search-input" class="visually-hidden">Filter events</label>
-    <input type="text"
-           id="events-search-input"
-           class="form-control"
-           placeholder="Filter by event or person…"
-           autocomplete="off"
-           data-people-search-target="input"
-           data-action="input->people-search#filter"
-           aria-label="Filter events">
-  </div>
+<div data-controller="medium-filter">
+  <%= form_with url: events_path, method: :get,
+        data: { controller: "auto-submit" },
+        class: "mb-3" do %>
+    <label for="events-search-input" class="visually-hidden">Search events</label>
+    <div class="input-group">
+      <input type="text"
+             id="events-search-input"
+             name="q"
+             value="<%= params[:q] %>"
+             class="form-control"
+             placeholder="Search by event or person…"
+             autocomplete="off"
+             aria-label="Search events"
+             data-auto-submit-target="input"
+             data-action="input->auto-submit#inputChanged">
+      <button class="btn btn-outline-secondary" type="submit">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+    <input type="hidden" name="sort" value="<%= @sort %>">
+    <input type="hidden" name="direction" value="<%= @direction %>">
+  <% end %>
 
   <div class="d-flex flex-wrap gap-2 mb-3">
     <button class="btn btn-sm btn-outline-secondary active"
@@ -58,17 +69,19 @@ end %>
         </thead>
         <tbody>
           <% @events.each do |event| %>
-            <% search_name = ([event.display_title] + event.people.map(&:name)).join(" ") %>
-            <tr data-people-search-target="row"
-                data-medium-filter-target="row"
-                data-name="<%= search_name %>"
-                data-medium="<%= event.medium %>">
+            <tr data-medium-filter-target="row" data-medium="<%= event.medium %>">
               <td class="text-nowrap text-muted"><%= l event.occurred_at.to_date %></td>
-              <td><%= link_to event.display_title, event_path(event), class: "text-decoration-none fw-medium text-dark" %></td>
+              <td>
+                <%= link_to event_path(event), class: "text-decoration-none fw-medium text-dark" do %>
+                  <%= highlight_match(event.display_title, params[:q]) %>
+                <% end %>
+              </td>
               <td><span class="badge <%= medium_badge_class(event.medium) %>"><%= event.medium.titleize %></span></td>
               <td>
                 <%= safe_join(event.people.map { |p|
-                      link_to p.name, person_path(p), class: "text-decoration-none text-muted"
+                      link_to(person_path(p), class: "text-decoration-none text-muted") {
+                        highlight_match(p.name, params[:q])
+                      }
                     }, ", ") %>
               </td>
               <td class="text-end text-nowrap">

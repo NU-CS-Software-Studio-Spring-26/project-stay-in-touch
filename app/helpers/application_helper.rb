@@ -22,6 +22,14 @@ module ApplicationHelper
     end
   end
 
+  def highlight_match(text, query)
+    return ERB::Util.html_escape(text) if query.blank?
+    escaped = ERB::Util.html_escape(text)
+    escaped.gsub(/#{Regexp.escape(ERB::Util.html_escape(query))}/i) do |match|
+      "<span class=\"search-highlight\">#{match}</span>"
+    end.html_safe
+  end
+
   def days_until_due_badge(days)
     return ["No events yet", "badge-none"]     if days.nil?
     return ["Due today",     "badge-due-today"] if days.zero?
