@@ -18,6 +18,11 @@ class PeopleController < ApplicationController
       @people_pagy, @people = pagy(current_user.people.order(name: @direction))
     end
 
+    @overdue_people = current_user.people.includes(:events)
+                                  .select { |p| p.days_until_due&.negative? }
+                                  .sort_by { |p| p.days_until_due }
+                                  .first(3)
+
     event_sortable = %w[date title medium participants]
     @event_sort      = event_sortable.include?(params[:event_sort]) ? params[:event_sort] : "date"
     @event_direction = params[:event_direction] == "asc" ? "asc" : "desc"
