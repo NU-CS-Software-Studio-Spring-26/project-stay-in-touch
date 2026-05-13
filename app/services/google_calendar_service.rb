@@ -43,7 +43,7 @@ class GoogleCalendarService
   # Finds the earliest 15-min-aligned free 30-min slot within the next window_days days,
   # restricted to hours [from_hour, to_hour) in the user's timezone. Returns a UTC Time,
   # or nil if no slot found.
-  def find_earliest_slot(window_days:, from_hour:, to_hour:, buffer: 15.minutes)
+  def find_earliest_slot(window_days:, from_hour:, to_hour:, slot_duration: 60.minutes, buffer: 15.minutes)
     service    = build_service
     now        = Time.current
     window_end = now + window_days.days
@@ -60,10 +60,10 @@ class GoogleCalendarService
     cursor = now.ceil(15.minutes)
     tz     = Time.zone
 
-    while cursor + 30.minutes <= window_end
+    while cursor + slot_duration <= window_end
       local = cursor.in_time_zone(tz)
       if local.hour >= from_hour && local.hour < to_hour
-        slot_end = cursor + 30.minutes
+        slot_end = cursor + slot_duration
         free = busy.none? { |s, e| cursor < e + buffer && slot_end > s - buffer }
         return cursor if free
       end
@@ -157,10 +157,11 @@ class GoogleCalendarService
 
   def build_calendar_event(event, people)
     # Use the first person's timezone for the event, falling back to UTC.
-    tz_name = people.first&.timezone.presence || "UTC"
+    tz_name  = people.first&.timezone.presence || "UTC"
+    duration = (event.duration_minutes.presence || 60).minutes
 
     start_time = event.occurred_at.in_time_zone(tz_name)
-    end_time   = start_time + 1.hour
+    end_time   = start_time + duration
 
     attendees = people.filter_map do |p|
       Google::Apis::CalendarV3::EventAttendee.new(email: p.email) if p.email.present?

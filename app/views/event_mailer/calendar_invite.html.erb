@@ -5,7 +5,7 @@
 <div class="event-card">
   <h2><%= @event.display_title %></h2>
   <p><strong>When:</strong> <%= @slot_time.strftime("%A, %B %-d at %-I:%M %p %Z") %></p>
-  <p><strong>Duration:</strong> 30 minutes</p>
+  <p><strong>Duration:</strong> <%= @duration_label %></p>
   <p><strong>Organized by:</strong> <%= @organizer.email %></p>
 </div>
 
