@@ -22,24 +22,6 @@ class PeopleController < ApplicationController
                                   .select { |p| p.days_until_due&.negative? }
                                   .sort_by { |p| p.days_until_due }
                                   .first(3)
-
-    event_sortable = %w[date title medium participants]
-    @event_sort      = event_sortable.include?(params[:event_sort]) ? params[:event_sort] : "date"
-    @event_direction = params[:event_direction] == "asc" ? "asc" : "desc"
-
-    case @event_sort
-    when "title"
-      @event_pagy, @events = pagy(current_user.events.includes(:people)
-                                    .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@event_direction}")))
-    when "medium"
-      @event_pagy, @events = pagy(current_user.events.includes(:people).order(medium: @event_direction))
-    when "participants"
-      sorted = current_user.events.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
-      sorted = sorted.reverse if @event_direction == "asc"
-      @event_pagy, @events = pagy_array(sorted)
-    else
-      @event_pagy, @events = pagy(current_user.events.includes(:people).order(occurred_at: @event_direction))
-    end
   end
 
   def show

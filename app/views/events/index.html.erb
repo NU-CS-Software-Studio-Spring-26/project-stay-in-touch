@@ -13,6 +13,19 @@ end %>
   <%= link_to "Log Event", new_event_path, class: "btn btn-primary" %>
 </div>
 
+<div data-controller="people-search">
+  <div class="mb-3">
+    <label for="events-search-input" class="visually-hidden">Filter events</label>
+    <input type="text"
+           id="events-search-input"
+           class="form-control"
+           placeholder="Filter by event or person…"
+           autocomplete="off"
+           data-people-search-target="input"
+           data-action="input->people-search#filter"
+           aria-label="Filter events">
+  </div>
+
 <% if @events.none? %>
   <div class="alert alert-info">
     No events logged yet. <%= link_to "Log your first one", new_event_path, class: "alert-link" %>.
@@ -32,7 +45,8 @@ end %>
         </thead>
         <tbody>
           <% @events.each do |event| %>
-            <tr>
+            <% search_name = ([event.display_title] + event.people.map(&:name)).join(" ") %>
+            <tr data-people-search-target="row" data-name="<%= search_name %>">
               <td class="text-nowrap text-muted"><%= l event.occurred_at.to_date %></td>
               <td><%= link_to event.display_title, event_path(event), class: "text-decoration-none fw-medium text-dark" %></td>
               <td><span class="badge <%= medium_badge_class(event.medium) %>"><%= event.medium.titleize %></span></td>
@@ -73,3 +87,4 @@ end %>
     </div>
   <% end %>
 <% end %>
+</div>
