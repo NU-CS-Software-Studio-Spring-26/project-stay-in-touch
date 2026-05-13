@@ -67,16 +67,22 @@
     <div class="form-text">Give it a name, or leave blank and we'll figure it out.</div>
   </div>
 
-  <fieldset>
+  <fieldset data-controller="people-search">
     <legend class="form-label fw-semibold">Participants</legend>
     <% if @people.empty? %>
       <div class="alert alert-warning mb-0">
         Add a <%= link_to "Person", new_person_path, class: "alert-link" %> first.
       </div>
     <% else %>
+      <input type="text" class="form-control form-control-sm mb-2"
+             placeholder="Search participants…"
+             autocomplete="off"
+             data-people-search-target="input"
+             data-action="input->people-search#filter"
+             aria-label="Search participants">
       <div class="border rounded p-3 bg-white" style="max-height: 260px; overflow-y: auto;">
         <% @people.each do |person| %>
-          <div class="form-check">
+          <div class="form-check" data-people-search-target="row" data-name="<%= person.name %>">
             <%= check_box_tag "event[person_ids][]", person.id,
                   event.person_ids.include?(person.id),
                   id: "event_person_ids_#{person.id}",
