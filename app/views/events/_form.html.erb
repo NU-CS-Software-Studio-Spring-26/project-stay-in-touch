@@ -6,12 +6,16 @@
     </div>
   <% end %>
 
-  <div class="row g-3">
+  <div class="row g-3" data-controller="time-slots">
     <div class="col-md-6">
       <%= f.label :occurred_at, "When", class: "form-label" %>
       <%= f.datetime_local_field :occurred_at,
             value: (event.occurred_at || Time.current).strftime("%Y-%m-%dT%H:%M"),
-            class: "form-control", required: true %>
+            class: "form-control", required: true,
+            data: { "time-slots-target": "dateInput", action: "change->time-slots#onDateChange" } %>
+      <% if current_user.google_calendar_connected? %>
+        <div data-time-slots-target="slots" class="mt-2"></div>
+      <% end %>
     </div>
     <div class="col-md-6">
       <%= f.label :medium, class: "form-label" %>
