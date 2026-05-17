@@ -15,6 +15,27 @@ class User < ApplicationRecord
     end
   end
 
+  RESET_TOKEN_EXPIRATION = 1.hour
+
+  def generate_reset_token
+    raw_token = SecureRandom.urlsafe_base64
+    self.reset_token = Digest::SHA256.hexdigest(raw_token)
+    self.reset_token_expires_at = Time.current + RESET_TOKEN_EXPIRATION
+    save!
+    raw_token
+  end
+
+  def reset_token_valid?(raw_token)
+    reset_token.present? &&
+      reset_token_expires_at.present? &&
+      reset_token_expires_at > Time.current &&
+      reset_token == Digest::SHA256.hexdigest(raw_token)
+  end
+
+  def clear_reset_token!
+    update!(reset_token: nil, reset_token_expires_at: nil)
+  end
+
   def google_calendar_connected?
     google_credential.present?
   end

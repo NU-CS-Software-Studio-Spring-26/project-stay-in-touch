@@ -6,6 +6,8 @@ Rails.application.routes.draw do
   post   "login",  to: "sessions#create"
   delete "logout", to: "sessions#destroy",   as: :logout
 
+  resource :password_reset, only: %i[new create edit update]
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   # Google Calendar OAuth
