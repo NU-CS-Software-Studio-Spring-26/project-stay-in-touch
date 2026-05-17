@@ -75,6 +75,14 @@ end %>
   <input type="hidden" name="direction" value="<%= @direction %>">
 <% end %>
 
+<div class="mb-3">
+  <%= link_to root_path(favorites: @favorites_filter ? nil : "1", sort: @sort, direction: @direction),
+        class: "btn btn-sm #{@favorites_filter ? 'btn-warning' : 'btn-outline-secondary'}" do %>
+    <i class="bi bi-star<%= '-fill' if @favorites_filter %> me-1"></i>
+    <%= @favorites_filter ? "Showing favorites" : "Favorites only" %>
+  <% end %>
+</div>
+
 <div>
 
 <turbo-frame id="people-table">
@@ -102,6 +110,13 @@ end %>
               <tr>
                 <td>
                   <div class="d-flex align-items-center gap-2">
+                    <%= button_to toggle_favorite_person_path(person),
+                          method: :patch,
+                          class: "btn btn-sm border-0 bg-transparent p-0 me-1 flex-shrink-0",
+                          aria: { label: "#{person.favorite? ? 'Unfavorite' : 'Favorite'} #{person.name}" },
+                          form: { data: { turbo_frame: "_top" } } do %>
+                      <i class="bi bi-star<%= '-fill text-warning' if person.favorite? %>"></i>
+                    <% end %>
                     <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
                       <%= initials %>
                     </span>

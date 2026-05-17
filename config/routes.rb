@@ -26,7 +26,11 @@ Rails.application.routes.draw do
   get "dashboard", to: "dashboard#index"
 
   resource  :settings, only: %i[edit update]
-  resources :people
+  resources :people do
+    member do
+      patch :toggle_favorite
+    end
+  end
   resources :events
 
   root "people#index"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_17_135851) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_17_192336) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -47,6 +47,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_17_135851) do
   create_table "people", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
+    t.boolean "favorite", default: false, null: false
     t.decimal "frequency_weeks", precision: 5, scale: 2, default: "4.0", null: false
     t.string "name", null: false
     t.text "notes"
@@ -56,6 +57,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_17_135851) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id", "email"], name: "index_people_on_user_id_and_email", unique: true
+    t.index ["user_id", "favorite"], name: "index_people_on_user_id_and_favorite"
     t.index ["user_id"], name: "index_people_on_user_id"
   end
 

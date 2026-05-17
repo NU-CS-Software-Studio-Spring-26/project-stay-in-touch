@@ -8,5 +8,6 @@ FactoryBot.define do
     preferred_end_hour     { 21 }
     frequency_weeks        { 4.0 }
     notes                  { nil }
+    favorite               { false }
   end
 end

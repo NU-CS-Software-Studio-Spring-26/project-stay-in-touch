@@ -150,6 +150,45 @@ RSpec.describe "People", type: :request do
     end
   end
 
+  describe "PATCH /people/:id/toggle_favorite" do
+    it "toggles favorite from false to true" do
+      person = create(:person, user: user, favorite: false)
+      patch toggle_favorite_person_path(person)
+      expect(person.reload.favorite).to be true
+      expect(response).to be_redirect
+    end
+
+    it "toggles favorite from true to false" do
+      person = create(:person, user: user, favorite: true)
+      patch toggle_favorite_person_path(person)
+      expect(person.reload.favorite).to be false
+    end
+
+    it "cannot toggle another user's person" do
+      other_person = create(:person, favorite: false)
+      patch toggle_favorite_person_path(other_person)
+      expect(other_person.reload.favorite).to be false
+      expect(response).to redirect_to(root_path)
+    end
+  end
+
+  describe "GET /people with favorites filter" do
+    it "returns only favorites when ?favorites=1" do
+      fav     = create(:person, user: user, favorite: true,  name: "Alice Fav")
+      non_fav = create(:person, user: user, favorite: false, name: "Bob NonFav")
+      get people_path(favorites: "1")
+      expect(response.body).to include(fav.name)
+      expect(response.body).not_to include(non_fav.name)
+    end
+
+    it "shows favorites first in the default list" do
+      create(:person, user: user, favorite: false, name: "Aaron Zzz")
+      fav = create(:person, user: user, favorite: true,  name: "Zara Aaa")
+      get people_path
+      expect(response.body.index(fav.name)).to be < response.body.index("Aaron Zzz")
+    end
+  end
+
   describe "unauthenticated access" do
     before { delete logout_path }
 
