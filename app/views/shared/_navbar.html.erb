@@ -18,6 +18,10 @@
             <%= link_to "Events", events_path,
                   class: "nav-link #{"active fw-semibold" if request.path.start_with?(events_path)}" %>
           </li>
+          <li class="nav-item">
+            <%= link_to "Dashboard", dashboard_path,
+                  class: "nav-link #{"active fw-semibold" if request.path == dashboard_path}" %>
+          </li>
         </ul>
       <% end %>
       <div class="d-flex align-items-center gap-2 ms-auto">

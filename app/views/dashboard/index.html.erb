@@ -1,0 +1,196 @@
+<% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h4 mb-0 fw-bold">Dashboard</h1>
+  <span class="text-muted small"><%= Date.current.strftime("%B %Y") %></span>
+</div>
+
+<% if @total_people == 0 %>
+  <div class="card text-center py-5">
+    <div class="card-body">
+      <i class="bi bi-people fs-1 text-muted mb-3 d-block"></i>
+      <h2 class="h5 fw-semibold mb-2">No data yet</h2>
+      <p class="text-muted mb-3">Add people and log catch-ups to see your activity stats here.</p>
+      <%= link_to "Add your first person", new_person_path, class: "btn btn-primary" %>
+    </div>
+  </div>
+<% else %>
+
+  <%# Stat cards row %>
+  <div class="row g-3 mb-4">
+
+    <%# Catch-ups this month %>
+    <div class="col-6 col-md-3">
+      <div class="card h-100" style="border-top: 3px solid #4338CA;">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-calendar-check text-muted"></i>
+            <span class="text-muted small">This Month</span>
+          </div>
+          <div class="fw-bold" style="font-size: 2rem; line-height: 1.1; color: #111827;">
+            <%= @catchups_this_month %>
+          </div>
+          <div class="text-muted small mt-1">catch-ups logged</div>
+          <% delta = @catchups_this_month - @catchups_last_month %>
+          <% if @catchups_last_month > 0 || @catchups_this_month > 0 %>
+            <div class="mt-2">
+              <% if delta > 0 %>
+                <span class="badge" style="background:#D1FAE5; color:#065F46;">+<%= delta %> vs last month</span>
+              <% elsif delta < 0 %>
+                <span class="badge" style="background:#FEE2E2; color:#B91C1C;"><%= delta %> vs last month</span>
+              <% else %>
+                <span class="badge" style="background:#F3F4F6; color:#4B5563;">Same as last month</span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Streak %>
+    <div class="col-6 col-md-3">
+      <div class="card h-100" style="border-top: 3px solid #4338CA;">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-fire text-muted"></i>
+            <span class="text-muted small">Current Streak</span>
+          </div>
+          <div class="fw-bold" style="font-size: 2rem; line-height: 1.1; color: #111827;">
+            <%= @streak %>
+          </div>
+          <div class="text-muted small mt-1">consecutive <%= "week".pluralize(@streak) %></div>
+          <% if @streak >= 4 %>
+            <div class="mt-2">
+              <span class="badge" style="background:#D1FAE5; color:#065F46;">On a roll!</span>
+            </div>
+          <% elsif @streak == 0 %>
+            <div class="mt-2">
+              <span class="badge" style="background:#F3F4F6; color:#4B5563;">Log a catch-up to start</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# People overdue %>
+    <div class="col-6 col-md-3">
+      <div class="card h-100" style="border-top: 3px solid #4338CA;">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-clock-history text-muted"></i>
+            <span class="text-muted small">Overdue</span>
+          </div>
+          <div class="fw-bold" style="font-size: 2rem; line-height: 1.1; color: #111827;">
+            <%= @overdue_people.count %>
+          </div>
+          <div class="text-muted small mt-1"><%= "person".pluralize(@overdue_people.count) %> need attention</div>
+          <% if @overdue_people.any? %>
+            <div class="mt-2">
+              <span class="badge badge-overdue"><%= @overdue_people.count %> overdue</span>
+            </div>
+          <% else %>
+            <div class="mt-2">
+              <span class="badge badge-upcoming">All caught up!</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Average frequency %>
+    <div class="col-6 col-md-3">
+      <div class="card h-100" style="border-top: 3px solid #4338CA;">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-arrow-repeat text-muted"></i>
+            <span class="text-muted small">Avg. Frequency</span>
+          </div>
+          <div class="fw-bold" style="font-size: 2rem; line-height: 1.1; color: #111827;">
+            <%= @avg_frequency_weeks || "—" %>
+          </div>
+          <div class="text-muted small mt-1">weeks between catch-ups</div>
+          <div class="mt-2">
+            <span class="stat-chip"><%= @total_people %> <%= "contact".pluralize(@total_people) %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <%# Detail panels row %>
+  <div class="row g-3">
+
+    <%# Top contacts %>
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h6 fw-semibold mb-3">
+            <i class="bi bi-star me-1 text-muted"></i>Most Contacted
+          </h2>
+          <% if @top_contacts.any? %>
+            <ul class="list-unstyled vstack gap-3 mb-0">
+              <% @top_contacts.each do |person| %>
+                <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
+                <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
+                <li class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
+                      <%= initials %>
+                    </span>
+                    <%= link_to person.name, person_path(person),
+                          class: "text-decoration-none fw-medium text-dark" %>
+                  </div>
+                  <span class="stat-chip">
+                    <%= person.event_count %> <%= "catch-up".pluralize(person.event_count) %>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-muted small mb-0">No catch-ups logged yet.</p>
+          <% end %>
+        </div>
+        <% if @total_catchups > 0 %>
+          <div class="card-footer bg-transparent border-top-0 pt-0">
+            <span class="text-muted small"><%= @total_catchups %> total catch-ups across <%= @total_people %> <%= "person".pluralize(@total_people) %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Overdue people detail %>
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h6 fw-semibold mb-3">
+            <i class="bi bi-clock-history me-1 text-muted"></i>Needs Attention
+          </h2>
+          <% if @overdue_people.empty? %>
+            <div class="text-center py-3">
+              <i class="bi bi-check-circle-fill text-success fs-3 mb-2 d-block"></i>
+              <p class="text-muted small mb-0">You're all caught up with everyone!</p>
+            </div>
+          <% else %>
+            <ul class="list-unstyled vstack gap-3 mb-0">
+              <% @overdue_people.each do |person| %>
+                <% days_ago = ((Time.current - person.latest_event.occurred_at) / 1.day).round %>
+                <li class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <%= link_to person.name, person_path(person),
+                          class: "fw-medium text-decoration-none text-dark d-block" %>
+                    <span class="text-muted small"><%= days_ago %> days since last catch-up</span>
+                  </div>
+                  <%= link_to "Log catch-up", new_event_path(person_id: person.id),
+                        class: "btn btn-sm btn-warning flex-shrink-0" %>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<% end %>
