@@ -53,6 +53,22 @@ RSpec.describe Person, type: :model do
     end
   end
 
+  describe "favorite" do
+    it "defaults to false" do
+      person = create(:person)
+      expect(person.favorite).to be false
+    end
+
+    describe ".favorites scope" do
+      it "returns only favorited people" do
+        fav     = create(:person, favorite: true)
+        non_fav = create(:person, favorite: false)
+        expect(Person.favorites).to include(fav)
+        expect(Person.favorites).not_to include(non_fav)
+      end
+    end
+  end
+
   describe "#days_until_due" do
     let(:person) { create(:person, frequency_weeks: 2.0) }
 

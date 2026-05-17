@@ -11,6 +11,7 @@
 #   preferred_end_hour    :integer not null  default 21   (0..23)
 #   frequency_weeks       :decimal not null  default 4.0  precision 5 scale 2
 #   notes                 :text    nullable
+#   favorite              :boolean not null  default false
 class Person < ApplicationRecord
   HOUR_RANGE = (0..23).freeze
   EMAIL_FORMAT = URI::MailTo::EMAIL_REGEXP
@@ -18,6 +19,8 @@ class Person < ApplicationRecord
   belongs_to :user
   has_many :event_participants, dependent: :destroy
   has_many :events, through: :event_participants
+
+  scope :favorites, -> { where(favorite: true) }
 
   normalizes :name, with: ->(n) { n.strip }
 
