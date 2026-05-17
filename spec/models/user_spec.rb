@@ -56,4 +56,53 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe "password reset" do
+    let(:user) { create(:user) }
+
+    describe "#generate_reset_token" do
+      it "sets reset_token and reset_token_expires_at" do
+        expect(user.reset_token).to be_nil
+        expect(user.reset_token_expires_at).to be_nil
+
+        raw_token = user.generate_reset_token
+
+        expect(user.reset_token).to be_present
+        expect(user.reset_token_expires_at).to be_present
+        expect(user.reset_token_expires_at).to be_within(5.seconds).of(1.hour.from_now)
+        expect(user.reset_token).not_to eq(raw_token)
+      end
+    end
+
+    describe "#reset_token_valid?" do
+      it "returns true for a valid, unexpired token" do
+        raw_token = user.generate_reset_token
+        expect(user.reset_token_valid?(raw_token)).to be true
+      end
+
+      it "returns false for an incorrect token" do
+        user.generate_reset_token
+        expect(user.reset_token_valid?("wrong-token")).to be false
+      end
+
+      it "returns false when token is expired" do
+        user.generate_reset_token
+        user.update!(reset_token_expires_at: 2.hours.ago)
+        expect(user.reset_token_valid?("any-token")).to be false
+      end
+
+      it "returns false when no token exists" do
+        expect(user.reset_token_valid?("any-token")).to be false
+      end
+    end
+
+    describe "#clear_reset_token!" do
+      it "removes the reset token" do
+        user.generate_reset_token
+        user.clear_reset_token!
+        expect(user.reset_token).to be_nil
+        expect(user.reset_token_expires_at).to be_nil
+      end
+    end
+  end
 end
