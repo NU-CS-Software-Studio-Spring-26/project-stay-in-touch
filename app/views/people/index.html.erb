@@ -1,10 +1,11 @@
 <% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
 
-<% sort_link = ->(col, label, extra_class: "") do
+<% sort_link = ->(col, label, icon: nil, extra_class: "") do
   next_dir = (@sort == col && @direction == "asc") ? "desc" : "asc"
   arrow = @sort == col ? (@direction == "asc" ? " ▲" : " ▼") : ""
   active_class = @sort == col ? "active" : ""
-  link_to "#{label}#{arrow}", root_path(sort: col, direction: next_dir),
+  icon_tag = icon ? content_tag(:i, "", class: "bi #{icon} me-1") : nil
+  link_to safe_join([icon_tag, label, arrow].compact), root_path(sort: col, direction: next_dir),
     class: "sort-link #{active_class} #{extra_class}"
 end %>
 
@@ -42,7 +43,7 @@ end %>
               You haven't caught up with
               <%= link_to person.name, person_path(person), class: "fw-semibold text-decoration-none" %>
               in <strong><%= days_ago %> days</strong>
-              <span class="text-muted small">(every <%= "%g wk" % person.frequency_weeks %>)</span>
+              <span class="text-muted small">(every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %>)</span>
             </span>
             <%= link_to "Log catch-up", new_event_path(person_id: person.id), class: "btn btn-sm btn-warning" %>
           </li>
@@ -106,10 +107,10 @@ end %>
         <table class="table table-hover mb-0 align-middle">
           <thead>
             <tr>
-              <th><%= sort_link.call("name", "Name") %></th>
-              <th class="d-none d-md-table-cell">Contact</th>
-              <th class="text-end"><%= sort_link.call("frequency", "Catch up every") %></th>
-              <th><%= sort_link.call("status", "Due") %></th>
+              <th><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
+              <th class="d-none d-md-table-cell"><i class="bi bi-envelope me-1"></i>Contact</th>
+              <th class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
+              <th><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
               <th style="width: 1%;"></th>
             </tr>
           </thead>
@@ -143,7 +144,7 @@ end %>
                     <i class="bi bi-envelope" aria-hidden="true"></i>
                   <% end %>
                 </td>
-                <td class="text-end text-muted"><%= "every %g wk" % person.frequency_weeks %></td>
+                <td class="text-end text-muted">every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %></td>
                 <td>
                   <% label, css = days_until_due_badge(person.days_until_due) %>
                   <span class="badge <%= css %>"><%= label %></span>

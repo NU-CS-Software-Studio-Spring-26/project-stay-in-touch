@@ -1,0 +1,63 @@
+<% content_for :title, "Manage Tags" %>
+
+<% tag_colors = %w[#0D9488 #7C3AED #D97706 #E11D48 #2563EB #059669 #9333EA #B45309] %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h4 mb-0 fw-bold"><i class="bi bi-tags me-2"></i>Manage Tags</h1>
+  <%= link_to people_path, class: "btn btn-sm btn-outline-secondary" do %>
+    <i class="bi bi-arrow-left me-1"></i>People
+  <% end %>
+</div>
+
+<% if @tags.empty? %>
+  <div class="card text-center py-5">
+    <div class="card-body">
+      <i class="bi bi-tags fs-1 text-muted mb-3 d-block"></i>
+      <h2 class="h5 fw-semibold mb-2">No tags yet</h2>
+      <p class="text-muted mb-3">Create tags when editing a person to organise your contacts.</p>
+      <%= link_to "Go to People", root_path, class: "btn btn-primary" %>
+    </div>
+  </div>
+<% else %>
+  <div class="card">
+    <ul class="list-group list-group-flush">
+      <% @tags.each_with_index do |tag, i| %>
+        <% color = tag_colors[i % tag_colors.length] %>
+        <% count = tag.people.size %>
+        <li class="list-group-item py-3 px-4">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="flex-shrink-0" style="width:28px; height:28px; border-radius:50%; background:#{color}20; color:#{color}; display:flex; align-items:center; justify-content:center;">
+              <i class="bi bi-tag" style="font-size:0.8rem;"></i>
+            </span>
+
+            <%= form_with url: tag_path(tag), method: :patch, class: "d-flex align-items-center gap-2" do |f| %>
+              <%= f.text_field :name, value: tag.name,
+                    class: "form-control form-control-sm",
+                    style: "max-width: 200px;",
+                    required: true,
+                    maxlength: 50,
+                    aria: { label: "Rename #{tag.name}" } %>
+              <%= f.submit "Rename", class: "btn btn-sm btn-outline-secondary" %>
+            <% end %>
+
+            <span class="text-muted small">
+              <%= pluralize(count, "person") %>
+            </span>
+
+            <%= button_to tag_path(tag),
+                  method: :delete,
+                  form: { data: { turbo_confirm: "Delete \"#{tag.name}\"? It will be removed from #{pluralize(count, "person")}." } },
+                  class: "btn btn-sm btn-outline-danger ms-auto" do %>
+              <i class="bi bi-trash me-1"></i>Delete
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <p class="text-muted small mt-3">
+    <i class="bi bi-info-circle me-1"></i>
+    Add new tags from the <%= link_to "person edit form", new_person_path %>.
+  </p>
+<% end %>

@@ -8,7 +8,7 @@
 
   <% if event.new_record? %>
     <div>
-      <span class="form-label d-block fw-semibold mb-2">When</span>
+      <span class="form-label d-block fw-semibold mb-2"><i class="bi bi-calendar me-1"></i>When</span>
       <div class="vstack gap-1 mb-3">
         <% [["3", "In the next 3 days"], ["5", "In the next 5 days"], ["10", "In the next 10 days"], ["30", "In the next month"]].each do |val, label| %>
           <div class="form-check">
@@ -20,12 +20,12 @@
       </div>
       <div class="row g-2">
         <div class="col">
-          <label for="event_preferred_from" class="form-label small text-muted">Preferred from</label>
+          <label for="event_preferred_from" class="form-label small text-muted"><i class="bi bi-clock me-1"></i>Preferred from</label>
           <%= time_field_tag "event[preferred_from]", "09:00",
                 class: "form-control", id: "event_preferred_from", autocomplete: "off" %>
         </div>
         <div class="col">
-          <label for="event_preferred_to" class="form-label small text-muted">Preferred until</label>
+          <label for="event_preferred_to" class="form-label small text-muted"><i class="bi bi-clock me-1"></i>Preferred until</label>
           <%= time_field_tag "event[preferred_to]", "17:00",
                 class: "form-control", id: "event_preferred_to", autocomplete: "off" %>
         </div>
@@ -36,7 +36,7 @@
     </div>
   <% else %>
     <div>
-      <%= f.label :occurred_at, "When", class: "form-label" %>
+      <%= f.label :occurred_at, class: "form-label" do %><i class="bi bi-calendar me-1"></i>When<% end %>
       <%= f.datetime_local_field :occurred_at,
             value: event.occurred_at.strftime("%Y-%m-%dT%H:%M"),
             class: "form-control", required: true %>
@@ -44,7 +44,7 @@
   <% end %>
 
   <div>
-    <%= f.label :duration_minutes, "How long?", class: "form-label fw-semibold" %>
+    <%= f.label :duration_minutes, class: "form-label fw-semibold" do %><i class="bi bi-hourglass-split me-1"></i>How long?<% end %>
     <%= f.select :duration_minutes,
           [["15 minutes", 15], ["30 minutes", 30], ["45 minutes", 45],
            ["1 hour", 60], ["1.5 hours", 90], ["2 hours", 120]],
@@ -53,7 +53,7 @@
   </div>
 
   <div>
-    <%= f.label :medium, class: "form-label" %>
+    <%= f.label :medium, class: "form-label" do %><i class="bi bi-chat-dots me-1"></i>Medium<% end %>
     <%= f.select :medium,
           Event::MEDIA.map { |m| [m.titleize, m] },
           { prompt: "Select a medium" },
@@ -61,14 +61,14 @@
   </div>
 
   <div>
-    <%= f.label :title, "Title (optional)", class: "form-label" %>
+    <%= f.label :title, class: "form-label" do %><i class="bi bi-pencil me-1"></i>Title (optional)<% end %>
     <%= f.text_field :title, class: "form-control",
           placeholder: "e.g., Birthday dinner", maxlength: 255 %>
     <div class="form-text">Give it a name, or leave blank and we'll figure it out.</div>
   </div>
 
   <fieldset data-controller="people-search">
-    <legend class="form-label fw-semibold">Participants</legend>
+    <legend class="form-label fw-semibold"><i class="bi bi-people me-1"></i>Participants</legend>
     <% if @people.empty? %>
       <div class="alert alert-warning mb-0">
         Add a <%= link_to "Person", new_person_path, class: "alert-link" %> first.
@@ -96,7 +96,7 @@
   </fieldset>
 
   <div data-controller="char-counter" data-char-counter-max-value="5000">
-    <%= f.label :notes, class: "form-label" %>
+    <%= f.label :notes, class: "form-label" do %><i class="bi bi-chat-text me-1"></i>Notes<% end %>
     <%= f.text_area :notes, rows: 4, class: "form-control",
           placeholder: "What did you talk about? Anything to follow up on?", maxlength: 5000,
           data: { char_counter_target: "input", action: "input->char-counter#update" } %>

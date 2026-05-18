@@ -8,18 +8,18 @@
 
   <div class="row g-3">
     <div class="col-md-6">
-      <%= f.label :name, class: "form-label" %>
+      <%= f.label :name, class: "form-label" do %><i class="bi bi-person me-1"></i>Name<% end %>
       <%= f.text_field :name, class: "form-control", required: true, maxlength: 255 %>
     </div>
     <div class="col-md-6">
-      <%= f.label :email, class: "form-label" %>
+      <%= f.label :email, class: "form-label" do %><i class="bi bi-envelope me-1"></i>Email<% end %>
       <%= f.email_field :email, class: "form-control", required: true, maxlength: 255 %>
     </div>
   </div>
 
   <div class="row g-3">
     <div class="col-md-6">
-      <%= f.label :timezone, class: "form-label" %>
+      <%= f.label :timezone, class: "form-label" do %><i class="bi bi-globe2 me-1"></i>Timezone<% end %>
       <%= f.select :timezone,
             ActiveSupport::TimeZone::MAPPING.values.sort,
             { selected: person.timezone || "America/Chicago" },
@@ -27,25 +27,31 @@
       <div class="form-text">IANA identifier (e.g., America/Chicago).</div>
     </div>
     <div class="col-md-6">
-      <%= f.label :frequency_weeks, "Frequency (weeks)", class: "form-label" %>
+      <%= f.label :frequency_weeks, class: "form-label" do %><i class="bi bi-arrow-repeat me-1"></i>Catch up every (weeks)<% end %>
       <%= f.number_field :frequency_weeks, step: 0.5, min: 0.5, class: "form-control", required: true %>
-      <div class="form-text">How often you'd like to catch up.</div>
+      <div class="form-text">e.g., 2 = every 2 weeks</div>
     </div>
   </div>
 
   <div class="row g-3">
     <div class="col-md-6">
-      <%= f.label :preferred_start_hour, "Preferred start hour (0-23)", class: "form-label" %>
-      <%= f.number_field :preferred_start_hour, min: 0, max: 23, class: "form-control", required: true %>
+      <%= f.label :preferred_start_hour, class: "form-label" do %><i class="bi bi-sun me-1"></i>Preferred start time<% end %>
+      <%= f.select :preferred_start_hour,
+            (0..23).map { |h| [Time.new(2000, 1, 1, h).strftime("%-I %p"), h] },
+            {},
+            class: "form-select", required: true %>
     </div>
     <div class="col-md-6">
-      <%= f.label :preferred_end_hour, "Preferred end hour (0-23)", class: "form-label" %>
-      <%= f.number_field :preferred_end_hour, min: 0, max: 23, class: "form-control", required: true %>
+      <%= f.label :preferred_end_hour, class: "form-label" do %><i class="bi bi-moon me-1"></i>Preferred end time<% end %>
+      <%= f.select :preferred_end_hour,
+            (0..23).map { |h| [Time.new(2000, 1, 1, h).strftime("%-I %p"), h] },
+            {},
+            class: "form-select", required: true %>
     </div>
   </div>
 
   <div data-controller="char-counter" data-char-counter-max-value="5000">
-    <%= f.label :notes, class: "form-label" %>
+    <%= f.label :notes, class: "form-label" do %><i class="bi bi-chat-text me-1"></i>Notes<% end %>
     <%= f.text_area :notes, rows: 4, class: "form-control", maxlength: 5000,
           data: { char_counter_target: "input", action: "input->char-counter#update" } %>
     <div class="form-text text-end">
@@ -54,7 +60,7 @@
   </div>
 
   <div>
-    <label class="form-label fw-semibold">Tags</label>
+    <label class="form-label fw-semibold"><i class="bi bi-tag me-1"></i>Tags</label>
     <% if @all_tags.any? %>
       <div class="d-flex flex-wrap gap-2 mb-2">
         <% @all_tags.each do |tag| %>

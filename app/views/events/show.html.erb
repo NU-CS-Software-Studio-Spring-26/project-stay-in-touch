@@ -1,45 +1,117 @@
 <% content_for :title, @event.display_title %>
 
-<nav aria-label="breadcrumb">
+<% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
+
+<% medium_colors = {
+     "call"      => "#4338CA",
+     "video"     => "#075985",
+     "coffee"    => "#92400E",
+     "text"      => "#374151",
+     "in_person" => "#065F46",
+     "other"     => "#5B21B6"
+   } %>
+<% medium_icons = {
+     "call"      => "bi-telephone-fill",
+     "video"     => "bi-camera-video-fill",
+     "coffee"    => "bi-cup-hot-fill",
+     "text"      => "bi-chat-fill",
+     "in_person" => "bi-person-walking",
+     "other"     => "bi-three-dots"
+   } %>
+<% accent = medium_colors[@event.medium] || "#4338CA" %>
+<% icon   = medium_icons[@event.medium]  || "bi-calendar-check" %>
+
+<% duration_label = if @event.duration_minutes < 60
+                      "#{@event.duration_minutes} min"
+                    elsif (@event.duration_minutes % 60).zero?
+                      "#{@event.duration_minutes / 60} hr"
+                    else
+                      "#{@event.duration_minutes / 60}h #{@event.duration_minutes % 60}m"
+                    end %>
+
+<nav aria-label="breadcrumb" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><%= link_to "Events", events_path %></li>
     <li class="breadcrumb-item active" aria-current="page"><%= @event.display_title %></li>
   </ol>
 </nav>
 
-<div class="card shadow-sm">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-      <div>
-        <h1 class="h3 mb-1"><%= @event.display_title %></h1>
-        <p class="text-muted mb-0"><%= l @event.occurred_at, format: :long %></p>
+<%# ── Hero card ───────────────────────────────────────────── %>
+<div class="card mb-4" style="border-top: 4px solid <%= accent %>;">
+  <div class="card-body p-4">
+    <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+
+      <div class="d-flex align-items-center gap-3">
+        <span class="flex-shrink-0 rounded-3 d-flex align-items-center justify-content-center"
+              style="width:52px; height:52px; background:<%= accent %>18; color:<%= accent %>; font-size:1.5rem;">
+          <i class="bi <%= icon %>"></i>
+        </span>
+        <div>
+          <h1 class="h3 fw-bold mb-1"><%= @event.display_title %></h1>
+          <p class="text-muted mb-0 small">
+            <i class="bi bi-calendar3 me-1"></i><%= l @event.occurred_at, format: :long %>
+          </p>
+        </div>
       </div>
-      <div>
-        <%= link_to "Edit",    edit_event_path(@event), class: "btn btn-outline-primary" %>
+
+      <div class="d-flex gap-2 flex-shrink-0">
+        <%= link_to "Edit", edit_event_path(@event), class: "btn btn-outline-primary btn-sm" %>
         <%= button_to "Delete", event_path(@event),
               method: :delete,
               form: { data: { turbo_confirm: "Remove this event?" } },
-              class: "btn btn-outline-danger d-inline" %>
+              class: "btn btn-outline-danger btn-sm d-inline" %>
       </div>
     </div>
 
-    <dl class="row mb-0">
-      <dt class="col-sm-3">Medium</dt>
-      <dd class="col-sm-9">
+    <%# Stat chips %>
+    <div class="d-flex flex-wrap gap-2 mt-3">
+      <span class="stat-chip">
+        <i class="bi <%= icon %>"></i>
         <span class="badge <%= medium_badge_class(@event.medium) %>"><%= @event.medium.titleize %></span>
-      </dd>
-
-      <dt class="col-sm-3">Participants</dt>
-      <dd class="col-sm-9">
-        <% @event.people.each do |person| %>
-          <%= link_to person.name, person_path(person), class: "badge bg-light text-dark border me-1 text-decoration-none" %>
-        <% end %>
-      </dd>
-
-      <% if @event.notes.present? %>
-        <dt class="col-sm-3">Notes</dt>
-        <dd class="col-sm-9"><%= simple_format(@event.notes) %></dd>
-      <% end %>
-    </dl>
+      </span>
+      <span class="stat-chip">
+        <i class="bi bi-hourglass-split"></i><%= duration_label %>
+      </span>
+      <span class="stat-chip">
+        <i class="bi bi-people"></i><%= pluralize(@event.people.size, "person") %>
+      </span>
+    </div>
   </div>
 </div>
+
+<%# ── Participants ─────────────────────────────────────────── %>
+<% if @event.people.any? %>
+  <div class="card mb-4">
+    <div class="card-body p-4">
+      <h2 class="h6 fw-semibold mb-3">
+        <i class="bi bi-people me-1 text-muted"></i>Participants
+      </h2>
+      <div class="d-flex flex-wrap gap-3">
+        <% @event.people.each do |person| %>
+          <% color    = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
+          <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
+          <%= link_to person_path(person), class: "d-flex align-items-center gap-2 text-decoration-none text-dark" do %>
+            <span class="avatar" style="background:<%= color %>18; color:<%= color %>"><%= initials %></span>
+            <span class="fw-medium small"><%= person.name %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%# ── Notes ────────────────────────────────────────────────── %>
+<% if @event.notes.present? %>
+  <div class="card mb-4">
+    <div class="card-body p-4">
+      <h2 class="h6 fw-semibold mb-3">
+        <i class="bi bi-chat-text me-1 text-muted"></i>Notes
+      </h2>
+      <div class="px-3 py-2 rounded-2" style="background:#F9FAFB; border-left:3px solid <%= accent %>;">
+        <div class="text-muted" style="font-size:0.9rem; line-height:1.7;">
+          <%= simple_format(@event.notes) %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
