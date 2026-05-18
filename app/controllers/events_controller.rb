@@ -4,10 +4,24 @@ class EventsController < ApplicationController
   SORTABLE_COLUMNS = %w[date title medium participants].freeze
 
   def index
-    @sort      = SORTABLE_COLUMNS.include?(params[:sort]) ? params[:sort] : "date"
-    @direction = params[:direction] == "asc" ? "asc" : "desc"
+    @event_months = current_user.events
+                                .pluck(:occurred_at)
+                                .map { |t| t.to_date.beginning_of_month }
+                                .uniq
+                                .sort
+                                .reverse
 
-    events_scope = current_user.events
+    @current_month = if params[:month].present?
+      year, mon = params[:month].split("-").map(&:to_i)
+      Date.new(year, mon, 1)
+    else
+      @event_months.first || Date.current.beginning_of_month
+    end
+
+    events_scope = current_user.events.where(
+      occurred_at: @current_month.beginning_of_month.beginning_of_day..@current_month.end_of_month.end_of_day
+    )
+
     if params[:q].present?
       q = "%#{params[:q].downcase}%"
       events_scope = events_scope
@@ -16,19 +30,7 @@ class EventsController < ApplicationController
         .distinct
     end
 
-    case @sort
-    when "title"
-      @pagy, @events = pagy(events_scope.includes(:people)
-                                        .order(Arel.sql("COALESCE(NULLIF(title, ''), medium) #{@direction}")))
-    when "medium"
-      @pagy, @events = pagy(events_scope.includes(:people).order(medium: @direction))
-    when "participants"
-      sorted = events_scope.includes(:people).sort_by { |e| e.people.map(&:name).min || "" }
-      sorted = sorted.reverse if @direction == "asc"
-      @pagy, @events = pagy_array(sorted)
-    else
-      @pagy, @events = pagy(events_scope.includes(:people).order(occurred_at: @direction))
-    end
+    @events = events_scope.includes(:people).order(occurred_at: :desc)
   end
 
   def show; end

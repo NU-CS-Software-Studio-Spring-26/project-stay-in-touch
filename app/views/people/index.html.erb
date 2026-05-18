@@ -108,7 +108,6 @@ end %>
           <thead>
             <tr>
               <th><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
-              <th class="d-none d-md-table-cell"><i class="bi bi-envelope me-1"></i>Contact</th>
               <th class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
               <th><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
               <th style="width: 1%;"></th>
@@ -118,7 +117,8 @@ end %>
             <% @people.each do |person| %>
               <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
               <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
-              <tr>
+              <% overdue = person.days_until_due&.negative? %>
+              <tr style="<%= "box-shadow: inset 4px 0 0 #DC2626;" if overdue %>">
                 <td>
                   <div class="d-flex align-items-center gap-2">
                     <%= button_to toggle_favorite_person_path(person),
@@ -131,18 +131,22 @@ end %>
                     <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
                       <%= initials %>
                     </span>
-                    <%= link_to person_path(person),
-                          class: "text-decoration-none fw-medium text-dark",
-                          data: { turbo_frame: "_top" } do %>
-                      <%= highlight_match(person.name, params[:q]) %>
-                    <% end %>
+                    <div>
+                      <%= link_to person_path(person),
+                            class: "text-decoration-none fw-medium text-dark d-block",
+                            data: { turbo_frame: "_top" } do %>
+                        <%= highlight_match(person.name, params[:q]) %>
+                      <% end %>
+                      <div class="d-flex align-items-center gap-1 flex-wrap mt-1">
+                        <%= link_to "mailto:#{person.email}", class: "text-muted text-decoration-none", style: "font-size:0.75rem;" do %>
+                          <i class="bi bi-envelope me-1"></i><%= person.email %>
+                        <% end %>
+                        <% person.tags.each do |tag| %>
+                          <span class="badge rounded-pill" style="background:#F3F4F6; color:#374151; font-size:0.65rem; font-weight:500;"><%= tag.name %></span>
+                        <% end %>
+                      </div>
+                    </div>
                   </div>
-                </td>
-                <td class="text-muted d-none d-md-table-cell">
-                  <%= person.email %>
-                  <%= link_to "mailto:#{person.email}", aria: { label: "Send email to #{person.email}" }, class: "ms-1 text-muted" do %>
-                    <i class="bi bi-envelope" aria-hidden="true"></i>
-                  <% end %>
                 </td>
                 <td class="text-end text-muted">every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %></td>
                 <td>

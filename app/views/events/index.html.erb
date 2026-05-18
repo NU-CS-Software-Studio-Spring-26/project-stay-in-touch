@@ -1,17 +1,61 @@
 <% content_for :title, "Events" %>
 
-<% sort_link = ->(col, label, extra_class: "") do
-  next_dir = (@sort == col && @direction == "desc") ? "asc" : "desc"
-  arrow = @sort == col ? (@direction == "desc" ? " ▼" : " ▲") : ""
-  active_class = @sort == col ? "active" : ""
-  link_to "#{label}#{arrow}", events_path(sort: col, direction: next_dir),
-    class: "sort-link #{active_class} #{extra_class}"
-end %>
+<% medium_icons = {
+     "call"      => "bi-telephone",
+     "video"     => "bi-camera-video",
+     "coffee"    => "bi-cup-hot",
+     "text"      => "bi-chat",
+     "in_person" => "bi-person-walking",
+     "other"     => "bi-three-dots"
+   } %>
+<% medium_colors = {
+     "call"      => "#4338CA",
+     "video"     => "#075985",
+     "coffee"    => "#92400E",
+     "text"      => "#374151",
+     "in_person" => "#065F46",
+     "other"     => "#5B21B6"
+   } %>
+<% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="h4 mb-0 fw-bold">Events</h1>
   <%= link_to "Log Event", new_event_path, class: "btn btn-primary" %>
 </div>
+
+<%# ── Month navigator ─────────────────────────────────────── %>
+<% if @event_months.any? %>
+  <% prev_month = @event_months.find  { |m| m < @current_month } %>
+  <% next_month = @event_months.select { |m| m > @current_month }.last %>
+  <div class="card mb-4">
+    <div class="card-body py-3 d-flex align-items-center justify-content-between">
+
+      <% if prev_month %>
+        <%= link_to events_path(month: prev_month.strftime("%Y-%m"), q: params[:q]),
+              class: "btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" do %>
+          <i class="bi bi-chevron-left"></i><%= prev_month.strftime("%b %Y") %>
+        <% end %>
+      <% else %>
+        <span class="btn btn-sm btn-outline-secondary invisible">placeholder</span>
+      <% end %>
+
+      <div class="text-center">
+        <div class="fw-bold"><%= @current_month.strftime("%B %Y") %></div>
+        <div class="text-muted" style="font-size:0.75rem;"><%= pluralize(@events.size, "event") %></div>
+      </div>
+
+      <% if next_month %>
+        <%= link_to events_path(month: next_month.strftime("%Y-%m"), q: params[:q]),
+              class: "btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" do %>
+          <%= next_month.strftime("%b %Y") %><i class="bi bi-chevron-right"></i>
+        <% end %>
+      <% else %>
+        <span class="btn btn-sm btn-outline-secondary invisible">placeholder</span>
+      <% end %>
+
+    </div>
+  </div>
+<% end %>
 
 <div data-controller="medium-filter">
   <%= form_with url: events_path, method: :get,
@@ -29,22 +73,13 @@ end %>
              aria-label="Search events"
              data-auto-submit-target="input"
              data-action="input->auto-submit#inputChanged">
+      <input type="hidden" name="month" value="<%= params[:month] %>">
       <button class="btn btn-outline-secondary" type="submit">
         <i class="bi bi-search"></i>
       </button>
     </div>
-    <input type="hidden" name="sort" value="<%= @sort %>">
-    <input type="hidden" name="direction" value="<%= @direction %>">
   <% end %>
 
-  <% medium_icons = {
-       "call"      => "bi-telephone",
-       "video"     => "bi-camera-video",
-       "coffee"    => "bi-cup-hot",
-       "text"      => "bi-chat",
-       "in_person" => "bi-person-walking",
-       "other"     => "bi-three-dots"
-     } %>
   <div class="d-flex flex-wrap gap-2 mb-3">
     <button class="btn btn-sm btn-outline-secondary active"
             data-medium="all"
@@ -62,47 +97,29 @@ end %>
     <% end %>
   </div>
 
-<% if @events.none? %>
-  <div class="alert alert-info">
-    No events logged yet. <%= link_to "Log your first one", new_event_path, class: "alert-link" %>.
-  </div>
-<% else %>
-  <div class="card">
-    <div class="table-responsive">
-      <table class="table table-hover mb-0 align-middle">
-        <thead>
-          <tr>
-            <th><%= sort_link.call("date", "When") %></th>
-            <th><%= sort_link.call("title", "Title") %></th>
-            <th><%= sort_link.call("medium", "Medium") %></th>
-            <th><%= sort_link.call("participants", "Participants") %></th>
-            <th style="width: 1%;"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @events.each do |event| %>
-            <tr data-medium-filter-target="row" data-medium="<%= event.medium %>">
-              <td class="text-nowrap text-muted"><%= l event.occurred_at.to_date %></td>
-              <td>
-                <%= link_to event_path(event), class: "text-decoration-none fw-medium text-dark" do %>
-                  <%= highlight_match(event.display_title, params[:q]) %>
-                <% end %>
-              </td>
-              <td><span class="badge <%= medium_badge_class(event.medium) %>"><%= event.medium.titleize %></span></td>
-              <td>
-                <%= safe_join(event.people.map { |p|
-                      link_to(person_path(p), class: "text-decoration-none text-muted") {
-                        highlight_match(p.name, params[:q])
-                      }
-                    }, ", ") %>
-              </td>
-              <td class="text-end text-nowrap">
+  <% if @events.none? %>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+      No events in <%= @current_month.strftime("%B %Y") %>.
+    </div>
+  <% else %>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
+      <% @events.each do |event| %>
+        <% accent = medium_colors[event.medium] || "#4338CA" %>
+        <% icon   = medium_icons[event.medium]  || "bi-calendar-check" %>
+        <div class="col" data-medium-filter-target="row" data-medium="<%= event.medium %>">
+          <div class="card position-relative" style="border-top: 3px solid <%= accent %>; aspect-ratio: 1;">
+            <div class="card-body d-flex flex-column p-3 h-100">
+
+              <div class="d-flex align-items-start justify-content-between mb-2">
+                <span class="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
+                      style="width:34px; height:34px; background:<%= accent %>18; color:<%= accent %>; font-size:0.95rem;">
+                  <i class="bi <%= icon %>"></i>
+                </span>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-outline-secondary px-2" type="button"
+                  <button class="btn btn-sm border-0 bg-transparent p-0 px-1" type="button"
                           data-bs-toggle="dropdown" aria-expanded="false"
-                          aria-label="Options for <%= event.display_title %>">
-                    &#8943;
-                  </button>
+                          aria-label="Options for <%= event.display_title %>">&#8943;</button>
                   <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                     <li><%= link_to "View", event_path(event), class: "dropdown-item" %></li>
                     <li><%= link_to "Edit", edit_event_path(event), class: "dropdown-item" %></li>
@@ -115,17 +132,47 @@ end %>
                     </li>
                   </ul>
                 </div>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <% if @pagy&.pages.to_i > 1 %>
-    <div class="d-flex justify-content-center mt-3">
-      <%== pagy_bootstrap_nav(@pagy) %>
+              </div>
+
+              <%= link_to event_path(event),
+                    class: "fw-semibold text-dark text-decoration-none d-block mb-1",
+                    style: "font-size:0.85rem; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;" do %>
+                <%= highlight_match(event.display_title, params[:q]) %>
+              <% end %>
+
+              <span class="badge <%= medium_badge_class(event.medium) %> align-self-start"><%= event.medium.titleize %></span>
+
+              <div class="flex-grow-1"></div>
+
+              <div class="d-flex align-items-center justify-content-between mt-2">
+                <div class="text-muted" style="font-size:0.72rem; line-height:1.2;">
+                  <div><%= event.occurred_at.strftime("%-d %b") %></div>
+                  <div><%= event.occurred_at.strftime("%a") %></div>
+                </div>
+                <div class="d-flex" style="gap:2px;">
+                  <% event.people.first(3).each do |person| %>
+                    <% p_color    = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
+                    <% p_initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
+                    <%= link_to person_path(person), class: "text-decoration-none", title: person.name do %>
+                      <span class="avatar d-inline-flex"
+                            style="width:20px; height:20px; font-size:0.55rem; background:<%= p_color %>18; color:<%= p_color %>;">
+                        <%= p_initials %>
+                      </span>
+                    <% end %>
+                  <% end %>
+                  <% if event.people.size > 3 %>
+                    <span class="avatar d-inline-flex"
+                          style="width:20px; height:20px; font-size:0.55rem; background:#F3F4F6; color:#6B7280;">
+                      +<%= event.people.size - 3 %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   <% end %>
-<% end %>
 </div>

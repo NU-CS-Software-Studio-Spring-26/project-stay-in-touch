@@ -31,7 +31,7 @@
 - Email uniqueness for People is now scoped per user (two users can each have a contact with the same email)
 - Demo seed user created automatically on `db:seed`
 
-### Changed
+# Be sure to restart your server when you modify this file.
 - People and Events tables gained a non-nullable `user_id` foreign key (added nullable in the first deploy, constraint tightened after production backfill via a follow-up migration)
 - Navbar shows Login / Sign Up when logged out, and a Logout link when authenticated
 
