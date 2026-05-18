@@ -10,7 +10,7 @@ class PeopleController < ApplicationController
     @tag_filter = params[:tag_id].present? ? current_user.tags.find_by(id: params[:tag_id]) : nil
     @all_tags = current_user.tags.order(:name)
 
-    people_scope = current_user.people
+    people_scope = current_user.people.preload(:tags)
     people_scope = people_scope.where("LOWER(name) LIKE ?", "%#{params[:q].downcase}%") if params[:q].present?
     people_scope = people_scope.where(favorite: true) if @favorites_filter
     people_scope = people_scope.joins(:person_tags).where(person_tags: { tag_id: @tag_filter.id }) if @tag_filter
