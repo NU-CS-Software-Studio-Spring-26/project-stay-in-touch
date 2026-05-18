@@ -6,7 +6,7 @@ class TagsController < ApplicationController
   def update
     tag = current_user.tags.find(params[:id])
     if tag.update(name: params.dig(:tag, :name).to_s.strip)
-      redirect_to tags_path, notice: "Tag renamed to "#{tag.name}"."
+      redirect_to tags_path, notice: "Tag renamed to '#{tag.name}'."
     else
       redirect_to tags_path, alert: tag.errors.full_messages.to_sentence
     end
