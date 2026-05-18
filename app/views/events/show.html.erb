@@ -14,7 +14,7 @@
         <h1 class="h3 mb-1"><%= @event.display_title %></h1>
         <p class="text-muted mb-0"><%= l @event.occurred_at, format: :long %></p>
       </div>
-      <div>
+      <div class="d-flex gap-2">
         <%= link_to "Edit",    edit_event_path(@event), class: "btn btn-outline-primary" %>
         <%= button_to "Delete", event_path(@event),
               method: :delete,
