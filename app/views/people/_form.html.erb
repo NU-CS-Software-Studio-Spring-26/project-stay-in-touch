@@ -27,9 +27,9 @@
       <div class="form-text">IANA identifier (e.g., America/Chicago).</div>
     </div>
     <div class="col-md-6">
-      <%= f.label :frequency_weeks, "Frequency (weeks)", class: "form-label" %>
+      <%= f.label :frequency_weeks, "Catch up every (weeks)", class: "form-label" %>
       <%= f.number_field :frequency_weeks, step: 0.5, min: 0.5, class: "form-control", required: true %>
-      <div class="form-text">How often you'd like to catch up.</div>
+      <div class="form-text">e.g., 2 = every 2 weeks</div>
     </div>
   </div>
 

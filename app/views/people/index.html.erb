@@ -42,7 +42,7 @@ end %>
               You haven't caught up with
               <%= link_to person.name, person_path(person), class: "fw-semibold text-decoration-none" %>
               in <strong><%= days_ago %> days</strong>
-              <span class="text-muted small">(every <%= "%g wk" % person.frequency_weeks %>)</span>
+              <span class="text-muted small">(every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %>)</span>
             </span>
             <%= link_to "Log catch-up", new_event_path(person_id: person.id), class: "btn btn-sm btn-warning" %>
           </li>
@@ -143,7 +143,7 @@ end %>
                     <i class="bi bi-envelope" aria-hidden="true"></i>
                   <% end %>
                 </td>
-                <td class="text-end text-muted"><%= "every %g wk" % person.frequency_weeks %></td>
+                <td class="text-end text-muted">every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %></td>
                 <td>
                   <% label, css = days_until_due_badge(person.days_until_due) %>
                   <span class="badge <%= css %>"><%= label %></span>

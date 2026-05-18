@@ -36,7 +36,7 @@
         </p>
         <div class="d-flex gap-2 flex-wrap">
           <span class="stat-chip">
-            <i class="bi bi-arrow-repeat"></i> Every <%= "%g wk" % @person.frequency_weeks %>
+            <i class="bi bi-arrow-repeat"></i> Every <%= "%g" % @person.frequency_weeks %> <%= @person.frequency_weeks == 1 ? "week" : "weeks" %>
           </span>
           <span class="stat-chip">
             <i class="bi bi-clock"></i>
