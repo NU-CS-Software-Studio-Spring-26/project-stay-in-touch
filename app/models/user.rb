@@ -3,7 +3,12 @@ class User < ApplicationRecord
   has_many :sessions,           dependent: :destroy
   has_many :people,             dependent: :destroy
   has_many :events,             dependent: :destroy
+  has_many :tags,               dependent: :destroy
   has_one  :google_credential,  dependent: :destroy
+
+  DEFAULT_TAGS = %w[Work Family Friends].freeze
+
+  after_create :seed_default_tags
 
   normalizes :email, with: ->(e) { e.strip.downcase }
 
@@ -58,5 +63,9 @@ class User < ApplicationRecord
     errors.add(:password, "must include at least one lowercase letter") unless password.match?(/[a-z]/)
     errors.add(:password, "must include at least one number")           unless password.match?(/\d/)
     errors.add(:password, "must include at least one special character") unless password.match?(/[^A-Za-z\d\s]/)
+  end
+
+  def seed_default_tags
+    DEFAULT_TAGS.each { |name| tags.create!(name: name) }
   end
 end

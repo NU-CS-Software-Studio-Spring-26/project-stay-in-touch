@@ -29,6 +29,7 @@ Rails.application.routes.draw do
   resources :people do
     member do
       patch :toggle_favorite
+      patch :toggle_tag
     end
   end
   resources :events

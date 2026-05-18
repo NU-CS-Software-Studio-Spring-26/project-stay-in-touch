@@ -75,11 +75,18 @@ end %>
   <input type="hidden" name="direction" value="<%= @direction %>">
 <% end %>
 
-<div class="mb-3">
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
   <%= link_to root_path(favorites: @favorites_filter ? nil : "1", sort: @sort, direction: @direction),
         class: "btn btn-sm #{@favorites_filter ? 'btn-warning' : 'btn-outline-secondary'}" do %>
     <i class="bi bi-star<%= '-fill' if @favorites_filter %> me-1"></i>
     <%= @favorites_filter ? "Showing favorites" : "Favorites only" %>
+  <% end %>
+  <% @all_tags.each do |tag| %>
+    <% active = @tag_filter&.id == tag.id %>
+    <%= link_to root_path(tag_id: active ? nil : tag.id, sort: @sort, direction: @direction, q: params[:q]),
+          class: "btn btn-sm #{active ? 'btn-primary' : 'btn-outline-primary'}" do %>
+      <i class="bi bi-tag me-1"></i><%= tag.name %>
+    <% end %>
   <% end %>
 </div>
 
