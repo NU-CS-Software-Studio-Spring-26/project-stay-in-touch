@@ -1,10 +1,11 @@
 <% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
 
-<% sort_link = ->(col, label, extra_class: "") do
+<% sort_link = ->(col, label, icon: nil, extra_class: "") do
   next_dir = (@sort == col && @direction == "asc") ? "desc" : "asc"
   arrow = @sort == col ? (@direction == "asc" ? " ▲" : " ▼") : ""
   active_class = @sort == col ? "active" : ""
-  link_to safe_join([label, arrow]), root_path(sort: col, direction: next_dir),
+  icon_tag = icon ? content_tag(:i, "", class: "bi #{icon} me-1") : nil
+  link_to safe_join([icon_tag, label, arrow].compact), root_path(sort: col, direction: next_dir),
     class: "sort-link #{active_class} #{extra_class}"
 end %>
 
@@ -106,10 +107,10 @@ end %>
         <table class="table table-hover mb-0 align-middle">
           <thead>
             <tr>
-              <th><%= sort_link.call("name", '<i class="bi bi-person me-1"></i>Name'.html_safe) %></th>
+              <th><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
               <th class="d-none d-md-table-cell"><i class="bi bi-envelope me-1"></i>Contact</th>
-              <th class="text-end"><%= sort_link.call("frequency", '<i class="bi bi-arrow-repeat me-1"></i>Catch up every'.html_safe) %></th>
-              <th><%= sort_link.call("status", '<i class="bi bi-clock-history me-1"></i>Due'.html_safe) %></th>
+              <th class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
+              <th><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
               <th style="width: 1%;"></th>
             </tr>
           </thead>
