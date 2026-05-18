@@ -345,3 +345,31 @@ textarea:focus-visible,
   outline-offset: 2px;
   box-shadow: none;
 }
+
+/* ── Tag checkbox pill labels ────────────────────────────── */
+.tag-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  user-select: none;
+}
+.tag-checkbox-label input[type="checkbox"] {
+  display: none;
+}
+.tag-checkbox-label:hover {
+  border-color: #4338CA;
+  color: #4338CA;
+}
+.tag-checkbox-label.active {
+  background: #4338CA;
+  border-color: #4338CA;
+  color: #fff;
+}

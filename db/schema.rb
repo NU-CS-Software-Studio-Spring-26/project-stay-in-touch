@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_17_192336) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_18_183334) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -61,6 +61,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_17_192336) do
     t.index ["user_id"], name: "index_people_on_user_id"
   end
 
+  create_table "person_tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "person_id", null: false
+    t.integer "tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id", "tag_id"], name: "index_person_tags_on_person_id_and_tag_id", unique: true
+    t.index ["person_id"], name: "index_person_tags_on_person_id"
+    t.index ["tag_id"], name: "index_person_tags_on_tag_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at"
@@ -70,6 +80,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_17_192336) do
     t.integer "user_id", null: false
     t.index ["expires_at"], name: "index_sessions_on_expires_at"
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "name"], name: "index_tags_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_tags_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -89,5 +108,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_17_192336) do
   add_foreign_key "events", "users"
   add_foreign_key "google_credentials", "users"
   add_foreign_key "people", "users"
+  add_foreign_key "person_tags", "people"
+  add_foreign_key "person_tags", "tags"
   add_foreign_key "sessions", "users"
+  add_foreign_key "tags", "users"
 end

@@ -25,7 +25,7 @@ class DashboardController < ApplicationController
       .group("people.id")
       .select("people.*, COUNT(events.id) AS event_count")
       .order("event_count DESC")
-      .limit(5)
+      .limit(20)
 
     @total_catchups = current_user.events.count
     @total_people   = current_user.people.count

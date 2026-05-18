@@ -19,6 +19,8 @@ class Person < ApplicationRecord
   belongs_to :user
   has_many :event_participants, dependent: :destroy
   has_many :events, through: :event_participants
+  has_many :person_tags, dependent: :destroy
+  has_many :tags, through: :person_tags
 
   scope :favorites, -> { where(favorite: true) }
 

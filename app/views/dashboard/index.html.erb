@@ -129,8 +129,10 @@
             <i class="bi bi-star me-1 text-muted"></i>Most Contacted
           </h2>
           <% if @top_contacts.any? %>
+            <% visible_contacts = @top_contacts.first(7) %>
+            <% hidden_contacts  = @top_contacts.drop(7) %>
             <ul class="list-unstyled vstack gap-3 mb-0">
-              <% @top_contacts.each do |person| %>
+              <% visible_contacts.each do |person| %>
                 <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
                 <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
                 <li class="d-flex align-items-center justify-content-between">
@@ -147,6 +149,36 @@
                 </li>
               <% end %>
             </ul>
+            <% if hidden_contacts.any? %>
+              <div class="collapse" id="moreContacts">
+                <ul class="list-unstyled vstack gap-3 mt-3 mb-0">
+                  <% hidden_contacts.each do |person| %>
+                    <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
+                    <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
+                    <li class="d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
+                          <%= initials %>
+                        </span>
+                        <%= link_to person.name, person_path(person),
+                              class: "text-decoration-none fw-medium text-dark" %>
+                      </div>
+                      <span class="stat-chip">
+                        <%= person.event_count %> <%= "catch-up".pluralize(person.event_count) %>
+                      </span>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+              <button class="btn btn-link btn-sm text-muted ps-0 mt-2 dashboard-expand-btn"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#moreContacts"
+                      data-more="Show <%= hidden_contacts.size %> more"
+                      data-less="Show less">
+                Show <%= hidden_contacts.size %> more
+              </button>
+            <% end %>
           <% else %>
             <p class="text-muted small mb-0">No catch-ups logged yet.</p>
           <% end %>
@@ -172,8 +204,10 @@
               <p class="text-muted small mb-0">You're all caught up with everyone!</p>
             </div>
           <% else %>
+            <% visible_overdue = @overdue_people.first(7) %>
+            <% hidden_overdue  = @overdue_people.drop(7) %>
             <ul class="list-unstyled vstack gap-3 mb-0">
-              <% @overdue_people.each do |person| %>
+              <% visible_overdue.each do |person| %>
                 <% days_ago = ((Time.current - person.latest_event.occurred_at) / 1.day).round %>
                 <li class="d-flex align-items-center justify-content-between">
                   <div>
@@ -186,6 +220,32 @@
                 </li>
               <% end %>
             </ul>
+            <% if hidden_overdue.any? %>
+              <div class="collapse" id="moreOverdue">
+                <ul class="list-unstyled vstack gap-3 mt-3 mb-0">
+                  <% hidden_overdue.each do |person| %>
+                    <% days_ago = ((Time.current - person.latest_event.occurred_at) / 1.day).round %>
+                    <li class="d-flex align-items-center justify-content-between">
+                      <div>
+                        <%= link_to person.name, person_path(person),
+                              class: "fw-medium text-decoration-none text-dark d-block" %>
+                        <span class="text-muted small"><%= days_ago %> days since last catch-up</span>
+                      </div>
+                      <%= link_to "Log catch-up", new_event_path(person_id: person.id),
+                            class: "btn btn-sm btn-warning flex-shrink-0" %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+              <button class="btn btn-link btn-sm text-muted ps-0 mt-2 dashboard-expand-btn"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#moreOverdue"
+                      data-more="Show <%= hidden_overdue.size %> more"
+                      data-less="Show less">
+                Show <%= hidden_overdue.size %> more
+              </button>
+            <% end %>
           <% end %>
         </div>
       </div>
@@ -194,3 +254,17 @@
   </div>
 
 <% end %>
+
+<script>
+  document.querySelectorAll(".dashboard-expand-btn").forEach(function(btn) {
+    var targetId = btn.getAttribute("data-bs-target");
+    var target = document.querySelector(targetId);
+    if (!target) return;
+    target.addEventListener("show.bs.collapse", function() {
+      btn.textContent = btn.getAttribute("data-less");
+    });
+    target.addEventListener("hide.bs.collapse", function() {
+      btn.textContent = btn.getAttribute("data-more");
+    });
+  });
+</script>
