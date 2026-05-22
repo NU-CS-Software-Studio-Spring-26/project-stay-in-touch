@@ -69,6 +69,44 @@ RSpec.describe "Events", type: :request do
     end
   end
 
+  describe "POST /events scheduling against both calendars (#90)" do
+    let(:invitee) { create(:user, email: "inv@example.com") }
+    let(:invited_person) { create(:person, user: user, email: "inv@example.com") }
+
+    it "consults a registered, Google-connected invitee's calendar" do
+      create(:google_credential, user: invitee) # organizer is NOT connected here
+      fake = instance_double(GoogleCalendarService, busy_intervals: [])
+      expect(GoogleCalendarService).to receive(:new).with(invitee).and_return(fake)
+
+      post events_path, params: { event: valid_attrs.merge(person_ids: [invited_person.id]) }
+
+      expect(fake).to have_received(:busy_intervals)
+    end
+
+    it "consults both the organizer's and the invitee's calendars when both are connected" do
+      create(:google_credential, user: user)
+      create(:google_credential, user: invitee)
+      organizer_service = instance_double(GoogleCalendarService, busy_intervals: [], push_event: nil)
+      invitee_service   = instance_double(GoogleCalendarService, busy_intervals: [])
+      allow(GoogleCalendarService).to receive(:new).with(user).and_return(organizer_service)
+      allow(GoogleCalendarService).to receive(:new).with(invitee).and_return(invitee_service)
+
+      post events_path, params: { event: valid_attrs.merge(person_ids: [invited_person.id]) }
+
+      expect(organizer_service).to have_received(:busy_intervals)
+      expect(invitee_service).to have_received(:busy_intervals)
+    end
+
+    it "does not consult an invited contact who is not a registered user" do
+      stranger = create(:person, user: user, email: "stranger@example.com")
+      expect(GoogleCalendarService).not_to receive(:new)
+
+      post events_path, params: { event: valid_attrs.merge(person_ids: [stranger.id]) }
+
+      expect(response).to redirect_to(event_path(Event.last))
+    end
+  end
+
   describe "PATCH /events/:id" do
     it "updates attributes and participants" do
       event   = create(:event, title: "Old", people: [person_a], user: user)

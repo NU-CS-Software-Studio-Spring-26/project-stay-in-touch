@@ -86,4 +86,25 @@ RSpec.describe Person, type: :model do
       expect(person.days_until_due).to be > 0
     end
   end
+
+  describe "#matched_user and #registered?" do
+    it "returns the registered User that shares this person's email" do
+      invitee = create(:user, email: "bob@example.com")
+      person  = create(:person, email: "bob@example.com")
+      expect(person.matched_user).to eq(invitee)
+      expect(person).to be_registered
+    end
+
+    it "matches case-insensitively" do
+      invitee = create(:user, email: "carol@example.com")
+      person  = create(:person, email: "Carol@Example.com")
+      expect(person.matched_user).to eq(invitee)
+    end
+
+    it "returns nil and is not registered when no user shares the email" do
+      person = create(:person, email: "nobody@example.com")
+      expect(person.matched_user).to be_nil
+      expect(person).not_to be_registered
+    end
+  end
 end

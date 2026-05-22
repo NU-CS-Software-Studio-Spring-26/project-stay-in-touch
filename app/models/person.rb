@@ -83,6 +83,20 @@ class Person < ApplicationRecord
     count
   end
 
+  # The registered User account (if any) that shares this contact's email.
+  # User emails are normalized to lowercase, so we match case-insensitively.
+  # Used to check an invitee's calendar availability and to tailor invites.
+  def matched_user
+    return @matched_user if defined?(@matched_user)
+
+    @matched_user = email.present? ? User.find_by(email: email.strip.downcase) : nil
+  end
+
+  # True when this contact corresponds to a registered Serendipity user.
+  def registered?
+    matched_user.present?
+  end
+
   private
 
   def preferred_window_ordered

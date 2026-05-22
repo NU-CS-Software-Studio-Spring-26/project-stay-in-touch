@@ -101,15 +101,46 @@ class EventsController < ApplicationController
     to_h,   _to_m  = parse_time_param(params.dig(:event, :preferred_to))
     to_h = [to_h, from_h + 1].max
 
-    if current_user.google_calendar_connected?
-      GoogleCalendarService.new(current_user)
-                           .find_earliest_slot(
-                             window_days:   window_days,
-                             from_hour:     from_h,
-                             to_hour:       to_h,
-                             slot_duration: duration_min.minutes
-                           )
-    end || default_slot(window_days, from_h, from_m)
+    busy = collect_busy_intervals(window_days)
+    slot = if busy
+      GoogleCalendarService.earliest_free_slot(
+        busy:          busy,
+        window_days:   window_days,
+        from_hour:     from_h,
+        to_hour:       to_h,
+        slot_duration: duration_min.minutes
+      )
+    end
+
+    slot || default_slot(window_days, from_h, from_m)
+  end
+
+  # Merged free/busy from the organizer's calendar plus every invited Person who
+  # is also a registered user with Google Calendar connected (issue #90). Returns
+  # nil when no calendars are available, so scheduling falls back to default_slot
+  # exactly as before.
+  def collect_busy_intervals(window_days)
+    calendar_users = []
+    calendar_users << current_user if current_user.google_calendar_connected?
+    calendar_users.concat(matched_invitee_users)
+    return nil if calendar_users.empty?
+
+    calendar_users.flat_map do |u|
+      GoogleCalendarService.new(u).busy_intervals(window_days: window_days)
+    end
+  end
+
+  # Registered users (other than the organizer) behind the invited People,
+  # matched by email, who have connected Google Calendar. Each is queried with
+  # its own credential, so only free/busy windows are read — never event detail.
+  def matched_invitee_users
+    emails = @event.people.filter_map { |p| p.email&.strip&.downcase }
+    return [] if emails.empty?
+
+    User.where(email: emails)
+        .where.not(id: current_user.id)
+        .includes(:google_credential)
+        .select(&:google_calendar_connected?)
   end
 
   def parse_time_param(val)
