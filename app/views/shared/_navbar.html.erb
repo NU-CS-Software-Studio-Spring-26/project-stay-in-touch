@@ -5,7 +5,9 @@
           aria-label="Open navigation">
     <i class="bi bi-list" style="font-size:1.4rem;"></i>
   </button>
-  <span class="fw-bold" style="font-size:0.95rem;">Stay In Touch</span>
+  <span class="fw-bold d-inline-flex align-items-center gap-1" style="font-size:0.95rem;">
+    <%= image_tag "serendipity-mark.svg", height: 20, alt: "" %>Serendipity
+  </span>
   <% if authenticated? %>
     <%= link_to new_event_path, class: "btn btn-primary btn-sm" do %>
       <i class="bi bi-plus"></i>
@@ -21,8 +23,8 @@
      style="width:240px; background:#1E1B4B;">
   <div class="offcanvas-header" style="border-bottom:1px solid rgba(255,255,255,0.08);">
     <span class="d-flex align-items-center gap-2">
-      <i class="bi bi-heart-pulse" style="color:#A5B4FC; font-size:1.1rem;"></i>
-      <span class="fw-bold text-white" style="font-size:0.9rem;">Stay In Touch</span>
+      <%= image_tag "serendipity-mark.svg", height: 22, alt: "" %>
+      <span class="fw-bold text-white" style="font-size:0.9rem;">Serendipity</span>
     </span>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
   </div>
@@ -58,8 +60,8 @@
 <aside class="app-sidebar d-none d-lg-flex flex-column" aria-label="Main navigation">
   <%# Brand %>
   <%= link_to root_path, class: "sidebar-brand" do %>
-    <i class="bi bi-heart-pulse sidebar-brand-icon"></i>
-    <span class="sidebar-brand-text">Stay In Touch</span>
+    <%= image_tag "serendipity-mark.svg", height: 26, alt: "" %>
+    <span class="sidebar-brand-text">Serendipity</span>
   <% end %>
 
   <% if authenticated? %>
