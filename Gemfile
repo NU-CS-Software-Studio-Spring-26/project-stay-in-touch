@@ -72,3 +72,6 @@ gem "dotenv-rails", "~> 3.2", groups: [:development, :test]
 
 # OpenAI-compatible client for AI message generation via OpenRouter
 gem "ruby-openai"
+
+# CSV parsing (no longer in Ruby stdlib since Ruby 3.4)
+gem "csv"

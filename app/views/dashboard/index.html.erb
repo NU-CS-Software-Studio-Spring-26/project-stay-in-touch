@@ -119,7 +119,7 @@
   </div>
 
   <%# Detail panels row %>
-  <div class="row g-3">
+  <div class="row g-3 mb-4">
 
     <%# Top contacts %>
     <div class="col-12 col-md-6">
@@ -191,7 +191,7 @@
       </div>
     </div>
 
-    <%# Overdue people detail %>
+    <%# Quick overdue actions — kept for at-a-glance access %>
     <div class="col-12 col-md-6">
       <div class="card h-100">
         <div class="card-body">
@@ -251,6 +251,229 @@
       </div>
     </div>
 
+  </div>
+
+  <%# ── Relationship Health ──────────────────────────────────── %>
+  <div class="card">
+    <div class="card-body">
+      <h2 class="h6 fw-semibold mb-1">
+        <i class="bi bi-heart-pulse me-1 text-muted"></i>Relationship Health
+      </h2>
+      <p class="text-muted small mb-3">
+        Streak = consecutive on-time check-ins. Slipping = due within 7 days.
+      </p>
+
+      <div class="row g-3">
+
+        <%# ── Overdue ── %>
+        <div class="col-12 col-md-4">
+          <div class="p-3 rounded" style="background:#FEF2F2; border-left: 3px solid #DC2626;">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <i class="bi bi-exclamation-circle-fill" style="color:#DC2626;"></i>
+              <span class="fw-semibold" style="color:#991B1B;">Overdue</span>
+              <span class="badge ms-auto" style="background:#FEE2E2; color:#B91C1C;"><%= @overdue_people.size %></span>
+            </div>
+            <% if @overdue_people.empty? %>
+              <p class="text-muted small mb-0">None — great work!</p>
+            <% else %>
+              <% visible_overdue_h = @overdue_people.first(5) %>
+              <% hidden_overdue_h  = @overdue_people.drop(5) %>
+              <ul class="list-unstyled vstack gap-2 mb-0">
+                <% visible_overdue_h.each do |person| %>
+                  <% streak = person.streak %>
+                  <li class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="min-w-0">
+                      <%= link_to person.name, person_path(person),
+                            class: "fw-medium text-decoration-none text-dark d-block text-truncate" %>
+                      <span class="text-muted small"><%= person.days_until_due.abs %> days overdue</span>
+                      <% if streak > 0 %>
+                        <span class="badge ms-1" style="background:#FEE2E2; color:#B91C1C; font-size:0.7rem;">
+                          <i class="bi bi-fire"></i> <%= streak %> streak
+                        </span>
+                      <% end %>
+                    </div>
+                    <div class="d-flex flex-column gap-1 flex-shrink-0 align-items-end">
+                      <%= link_to "Log", new_event_path(person_id: person.id),
+                            class: "btn btn-sm btn-warning" %>
+                      <%= link_to "Draft msg", person_path(person),
+                            class: "btn btn-sm btn-outline-secondary",
+                            title: "Get AI-drafted reconnect message" %>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+              <% if hidden_overdue_h.any? %>
+                <div class="collapse" id="moreOverdueHealth">
+                  <ul class="list-unstyled vstack gap-2 mt-2 mb-0">
+                    <% hidden_overdue_h.each do |person| %>
+                      <% streak = person.streak %>
+                      <li class="d-flex align-items-start justify-content-between gap-2">
+                        <div class="min-w-0">
+                          <%= link_to person.name, person_path(person),
+                                class: "fw-medium text-decoration-none text-dark d-block text-truncate" %>
+                          <span class="text-muted small"><%= person.days_until_due.abs %> days overdue</span>
+                          <% if streak > 0 %>
+                            <span class="badge ms-1" style="background:#FEE2E2; color:#B91C1C; font-size:0.7rem;">
+                              <i class="bi bi-fire"></i> <%= streak %> streak
+                            </span>
+                          <% end %>
+                        </div>
+                        <div class="d-flex flex-column gap-1 flex-shrink-0 align-items-end">
+                          <%= link_to "Log", new_event_path(person_id: person.id),
+                                class: "btn btn-sm btn-warning" %>
+                          <%= link_to "Draft msg", person_path(person),
+                                class: "btn btn-sm btn-outline-secondary",
+                                title: "Get AI-drafted reconnect message" %>
+                        </div>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+                <button class="btn btn-link btn-sm text-muted ps-0 mt-2 dashboard-expand-btn"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#moreOverdueHealth"
+                        data-more="Show <%= hidden_overdue_h.size %> more"
+                        data-less="Show less">
+                  Show <%= hidden_overdue_h.size %> more
+                </button>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <%# ── Slipping ── %>
+        <div class="col-12 col-md-4">
+          <div class="p-3 rounded" style="background:#FFFBEB; border-left: 3px solid #D97706;">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <i class="bi bi-hourglass-split" style="color:#D97706;"></i>
+              <span class="fw-semibold" style="color:#92400E;">Slipping</span>
+              <span class="badge ms-auto" style="background:#FEF3C7; color:#92400E;"><%= @slipping_people.size %></span>
+            </div>
+            <% if @slipping_people.empty? %>
+              <p class="text-muted small mb-0">Nobody due this week.</p>
+            <% else %>
+              <% visible_slipping = @slipping_people.first(5) %>
+              <% hidden_slipping  = @slipping_people.drop(5) %>
+              <ul class="list-unstyled vstack gap-2 mb-0">
+                <% visible_slipping.each do |person| %>
+                  <% streak = person.streak %>
+                  <li class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="min-w-0">
+                      <%= link_to person.name, person_path(person),
+                            class: "fw-medium text-decoration-none text-dark d-block text-truncate" %>
+                      <span class="text-muted small">due in <%= person.days_until_due %> <%= "day".pluralize(person.days_until_due) %></span>
+                      <% if streak > 0 %>
+                        <span class="badge ms-1" style="background:#FEF3C7; color:#92400E; font-size:0.7rem;">
+                          <i class="bi bi-fire"></i> <%= streak %> streak
+                        </span>
+                      <% end %>
+                    </div>
+                    <%= link_to "Log", new_event_path(person_id: person.id),
+                          class: "btn btn-sm btn-outline-warning flex-shrink-0" %>
+                  </li>
+                <% end %>
+              </ul>
+              <% if hidden_slipping.any? %>
+                <div class="collapse" id="moreSlipping">
+                  <ul class="list-unstyled vstack gap-2 mt-2 mb-0">
+                    <% hidden_slipping.each do |person| %>
+                      <% streak = person.streak %>
+                      <li class="d-flex align-items-start justify-content-between gap-2">
+                        <div class="min-w-0">
+                          <%= link_to person.name, person_path(person),
+                                class: "fw-medium text-decoration-none text-dark d-block text-truncate" %>
+                          <span class="text-muted small">due in <%= person.days_until_due %> <%= "day".pluralize(person.days_until_due) %></span>
+                          <% if streak > 0 %>
+                            <span class="badge ms-1" style="background:#FEF3C7; color:#92400E; font-size:0.7rem;">
+                              <i class="bi bi-fire"></i> <%= streak %> streak
+                            </span>
+                          <% end %>
+                        </div>
+                        <%= link_to "Log", new_event_path(person_id: person.id),
+                              class: "btn btn-sm btn-outline-warning flex-shrink-0" %>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+                <button class="btn btn-link btn-sm text-muted ps-0 mt-2 dashboard-expand-btn"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#moreSlipping"
+                        data-more="Show <%= hidden_slipping.size %> more"
+                        data-less="Show less">
+                  Show <%= hidden_slipping.size %> more
+                </button>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <%# ── On Track ── %>
+        <div class="col-12 col-md-4">
+          <div class="p-3 rounded" style="background:#F0FDF4; border-left: 3px solid #059669;">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <i class="bi bi-check-circle-fill" style="color:#059669;"></i>
+              <span class="fw-semibold" style="color:#065F46;">On Track</span>
+              <span class="badge ms-auto" style="background:#D1FAE5; color:#065F46;"><%= @on_track_people.size %></span>
+            </div>
+            <% if @on_track_people.empty? %>
+              <p class="text-muted small mb-0">Keep logging catch-ups!</p>
+            <% else %>
+              <% visible_on_track = @on_track_people.first(8) %>
+              <% hidden_on_track  = @on_track_people.drop(8) %>
+              <ul class="list-unstyled vstack gap-2 mb-0">
+                <% visible_on_track.each do |person| %>
+                  <% streak = person.streak %>
+                  <li class="d-flex align-items-center justify-content-between gap-2">
+                    <div class="min-w-0">
+                      <%= link_to person.name, person_path(person),
+                            class: "fw-medium text-decoration-none text-dark d-block text-truncate" %>
+                      <span class="text-muted small">due in <%= person.days_until_due %> <%= "day".pluralize(person.days_until_due) %></span>
+                    </div>
+                    <% if streak > 0 %>
+                      <span class="badge flex-shrink-0" style="background:#D1FAE5; color:#065F46; font-size:0.7rem;">
+                        <i class="bi bi-fire"></i> <%= streak %>
+                      </span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+              <% if hidden_on_track.any? %>
+                <div class="collapse" id="moreOnTrack">
+                  <ul class="list-unstyled vstack gap-2 mt-2 mb-0">
+                    <% hidden_on_track.each do |person| %>
+                      <% streak = person.streak %>
+                      <li class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="min-w-0">
+                          <%= link_to person.name, person_path(person),
+                                class: "fw-medium text-decoration-none text-dark d-block text-truncate" %>
+                          <span class="text-muted small">due in <%= person.days_until_due %> <%= "day".pluralize(person.days_until_due) %></span>
+                        </div>
+                        <% if streak > 0 %>
+                          <span class="badge flex-shrink-0" style="background:#D1FAE5; color:#065F46; font-size:0.7rem;">
+                            <i class="bi bi-fire"></i> <%= streak %>
+                          </span>
+                        <% end %>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+                <button class="btn btn-link btn-sm text-muted ps-0 mt-2 dashboard-expand-btn"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#moreOnTrack"
+                        data-more="Show <%= hidden_on_track.size %> more"
+                        data-less="Show less">
+                  Show <%= hidden_on_track.size %> more
+                </button>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
 <% end %>

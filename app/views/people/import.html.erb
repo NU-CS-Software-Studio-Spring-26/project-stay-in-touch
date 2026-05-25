@@ -1,0 +1,113 @@
+<% content_for :title, "Import Contacts" %>
+
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><%= link_to "People", people_path %></li>
+    <li class="breadcrumb-item active" aria-current="page">Import Contacts</li>
+  </ol>
+</nav>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+
+    <h1 class="h4 fw-bold mb-1">Import Contacts</h1>
+    <p class="text-muted mb-4">Upload a CSV or vCard (.vcf) file to bulk-add people. Duplicates (matched by email) are skipped automatically.</p>
+
+    <%# Results %>
+    <% if @results %>
+      <div class="card mb-4" style="border-top: 3px solid <%= @results.created > 0 ? '#059669' : '#D97706' %>;">
+        <div class="card-body">
+          <h2 class="h6 fw-semibold mb-3">Import complete</h2>
+          <div class="d-flex gap-3 flex-wrap mb-3">
+            <span class="badge fs-6 fw-normal px-3 py-2" style="background:#D1FAE5; color:#065F46;">
+              <i class="bi bi-person-check me-1"></i><%= @results.created %> imported
+            </span>
+            <% if @results.skipped.any? %>
+              <span class="badge fs-6 fw-normal px-3 py-2" style="background:#FEF3C7; color:#92400E;">
+                <i class="bi bi-skip-forward me-1"></i><%= @results.skipped.size %> skipped (already exists)
+              </span>
+            <% end %>
+            <% if @results.errors.any? %>
+              <span class="badge fs-6 fw-normal px-3 py-2" style="background:#FEE2E2; color:#B91C1C;">
+                <i class="bi bi-exclamation-circle me-1"></i><%= @results.errors.size %> errors
+              </span>
+            <% end %>
+          </div>
+          <% if @results.skipped.any? %>
+            <p class="small text-muted mb-1">Skipped (already in your contacts):</p>
+            <p class="small mb-2"><%= @results.skipped.join(", ") %></p>
+          <% end %>
+          <% if @results.errors.any? %>
+            <ul class="small text-danger mb-0">
+              <% @results.errors.each do |err| %>
+                <li><%= err %></li>
+              <% end %>
+            </ul>
+          <% end %>
+          <% if @results.created > 0 %>
+            <div class="mt-3">
+              <%= link_to "View all people", people_path, class: "btn btn-sm btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Upload form %>
+    <%= form_with url: import_people_path, method: :post, multipart: true do |f| %>
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h6 fw-semibold mb-3"><i class="bi bi-upload me-1 text-muted"></i>Upload file</h2>
+          <input type="file" name="csv_file" id="csv_file"
+                 class="form-control"
+                 accept=".csv,.vcf,text/csv,text/vcard"
+                 required>
+          <div class="form-text">CSV or vCard (.vcf) files accepted.</div>
+        </div>
+        <div class="card-footer bg-transparent d-flex justify-content-end">
+          <%= f.submit "Import", class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Format guide %>
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h6 fw-semibold mb-3"><i class="bi bi-info-circle me-1 text-muted"></i>Where to get your contacts</h2>
+
+        <%# Apple %>
+        <div class="mb-4">
+          <p class="small fw-semibold mb-1"><i class="bi bi-apple me-1"></i>Apple Contacts (vCard)</p>
+          <ol class="small text-muted ps-3 mb-0">
+            <li>Open <strong>Contacts</strong> on Mac</li>
+            <li>Select all contacts <kbd>⌘A</kbd></li>
+            <li><strong>File → Export → Export vCard…</strong></li>
+            <li>Upload the <code>.vcf</code> file here</li>
+          </ol>
+        </div>
+
+        <%# Google %>
+        <div class="mb-4">
+          <p class="small fw-semibold mb-1"><i class="bi bi-google me-1"></i>Google Contacts (CSV)</p>
+          <ol class="small text-muted ps-3 mb-0">
+            <li>Go to <strong>contacts.google.com</strong></li>
+            <li>Click <strong>Export</strong> in the left sidebar</li>
+            <li>Choose <strong>Google CSV</strong></li>
+            <li>Upload the downloaded CSV here</li>
+          </ol>
+        </div>
+
+        <%# Simple CSV %>
+        <div>
+          <p class="small fw-semibold mb-1"><i class="bi bi-filetype-csv me-1"></i>Simple CSV template</p>
+          <p class="small text-muted mb-1">Only <code>name</code> and <code>email</code> are required. Everything else defaults.</p>
+          <pre class="bg-light rounded p-2 small mb-0" style="overflow-x: auto;">name,email,frequency_weeks,notes
+Jane Smith,jane@example.com,2,Met at conference 2024
+John Doe,john@example.com,4,College friend</pre>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
