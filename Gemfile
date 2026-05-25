@@ -65,7 +65,7 @@ gem "bcrypt", "~> 3.1"
 gem "pagy", "~> 9.3"
 
 # Google Calendar integration
-gem "google-apis-calendar_v3", "~> 0.17"
+gem "google-apis-calendar_v3", "~> 0.54"
 gem "googleauth", "~> 1.11"
 
 gem "dotenv-rails", "~> 3.2", groups: [:development, :test]
