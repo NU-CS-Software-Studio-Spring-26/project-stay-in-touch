@@ -21,6 +21,10 @@
                   class: "nav-link #{"active fw-semibold" if request.path.start_with?(events_path)}" %>
           </li>
           <li class="nav-item">
+            <%= link_to "Timeline", timeline_path,
+                  class: "nav-link #{"active fw-semibold" if request.path == timeline_path}" %>
+          </li>
+          <li class="nav-item">
             <%= link_to "Dashboard", dashboard_path,
                   class: "nav-link #{"active fw-semibold" if request.path == dashboard_path}" %>
           </li>

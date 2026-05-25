@@ -35,6 +35,11 @@ class DashboardController < ApplicationController
     @total_people   = current_user.people.count
   end
 
+  def timeline
+    @events = current_user.events.includes(:people).recent
+    @weeks  = @events.group_by { |e| e.occurred_at.beginning_of_week.to_date }
+  end
+
   private
 
   def calculate_streak

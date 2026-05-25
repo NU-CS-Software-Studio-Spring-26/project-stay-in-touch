@@ -23,7 +23,8 @@ Rails.application.routes.draw do
   get "manifest", to: "pwa#manifest", defaults: { format: :json }
   get "offline",  to: "pwa#offline"
 
-  get "dashboard", to: "dashboard#index"
+  get "dashboard",     to: "dashboard#index"
+  get "dashboard/timeline", to: "dashboard#timeline", as: :timeline
 
   resource  :settings, only: %i[edit update]
   resources :people do

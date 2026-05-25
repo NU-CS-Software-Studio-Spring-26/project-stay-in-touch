@@ -1,0 +1,111 @@
+<% content_for :title, "Activity Timeline" %>
+
+<% medium_icons = {
+     "call"      => "bi-telephone",
+     "video"     => "bi-camera-video",
+     "coffee"    => "bi-cup-hot",
+     "text"      => "bi-chat",
+     "in_person" => "bi-person-walking",
+     "other"     => "bi-three-dots"
+   } %>
+<% medium_colors = {
+     "call"      => "#4338CA",
+     "video"     => "#075985",
+     "coffee"    => "#92400E",
+     "text"      => "#374151",
+     "in_person" => "#065F46",
+     "other"     => "#5B21B6"
+   } %>
+<% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h4 mb-0 fw-bold">Activity Timeline</h1>
+  <%= link_to events_path, class: "btn btn-outline-primary btn-sm" do %>
+    <i class="bi bi-list-ul me-1"></i>All Events
+  <% end %>
+</div>
+
+<% if @events.none? %>
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-clock-history fs-1 d-block mb-3"></i>
+    <h2 class="h5 fw-semibold mb-2">No activity yet</h2>
+    <p class="mb-3">Log your first catch-up to see your timeline here.</p>
+    <%= link_to "Log Event", new_event_path, class: "btn btn-primary" %>
+  </div>
+<% else %>
+  <p class="text-muted small mb-4">
+    <%= pluralize(@events.size, "event") %> across <%= pluralize(@weeks.size, "week") %>
+  </p>
+
+  <% sorted_weeks = @weeks.sort_by { |week, _| week }.reverse %>
+  <% sorted_weeks.each do |week_start, events| %>
+    <div class="mb-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="fw-semibold" style="font-size:0.9rem;">
+          Week of <%= week_start.strftime("%B %-d, %Y") %>
+        </span>
+        <span class="badge rounded-pill" style="background:#F3F4F6; color:#4B5563; font-size:0.75rem;">
+          <%= pluralize(events.size, "event") %>
+        </span>
+      </div>
+
+      <div class="event-timeline">
+        <% events.each do |event| %>
+          <% accent = medium_colors[event.medium] || "#4338CA" %>
+          <% icon   = medium_icons[event.medium]  || "bi-calendar-check" %>
+          <div class="event-timeline-item">
+            <span class="event-timeline-dot" style="background:<%= accent %>; box-shadow: 0 0 0 2px <%= accent %>40;"></span>
+            <div class="event-timeline-body">
+              <div class="card">
+                <div class="card-body p-3">
+                  <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="d-flex align-items-center gap-2 min-w-0 flex-grow-1">
+                      <span class="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width:32px; height:32px; background:<%= accent %>18; color:<%= accent %>; font-size:0.85rem;">
+                        <i class="bi <%= icon %>"></i>
+                      </span>
+                      <div class="min-w-0">
+                        <%= link_to event_path(event),
+                              class: "fw-semibold text-dark text-decoration-none d-block text-truncate",
+                              style: "font-size:0.9rem;" do %>
+                          <%= event.display_title %>
+                        <% end %>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                          <span class="badge <%= medium_badge_class(event.medium) %>" style="font-size:0.65rem;"><%= event.medium.titleize %></span>
+                          <span class="text-muted" style="font-size:0.75rem;">
+                            <%= l event.occurred_at, format: :short %>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <% if event.people.any? %>
+                      <div class="d-flex flex-shrink-0" style="gap:2px;">
+                        <% event.people.first(4).each do |person| %>
+                          <% p_color    = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
+                          <% p_initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
+                          <%= link_to person_path(person), class: "text-decoration-none", title: person.name do %>
+                            <span class="avatar d-inline-flex"
+                                  style="width:24px; height:24px; font-size:0.6rem; background:<%= p_color %>18; color:<%= p_color %>;">
+                              <%= p_initials %>
+                            </span>
+                          <% end %>
+                        <% end %>
+                        <% if event.people.size > 4 %>
+                          <span class="avatar d-inline-flex"
+                                style="width:24px; height:24px; font-size:0.6rem; background:#F3F4F6; color:#6B7280;">
+                            +<%= event.people.size - 4 %>
+                          </span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
