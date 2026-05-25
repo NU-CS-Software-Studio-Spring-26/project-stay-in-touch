@@ -39,6 +39,7 @@ class EventsController < ApplicationController
     @event  = current_user.events.build
     if params[:person_id].present? && current_user.people.exists?(params[:person_id])
       @event.person_ids = [params[:person_id]]
+      @person = current_user.people.find(params[:person_id])
     end
     @people = current_user.people.order(:name)
   end
@@ -54,9 +55,15 @@ class EventsController < ApplicationController
     if @event.save
       push_to_google_calendar(@event) if current_user.google_calendar_connected?
       send_calendar_invites(@event)
-      redirect_to @event, notice: "Catch-up scheduled!"
+
+      if params[:quick_log] == "1"
+        redirect_to root_path, notice: "Catch-up scheduled!"
+      else
+        redirect_to @event, notice: "Catch-up scheduled!"
+      end
     else
       @people = current_user.people.order(:name)
+      @person = current_user.people.find_by(id: params.dig(:event, :person_ids)&.first)
       render :new, status: :unprocessable_content
     end
   end

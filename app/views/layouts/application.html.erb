@@ -39,7 +39,7 @@
     <%= render "shared/navbar" %>
 
     <main id="main-content" tabindex="-1" class="container py-4 flex-grow-1">
-      <%= render "shared/flash" %>
+      <div id="flash"><%= render "shared/flash" %></div>
       <%= yield %>
     </main>
 
