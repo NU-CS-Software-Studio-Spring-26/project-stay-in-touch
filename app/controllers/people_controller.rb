@@ -1,5 +1,5 @@
 class PeopleController < ApplicationController
-  before_action :set_person, only: %i[show edit update destroy toggle_favorite toggle_tag]
+  before_action :set_person, only: %i[show edit update destroy snooze toggle_favorite toggle_tag]
 
   SORTABLE_COLUMNS = %w[name frequency status].freeze
 
@@ -28,7 +28,7 @@ class PeopleController < ApplicationController
     end
 
     @overdue_people = current_user.people.includes(:events)
-                                  .select { |p| p.days_until_due&.negative? }
+                                  .select { |p| !p.snoozed? && p.days_until_due&.negative? }
                                   .sort_by { |p| p.days_until_due }
                                   .first(3)
   end
@@ -90,6 +90,11 @@ class PeopleController < ApplicationController
   def destroy
     @person.destroy
     redirect_to people_path, notice: "Person was successfully deleted.", status: :see_other
+  end
+
+  def snooze
+    @person.update!(snoozed_until: params[:snoozed_until].presence)
+    redirect_back fallback_location: person_path(@person), notice: @person.snoozed? ? "Snoozed until #{@person.snoozed_until}." : "Snooze cleared."
   end
 
   def toggle_favorite
