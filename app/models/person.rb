@@ -12,6 +12,7 @@
 #   frequency_weeks       :decimal not null  default 4.0  precision 5 scale 2
 #   notes                 :text    nullable
 #   favorite              :boolean not null  default false
+#   snoozed_until         :date    nullable
 class Person < ApplicationRecord
   HOUR_RANGE = (0..23).freeze
   EMAIL_FORMAT = URI::MailTo::EMAIL_REGEXP
@@ -51,6 +52,11 @@ class Person < ApplicationRecord
   # Most recent Event for this Person, or nil if none yet.
   def latest_event
     events.loaded? ? events.max_by(&:occurred_at) : events.order(occurred_at: :desc).first
+  end
+
+  # Is this person snoozed (hidden from overdue lists) until a future date?
+  def snoozed?
+    snoozed_until.present? && snoozed_until >= Date.current
   end
 
   # Days until the next reach-out is "due" per frequency_weeks.

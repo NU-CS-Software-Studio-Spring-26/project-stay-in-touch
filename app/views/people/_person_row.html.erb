@@ -1,7 +1,7 @@
 <% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
 <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
 <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
-<% overdue = person.days_until_due&.negative? %>
+<% overdue = person.days_until_due&.negative? && !person.snoozed? %>
 <tr style="<%= "box-shadow: inset 4px 0 0 #DC2626;" if overdue %>">
   <td>
     <div class="d-flex align-items-center gap-2">
@@ -34,7 +34,8 @@
   </td>
   <td class="text-end text-muted">every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %></td>
   <td>
-    <% label, css = days_until_due_badge(person.days_until_due) %>
+    <% snoozed_label, snoozed_css = snoozed_badge(person) if person.snoozed? %>
+    <% label, css = snoozed_label ? [snoozed_label, snoozed_css] : days_until_due_badge(person.days_until_due) %>
     <span class="badge <%= css %>"><%= label %></span>
   </td>
   <td class="text-end text-nowrap">
@@ -44,10 +45,37 @@
               aria-label="More options for <%= person.name %>">
         &#8943;
       </button>
-      <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width: 200px;">
         <li><%= link_to "View", person_path(person), class: "dropdown-item", data: { turbo_frame: "_top" } %></li>
         <li><%= link_to "Edit", edit_person_path(person), class: "dropdown-item", data: { turbo_frame: "_top" } %></li>
         <li><%= link_to "Log catch-up", new_event_path(person_id: person.id), class: "dropdown-item", data: { turbo_frame: "quick-log-modal", turbo_action: "advance" } %></li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <%= form_with url: snooze_person_path(person), method: :patch,
+                class: "dropdown-item p-2", data: { turbo: true } do |f| %>
+            <div class="d-flex align-items-center gap-1">
+              <%= f.date_field :snoozed_until, value: person.snoozed_until,
+                    class: "form-control form-control-sm",
+                    style: "width: 130px; font-size: 0.75rem;",
+                    min: Date.current.to_s,
+                    placeholder: "Snooze until…" %>
+              <%= f.button class: "btn btn-sm btn-outline-info border-0", style: "font-size: 0.75rem;",
+                    aria: { label: "Snooze until date" } do %>
+                <i class="bi bi-bell-slash"></i>
+              <% end %>
+            </div>
+          <% end %>
+        </li>
+        <% if person.snoozed? %>
+          <li>
+            <%= button_to snooze_person_path(person),
+                  method: :patch,
+                  params: { snoozed_until: "" },
+                  class: "dropdown-item text-warning" do %>
+              <i class="bi bi-bell me-1"></i>Unsnooze
+            <% end %>
+          </li>
+        <% end %>
         <li><hr class="dropdown-divider"></li>
         <li>
           <%= button_to "Delete", person_path(person),

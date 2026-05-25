@@ -37,4 +37,10 @@ module ApplicationHelper
 
     ["Due in #{days}d", "badge-upcoming"]
   end
+
+  def snoozed_badge(person)
+    return nil unless person.snoozed?
+
+    ["Snoozed until #{person.snoozed_until.strftime("%b %-d")}", "badge-snoozed"]
+  end
 end

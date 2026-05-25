@@ -32,6 +32,7 @@ Rails.application.routes.draw do
       match :import, via: %i[get post]
     end
     member do
+      patch :snooze
       patch :toggle_favorite
       patch :toggle_tag
     end

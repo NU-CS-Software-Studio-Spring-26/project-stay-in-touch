@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_18_183334) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_184311) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -53,6 +53,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_18_183334) do
     t.text "notes"
     t.integer "preferred_end_hour", default: 21, null: false
     t.integer "preferred_start_hour", default: 9, null: false
+    t.date "snoozed_until"
     t.string "timezone", default: "America/Chicago", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
