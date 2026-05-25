@@ -10,10 +10,14 @@ class DashboardController < ApplicationController
 
     @streak = calculate_streak
 
-    @overdue_people = current_user.people
-      .includes(:events)
-      .select { |p| p.days_until_due&.negative? }
-      .sort_by { |p| p.days_until_due }
+    all_people = current_user.people.includes(:events)
+
+    @overdue_people  = all_people.select { |p| p.days_until_due&.negative? }
+                                 .sort_by { |p| p.days_until_due }
+    @slipping_people = all_people.select { |p| (d = p.days_until_due) && d >= 0 && d <= 7 }
+                                 .sort_by { |p| p.days_until_due }
+    @on_track_people = all_people.select { |p| (d = p.days_until_due) && d > 7 }
+                                 .sort_by { |p| p.days_until_due }
 
     @avg_frequency_weeks = current_user.people
       .where.not(frequency_weeks: nil)

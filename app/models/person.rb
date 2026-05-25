@@ -62,6 +62,21 @@ class Person < ApplicationRecord
     ((deadline - Time.current) / 1.day).round
   end
 
+  # Consecutive on-time check-ins (each gap <= frequency_weeks window), counted
+  # from the most recent event pair backwards.
+  def streak
+    sorted = events.loaded? ? events.sort_by(&:occurred_at) : events.order(:occurred_at).to_a
+    return 0 if sorted.size < 2
+
+    window = (frequency_weeks * 7).days.to_i
+    count = 0
+    sorted.reverse.each_cons(2) do |later, earlier|
+      break if (later.occurred_at - earlier.occurred_at).to_i > window
+      count += 1
+    end
+    count
+  end
+
   private
 
   def preferred_window_ordered
