@@ -45,6 +45,18 @@ class PeopleController < ApplicationController
     end
   end
 
+  def import
+    return unless request.post?
+
+    file = params[:csv_file]
+    unless file
+      flash.now[:alert] = "Please select a CSV file."
+      return render :import, status: :unprocessable_content
+    end
+
+    @results = CsvImportService.new(file, current_user).call
+  end
+
   def new
     @person = current_user.people.build
     @all_tags = current_user.tags.order(:name)

@@ -27,6 +27,9 @@ Rails.application.routes.draw do
 
   resource  :settings, only: %i[edit update]
   resources :people do
+    collection do
+      match :import, via: %i[get post]
+    end
     member do
       patch :toggle_favorite
       patch :toggle_tag
