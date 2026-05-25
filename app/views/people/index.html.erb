@@ -17,9 +17,9 @@ end %>
         <i class="bi bi-check-circle-fill me-1"></i>Google Calendar connected
       </span>
       <%= button_to "Disconnect", google_oauth_disconnect_path,
-            method: :delete,
-            class: "btn btn-sm btn-outline-secondary",
-            form: { data: { turbo_confirm: "Disconnect Google Calendar?" } } %>
+              method: :delete,
+              class: "btn btn-sm btn-outline-secondary",
+              form: { data: { turbo_confirm: "Disconnect Google Calendar?" } } %>
     <% else %>
       <%= link_to google_oauth_authorize_path, class: "btn btn-sm btn-outline-secondary" do %>
         <i class="bi bi-google me-1"></i>Connect Google Calendar
@@ -29,6 +29,9 @@ end %>
     <%= link_to "Add Person", new_person_path, class: "btn btn-primary" %>
   </div>
 </div>
+
+<turbo-frame id="quick-log-modal" class="turbo-modal" data-turbo-action="advance">
+</turbo-frame>
 
 <% if @overdue_people.any? %>
   <div class="card border-warning mb-4" style="background: #FFFBEB;">
@@ -116,75 +119,19 @@ end %>
           </thead>
           <tbody>
             <% @people.each do |person| %>
-              <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
-              <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
-              <% overdue = person.days_until_due&.negative? %>
-              <tr style="<%= "box-shadow: inset 4px 0 0 #DC2626;" if overdue %>">
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <%= button_to toggle_favorite_person_path(person),
-                          method: :patch,
-                          class: "btn btn-sm border-0 bg-transparent p-0 me-1 flex-shrink-0",
-                          aria: { label: "#{person.favorite? ? 'Unfavorite' : 'Favorite'} #{person.name}" },
-                          form: { data: { turbo_frame: "_top" } } do %>
-                      <i class="bi bi-star<%= '-fill text-warning' if person.favorite? %>"></i>
-                    <% end %>
-                    <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
-                      <%= initials %>
-                    </span>
-                    <div>
-                      <%= link_to person_path(person),
-                            class: "text-decoration-none fw-medium text-dark d-block",
-                            data: { turbo_frame: "_top" } do %>
-                        <%= highlight_match(person.name, params[:q]) %>
-                      <% end %>
-                      <div class="d-flex align-items-center gap-1 flex-wrap mt-1">
-                        <%= link_to "mailto:#{person.email}", class: "text-muted text-decoration-none", style: "font-size:0.75rem;" do %>
-                          <i class="bi bi-envelope me-1"></i><%= person.email %>
-                        <% end %>
-                        <% person.tags.each do |tag| %>
-                          <span class="badge rounded-pill" style="background:#F3F4F6; color:#374151; font-size:0.65rem; font-weight:500;"><%= tag.name %></span>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td class="text-end text-muted">every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %></td>
-                <td>
-                  <% label, css = days_until_due_badge(person.days_until_due) %>
-                  <span class="badge <%= css %>"><%= label %></span>
-                </td>
-                <td class="text-end text-nowrap">
-                  <div class="dropup">
-                    <button class="btn btn-sm border-0 bg-transparent px-2" type="button"
-                            data-bs-toggle="dropdown" data-bs-strategy="fixed" aria-expanded="false"
-                            aria-label="More options for <%= person.name %>">
-                      &#8943;
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                      <li><%= link_to "View", person_path(person), class: "dropdown-item", data: { turbo_frame: "_top" } %></li>
-                      <li><%= link_to "Edit", edit_person_path(person), class: "dropdown-item", data: { turbo_frame: "_top" } %></li>
-                      <li><hr class="dropdown-divider"></li>
-                      <li>
-                        <%= button_to "Delete", person_path(person),
-                              method: :delete,
-                              form: { data: { turbo_confirm: "Remove #{person.name}?" } },
-                              class: "dropdown-item text-danger" %>
-                      </li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
+              <turbo-frame id="person_<%= person.id %>">
+                <%= render "person_row", person: person %>
+              </turbo-frame>
             <% end %>
           </tbody>
         </table>
       </div>
     </div>
   <% end %>
-  <% if @people_pagy&.pages.to_i > 1 %>
-    <div class="d-flex justify-content-center mt-3">
-      <%== pagy_bootstrap_nav(@people_pagy) %>
-    </div>
-  <% end %>
+<% if @people_pagy&.pages.to_i > 1 %>
+  <div class="d-flex justify-content-center mt-3">
+    <%== pagy_bootstrap_nav(@people_pagy) %>
+  </div>
+<% end %>
 </turbo-frame>
 </div>

@@ -1,0 +1,69 @@
+<style>
+  turbo-frame#quick-log-modal.turbo-modal { display: flex !important; }
+</style>
+<div class="modal-overlay">
+  <div class="modal-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-semibold mb-0">Log catch-up with <%= @person.name %></h5>
+      <%= link_to root_path, class: "btn-close", aria: { label: "Close" } %>
+    </div>
+
+    <%= form_with model: @event, data: { turbo_frame: "_top" } do |f| %>
+      <% if @event.errors.any? %>
+        <div class="alert alert-danger">
+          <strong><%= pluralize(@event.errors.count, "error") %> prevented this event from being saved:</strong>
+          <ul class="mb-0"><% @event.errors.full_messages.each { |m| %><li><%= m %></li><% } %></ul>
+        </div>
+      <% end %>
+
+      <%= hidden_field_tag "event[person_ids][]", @person.id %>
+      <%= hidden_field_tag :quick_log, "1" %>
+
+      <div class="mb-3">
+        <%= f.label :occurred_at, class: "form-label" do %><i class="bi bi-calendar me-1"></i>When<% end %>
+        <%= f.datetime_local_field :occurred_at,
+              value: @event.occurred_at&.strftime("%Y-%m-%dT%H:%M"),
+              class: "form-control", required: true %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :duration_minutes, class: "form-label fw-semibold" do %><i class="bi bi-hourglass-split me-1"></i>How long?<% end %>
+        <%= f.select :duration_minutes,
+              [["15 minutes", 15], ["30 minutes", 30], ["45 minutes", 45],
+               ["1 hour", 60], ["1.5 hours", 90], ["2 hours", 120]],
+              { selected: (@event.duration_minutes.presence || 60) },
+              class: "form-select" %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :medium, class: "form-label" do %><i class="bi bi-chat-dots me-1"></i>Medium<% end %>
+        <%= f.select :medium,
+              Event::MEDIA.map { |m| [m.titleize, m] },
+              { prompt: "Select a medium" },
+              class: "form-select", required: true %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :title, class: "form-label" do %><i class="bi bi-pencil me-1"></i>Title (optional)<% end %>
+        <%= f.text_field :title, class: "form-control",
+              placeholder: "e.g., Birthday dinner", maxlength: 255 %>
+        <div class="form-text">Give it a name, or leave blank and we'll figure it out.</div>
+      </div>
+
+      <div class="mb-3" data-controller="char-counter" data-char-counter-max-value="5000">
+        <%= f.label :notes, class: "form-label" do %><i class="bi bi-chat-text me-1"></i>Notes<% end %>
+        <%= f.text_area :notes, rows: 4, class: "form-control",
+              placeholder: "What did you talk about? Anything to follow up on?", maxlength: 5000,
+              data: { char_counter_target: "input", action: "input->char-counter#update" } %>
+        <div class="form-text text-end">
+          <span data-char-counter-target="count"></span>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <%= f.submit "Log Catch-Up", class: "btn btn-primary" %>
+        <%= link_to "Cancel", root_path, class: "btn btn-outline-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

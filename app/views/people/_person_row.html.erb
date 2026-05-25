@@ -1,0 +1,61 @@
+<% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
+<% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
+<% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
+<% overdue = person.days_until_due&.negative? %>
+<tr style="<%= "box-shadow: inset 4px 0 0 #DC2626;" if overdue %>">
+  <td>
+    <div class="d-flex align-items-center gap-2">
+      <%= button_to toggle_favorite_person_path(person),
+            method: :patch,
+            class: "btn btn-sm border-0 bg-transparent p-0 me-1 flex-shrink-0",
+            aria: { label: "#{person.favorite? ? 'Unfavorite' : 'Favorite'} #{person.name}" },
+            form: { data: { turbo_frame: "_top" } } do %>
+        <i class="bi bi-star<%= '-fill text-warning' if person.favorite? %>"></i>
+      <% end %>
+      <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
+        <%= initials %>
+      </span>
+      <div>
+        <%= link_to person_path(person),
+              class: "text-decoration-none fw-medium text-dark d-block",
+              data: { turbo_frame: "_top" } do %>
+          <%= highlight_match(person.name, params[:q]) %>
+        <% end %>
+        <div class="d-flex align-items-center gap-1 flex-wrap mt-1">
+          <%= link_to "mailto:#{person.email}", class: "text-muted text-decoration-none", style: "font-size:0.75rem;" do %>
+            <i class="bi bi-envelope me-1"></i><%= person.email %>
+          <% end %>
+          <% person.tags.each do |tag| %>
+            <span class="badge rounded-pill" style="background:#F3F4F6; color:#374151; font-size:0.65rem; font-weight:500;"><%= tag.name %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </td>
+  <td class="text-end text-muted">every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %></td>
+  <td>
+    <% label, css = days_until_due_badge(person.days_until_due) %>
+    <span class="badge <%= css %>"><%= label %></span>
+  </td>
+  <td class="text-end text-nowrap">
+    <div class="dropup">
+      <button class="btn btn-sm border-0 bg-transparent px-2" type="button"
+              data-bs-toggle="dropdown" data-bs-strategy="fixed" aria-expanded="false"
+              aria-label="More options for <%= person.name %>">
+        &#8943;
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+        <li><%= link_to "View", person_path(person), class: "dropdown-item", data: { turbo_frame: "_top" } %></li>
+        <li><%= link_to "Edit", edit_person_path(person), class: "dropdown-item", data: { turbo_frame: "_top" } %></li>
+        <li><%= link_to "Log catch-up", new_event_path(person_id: person.id), class: "dropdown-item", data: { turbo_frame: "quick-log-modal", turbo_action: "advance" } %></li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <%= button_to "Delete", person_path(person),
+                method: :delete,
+                form: { data: { turbo_confirm: "Remove #{person.name}?" } },
+                class: "dropdown-item text-danger" %>
+        </li>
+      </ul>
+    </div>
+  </td>
+</tr>
