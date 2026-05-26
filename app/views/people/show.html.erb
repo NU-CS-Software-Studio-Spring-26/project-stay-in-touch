@@ -11,12 +11,14 @@
 <% p_start   = person_tz.local(today.year, today.month, today.day, @person.preferred_start_hour) %>
 <% p_end     = person_tz.local(today.year, today.month, today.day, @person.preferred_end_hour) %>
 
-<nav aria-label="breadcrumb" class="mb-3">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><%= link_to "People", people_path %></li>
-    <li class="breadcrumb-item active" aria-current="page"><%= @person.name %></li>
-  </ol>
-</nav>
+<div class="d-flex align-items-center gap-2 mb-4">
+  <%= link_to people_path, class: "btn-back" do %>
+    <i class="bi bi-arrow-left"></i>
+  <% end %>
+  <span class="text-muted small">People</span>
+  <i class="bi bi-chevron-right text-muted" style="font-size:0.65rem;"></i>
+  <span class="small fw-semibold"><%= @person.name %></span>
+</div>
 
 <%# ── Hero card ───────────────────────────────────────────── %>
 <div class="card mb-4" style="border-top: 4px solid <%= color %>;">

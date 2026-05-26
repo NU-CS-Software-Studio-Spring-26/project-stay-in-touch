@@ -1,4 +1,14 @@
-<%= form_with model: event, class: "vstack gap-3" do |f| %>
+<% medium_icons = {
+  "call"      => "bi-telephone-fill",
+  "video"     => "bi-camera-video-fill",
+  "text"      => "bi-chat-fill",
+  "in_person" => "bi-person-fill",
+  "coffee"    => "bi-cup-hot-fill",
+  "other"     => "bi-three-dots"
+} %>
+<% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
+
+<%= form_with model: event, class: "vstack gap-4" do |f| %>
   <% if event.errors.any? %>
     <div class="alert alert-danger">
       <strong><%= pluralize(event.errors.count, "error") %> prevented this event from being saved:</strong>
@@ -6,97 +16,117 @@
     </div>
   <% end %>
 
+  <%# ── When ── %>
   <% if event.new_record? %>
     <div>
-      <span class="form-label d-block fw-semibold mb-2"><i class="bi bi-calendar me-1"></i>When</span>
-      <div class="vstack gap-1 mb-3">
-        <% [["3", "In the next 3 days"], ["5", "In the next 5 days"], ["10", "In the next 10 days"], ["30", "In the next month"]].each do |val, label| %>
-          <div class="form-check">
-            <%= radio_button_tag "event[window_days]", val, val == "3",
-                  class: "form-check-input", id: "window_#{val}" %>
-            <%= label_tag "window_#{val}", label, class: "form-check-label" %>
-          </div>
+      <label class="form-label fw-semibold mb-2"><i class="bi bi-calendar me-1"></i>When</label>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <% [["3", "Next 3 days"], ["5", "Next 5 days"], ["10", "Next 10 days"], ["30", "This month"]].each do |val, label| %>
+          <label class="when-option">
+            <%= radio_button_tag "event[window_days]", val, val == "3", class: "when-option-radio" %>
+            <%= label %>
+          </label>
         <% end %>
       </div>
       <div class="row g-2">
         <div class="col">
-          <label for="event_preferred_from" class="form-label small text-muted"><i class="bi bi-clock me-1"></i>Preferred from</label>
+          <label for="event_preferred_from" class="form-label small text-muted"><i class="bi bi-sun me-1"></i>From</label>
           <%= time_field_tag "event[preferred_from]", "09:00",
                 class: "form-control", id: "event_preferred_from", autocomplete: "off" %>
         </div>
         <div class="col">
-          <label for="event_preferred_to" class="form-label small text-muted"><i class="bi bi-clock me-1"></i>Preferred until</label>
+          <label for="event_preferred_to" class="form-label small text-muted"><i class="bi bi-moon me-1"></i>Until</label>
           <%= time_field_tag "event[preferred_to]", "17:00",
                 class: "form-control", id: "event_preferred_to", autocomplete: "off" %>
         </div>
       </div>
-      <div class="form-text">
-        We'll find the earliest open slot in your calendar within this window and time range.
-      </div>
+      <div class="form-text">We'll find the earliest open slot in your calendar within this window.</div>
     </div>
   <% else %>
     <div>
-      <%= f.label :occurred_at, class: "form-label" do %><i class="bi bi-calendar me-1"></i>When<% end %>
+      <%= f.label :occurred_at, class: "form-label fw-semibold" do %><i class="bi bi-calendar me-1"></i>When<% end %>
       <%= f.datetime_local_field :occurred_at,
             value: event.occurred_at.strftime("%Y-%m-%dT%H:%M"),
             class: "form-control", required: true %>
     </div>
   <% end %>
 
+  <%# ── Duration ── %>
   <div>
     <%= f.label :duration_minutes, class: "form-label fw-semibold" do %><i class="bi bi-hourglass-split me-1"></i>How long?<% end %>
     <%= f.select :duration_minutes,
-          [["15 minutes", 15], ["30 minutes", 30], ["45 minutes", 45],
+          [["15 min", 15], ["30 min", 30], ["45 min", 45],
            ["1 hour", 60], ["1.5 hours", 90], ["2 hours", 120]],
           { selected: (event.duration_minutes.presence || 60) },
           class: "form-select" %>
   </div>
 
+  <%# ── Medium — pill picker ── %>
   <div>
-    <%= f.label :medium, class: "form-label" do %><i class="bi bi-chat-dots me-1"></i>Medium<% end %>
-    <%= f.select :medium,
-          Event::MEDIA.map { |m| [m.titleize, m] },
-          { prompt: "Select a medium" },
-          class: "form-select", required: true %>
+    <label class="form-label fw-semibold mb-2"><i class="bi bi-chat-dots me-1"></i>Medium</label>
+    <div class="d-flex flex-wrap gap-2">
+      <% Event::MEDIA.each do |m| %>
+        <label class="medium-pill">
+          <%= f.radio_button :medium, m, class: "medium-pill-radio",
+                required: (m == Event::MEDIA.first) %>
+          <i class="bi <%= medium_icons[m] %>"></i><%= m.titleize %>
+        </label>
+      <% end %>
+    </div>
   </div>
 
+  <%# ── Title ── %>
   <div>
-    <%= f.label :title, class: "form-label" do %><i class="bi bi-pencil me-1"></i>Title (optional)<% end %>
+    <%= f.label :title, class: "form-label fw-semibold" do %><i class="bi bi-pencil me-1"></i>Title <span class="text-muted fw-normal">(optional)</span><% end %>
     <%= f.text_field :title, class: "form-control",
           placeholder: "e.g., Birthday dinner", maxlength: 255 %>
-    <div class="form-text">Give it a name, or leave blank and we'll figure it out.</div>
+    <div class="form-text">Leave blank and we'll generate one automatically.</div>
   </div>
 
+  <%# ── Participants ── %>
   <fieldset data-controller="people-search">
-    <legend class="form-label fw-semibold"><i class="bi bi-people me-1"></i>Participants</legend>
+    <legend class="form-label fw-semibold mb-2"><i class="bi bi-people me-1"></i>Participants</legend>
     <% if @people.empty? %>
       <div class="alert alert-warning mb-0">
         Add a <%= link_to "Person", new_person_path, class: "alert-link" %> first.
       </div>
     <% else %>
-      <input type="text" class="form-control form-control-sm mb-2"
-             placeholder="Search participants…"
-             autocomplete="off"
-             data-people-search-target="input"
-             data-action="input->people-search#filter"
-             aria-label="Search participants">
-      <div class="border rounded p-3 bg-white" style="max-height: 260px; overflow-y: auto;">
+      <div class="search-pill-wrap mb-2">
+        <i class="bi bi-search search-pill-icon"></i>
+        <input type="text"
+               class="search-pill-input"
+               placeholder="Search participants…"
+               autocomplete="off"
+               data-people-search-target="input"
+               data-action="input->people-search#filter"
+               aria-label="Search participants">
+      </div>
+      <div class="participants-list">
         <% @people.each do |person| %>
-          <div class="form-check" data-people-search-target="row" data-name="<%= person.name %>">
+          <% p_color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
+          <% p_initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
+          <label class="participant-row"
+                 data-people-search-target="row"
+                 data-name="<%= person.name %>"
+                 for="event_person_ids_<%= person.id %>">
+            <span class="avatar" style="background:<%= p_color %>18;color:<%= p_color %>;width:30px;height:30px;font-size:0.62rem;">
+              <%= p_initials %>
+            </span>
+            <span class="flex-grow-1 fw-medium" style="font-size:0.875rem;"><%= person.name %></span>
             <%= check_box_tag "event[person_ids][]", person.id,
                   event.person_ids.include?(person.id),
                   id: "event_person_ids_#{person.id}",
-                  class: "form-check-input" %>
-            <%= label_tag "event_person_ids_#{person.id}", person.name, class: "form-check-label" %>
-          </div>
+                  class: "form-check-input flex-shrink-0" %>
+          </label>
         <% end %>
       </div>
-      <div class="form-text">Select every person involved — pick multiple for group catch-ups.</div>
+      <div class="form-text">Select everyone involved — multiple for group catch-ups.</div>
     <% end %>
   </fieldset>
 
+  <%# ── Notes ── %>
   <div data-controller="char-counter" data-char-counter-max-value="5000">
-    <%= f.label :notes, class: "form-label" do %><i class="bi bi-chat-text me-1"></i>Notes<% end %>
+    <%= f.label :notes, class: "form-label fw-semibold" do %><i class="bi bi-chat-text me-1"></i>Notes<% end %>
     <%= f.text_area :notes, rows: 4, class: "form-control",
           placeholder: "What did you talk about? Anything to follow up on?", maxlength: 5000,
           data: { char_counter_target: "input", action: "input->char-counter#update" } %>
@@ -105,9 +135,11 @@
     </div>
   </div>
 
-  <div class="d-flex gap-2">
-    <%= f.submit (event.new_record? ? "Schedule Catch-Up" : "Update Event"), class: "btn btn-primary" %>
-    <%= link_to "Cancel", (event.persisted? ? event_path(event) : root_path),
+  <%# ── Submit ── %>
+  <div class="d-flex gap-2 pt-2">
+    <%= f.submit (event.new_record? ? "Schedule Catch-Up" : "Update Event"),
+          class: "btn btn-primary px-4" %>
+    <%= link_to "Cancel", (event.persisted? ? event_path(event) : events_path),
           class: "btn btn-outline-secondary" %>
   </div>
 <% end %>

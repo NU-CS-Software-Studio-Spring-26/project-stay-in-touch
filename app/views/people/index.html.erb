@@ -61,39 +61,38 @@ end %>
       data: { controller: "auto-submit", turbo_frame: "people-table" },
       class: "mb-3" do %>
   <label for="people-search-input" class="visually-hidden">Search people</label>
-  <div class="input-group">
+  <div class="search-pill-wrap">
+    <i class="bi bi-search search-pill-icon"></i>
     <input type="text"
            id="people-search-input"
            name="q"
            value="<%= params[:q] %>"
-           class="form-control"
+           class="search-pill-input"
            placeholder="Search by name…"
            autocomplete="off"
            aria-label="Search people"
            data-auto-submit-target="input"
            data-action="input->auto-submit#inputChanged">
-    <button class="btn btn-outline-secondary" type="submit">
-      <i class="bi bi-search"></i>
-    </button>
   </div>
   <input type="hidden" name="sort" value="<%= @sort %>">
   <input type="hidden" name="direction" value="<%= @direction %>">
 <% end %>
 
 <% tag_colors = %w[#0D9488 #7C3AED #D97706 #E11D48 #2563EB #059669 #9333EA #B45309] %>
-<div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+<div class="d-flex flex-wrap gap-2 align-items-center mb-4">
   <%= link_to people_path(favorites: @favorites_filter ? nil : "1", sort: @sort, direction: @direction),
-        class: "btn btn-sm #{@favorites_filter ? 'btn-warning' : 'btn-outline-secondary'}" do %>
-    <i class="bi bi-star<%= '-fill' if @favorites_filter %> me-1"></i>
-    <%= @favorites_filter ? "Showing favorites" : "Favorites only" %>
+        class: "filter-chip #{@favorites_filter ? 'filter-chip-active' : ''}" do %>
+    <i class="bi bi-star<%= '-fill' if @favorites_filter %>"></i>
+    <%= @favorites_filter ? "Favorites" : "Favorites" %>
   <% end %>
   <% @all_tags.each_with_index do |tag, i| %>
     <% active = @tag_filter&.id == tag.id %>
     <% color = tag_colors[i % tag_colors.length] %>
     <%= link_to people_path(tag_id: active ? nil : tag.id, sort: @sort, direction: @direction, q: params[:q]),
-          class: "btn btn-sm #{'btn-outline-secondary' unless active}",
-          style: (active ? "background:#{color}; border-color:#{color}; color:#fff;" : nil) do %>
-      <i class="bi bi-tag me-1"></i><%= tag.name %>
+          class: "filter-chip #{active ? 'filter-chip-active' : ''}",
+          style: (active ? "--chip-color:#{color};" : nil) do %>
+      <span class="filter-chip-dot" style="<%= active ? "background:#{color};" : '' %>"></span>
+      <%= tag.name %>
     <% end %>
   <% end %>
 </div>
@@ -106,26 +105,24 @@ end %>
       No people yet. <%= link_to "Add the first one", new_person_path, class: "alert-link" %>.
     </div>
   <% else %>
-    <div class="card" style="overflow: visible;">
-      <div class="table-responsive" style="overflow: visible;">
-        <table class="table table-hover mb-0 align-middle">
-          <thead>
-            <tr>
-              <th><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
-              <th class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
-              <th><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
-              <th style="width: 1%;"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @people.each do |person| %>
-              <turbo-frame id="person_<%= person.id %>">
-                <%= render "person_row", person: person %>
-              </turbo-frame>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+    <div class="table-responsive" style="overflow: visible;">
+      <table class="table table-row-cards mb-0 align-middle">
+        <thead>
+          <tr>
+            <th><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
+            <th class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
+            <th><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
+            <th style="width: 1%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @people.each do |person| %>
+            <turbo-frame id="person_<%= person.id %>">
+              <%= render "person_row", person: person %>
+            </turbo-frame>
+          <% end %>
+        </tbody>
+      </table>
     </div>
   <% end %>
 <% if @people_pagy&.pages.to_i > 1 %>

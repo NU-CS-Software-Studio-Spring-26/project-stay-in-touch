@@ -1,16 +1,14 @@
 <% content_for :title, "Edit #{@person.name}" %>
 
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><%= link_to "People", people_path %></li>
-    <li class="breadcrumb-item"><%= link_to @person.name, person_path(@person) %></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit</li>
-  </ol>
-</nav>
+<div class="d-flex align-items-center gap-3 mb-4">
+  <%= link_to person_path(@person), class: "btn-back" do %>
+    <i class="bi bi-arrow-left"></i>
+  <% end %>
+  <h1 class="h4 mb-0 fw-bold">Edit <%= @person.name %></h1>
+</div>
 
-<div class="card shadow-sm">
-  <div class="card-body">
-    <h1 class="h3 mb-4">Edit <%= @person.name %></h1>
+<div class="card">
+  <div class="card-body p-4">
     <%= render "form", person: @person %>
   </div>
 </div>
