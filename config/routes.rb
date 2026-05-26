@@ -40,5 +40,5 @@ Rails.application.routes.draw do
   resources :events
   resources :tags, only: %i[index update destroy]
 
-  root "people#index"
+  root "dashboard#index"
 end

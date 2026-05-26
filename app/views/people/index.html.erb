@@ -5,7 +5,7 @@
   arrow = @sort == col ? (@direction == "asc" ? " ▲" : " ▼") : ""
   active_class = @sort == col ? "active" : ""
   icon_tag = icon ? content_tag(:i, "", class: "bi #{icon} me-1") : nil
-  link_to safe_join([icon_tag, label, arrow].compact), root_path(sort: col, direction: next_dir),
+  link_to safe_join([icon_tag, label, arrow].compact), people_path(sort: col, direction: next_dir),
     class: "sort-link #{active_class} #{extra_class}"
 end %>
 
@@ -57,7 +57,7 @@ end %>
   </div>
 <% end %>
 
-<%= form_with url: root_path, method: :get,
+<%= form_with url: people_path, method: :get,
       data: { controller: "auto-submit", turbo_frame: "people-table" },
       class: "mb-3" do %>
   <label for="people-search-input" class="visually-hidden">Search people</label>
@@ -82,7 +82,7 @@ end %>
 
 <% tag_colors = %w[#0D9488 #7C3AED #D97706 #E11D48 #2563EB #059669 #9333EA #B45309] %>
 <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
-  <%= link_to root_path(favorites: @favorites_filter ? nil : "1", sort: @sort, direction: @direction),
+  <%= link_to people_path(favorites: @favorites_filter ? nil : "1", sort: @sort, direction: @direction),
         class: "btn btn-sm #{@favorites_filter ? 'btn-warning' : 'btn-outline-secondary'}" do %>
     <i class="bi bi-star<%= '-fill' if @favorites_filter %> me-1"></i>
     <%= @favorites_filter ? "Showing favorites" : "Favorites only" %>
@@ -90,7 +90,7 @@ end %>
   <% @all_tags.each_with_index do |tag, i| %>
     <% active = @tag_filter&.id == tag.id %>
     <% color = tag_colors[i % tag_colors.length] %>
-    <%= link_to root_path(tag_id: active ? nil : tag.id, sort: @sort, direction: @direction, q: params[:q]),
+    <%= link_to people_path(tag_id: active ? nil : tag.id, sort: @sort, direction: @direction, q: params[:q]),
           class: "btn btn-sm #{'btn-outline-secondary' unless active}",
           style: (active ? "background:#{color}; border-color:#{color}; color:#fff;" : nil) do %>
       <i class="bi bi-tag me-1"></i><%= tag.name %>

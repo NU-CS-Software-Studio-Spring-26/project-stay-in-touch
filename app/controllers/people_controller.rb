@@ -31,6 +31,12 @@ class PeopleController < ApplicationController
                                   .select { |p| !p.snoozed? && p.days_until_due&.negative? }
                                   .sort_by { |p| p.days_until_due }
                                   .first(3)
+
+    @upcoming_birthday_ids = current_user.people.where.not(birthday: nil).select { |p|
+      bday = p.birthday.change(year: Date.current.year)
+      bday = bday.next_year if bday < Date.current
+      (bday - Date.current).to_i <= 30
+    }.map(&:id).to_set
   end
 
   def show

@@ -34,6 +34,16 @@ class DashboardController < ApplicationController
     @total_catchups = current_user.events.count
     @total_people   = current_user.people.count
 
+    @upcoming_birthdays = current_user.people.where.not(birthday: nil).select { |p|
+      bday = p.birthday.change(year: Date.current.year)
+      bday = bday.next_year if bday < Date.current
+      (bday - Date.current).to_i <= 30
+    }.sort_by { |p|
+      bday = p.birthday.change(year: Date.current.year)
+      bday = bday.next_year if bday < Date.current
+      (bday - Date.current).to_i
+    }
+
     @catchups_by_month = current_user.events
       .group_by_month(:occurred_at, last: 6)
       .count
