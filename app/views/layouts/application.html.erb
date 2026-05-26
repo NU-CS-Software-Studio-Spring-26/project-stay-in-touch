@@ -34,27 +34,29 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="d-flex flex-column min-vh-100">
+  <body>
     <a class="skip-link visually-hidden-focusable" href="#main-content">Skip to main content</a>
     <%= render "shared/navbar" %>
 
-    <main id="main-content" tabindex="-1" class="container py-4 flex-grow-1">
-      <div id="flash"><%= render "shared/flash" %></div>
-      <%= yield %>
-    </main>
+    <div class="main-wrapper d-flex flex-column min-vh-100">
+      <main id="main-content" tabindex="-1" class="container-fluid px-4 py-4 flex-grow-1">
+        <div id="flash"><%= render "shared/flash" %></div>
+        <%= yield %>
+      </main>
 
-    <footer class="bg-white border-top py-3 mt-auto">
-      <div class="container text-center text-muted small">
-        <span>Stay In Touch &mdash; Northwestern CS Software Studio, Spring 2026</span>
-        <span class="mx-2">&middot;</span>
-        <%= link_to "Privacy Policy", privacy_path, class: "text-muted" %>
-        <span class="mx-2">&middot;</span>
-        <%= link_to "About", about_path, class: "text-muted" %>
-        <span class="mx-2">&middot;</span>
-        <%= link_to "GitHub", "https://github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch",
-              target: "_blank", rel: "noopener noreferrer", class: "text-muted" %>
-      </div>
-    </footer>
+      <footer class="border-top py-3 mt-auto" style="background:#F4F6FB;">
+        <div class="container text-center text-muted small">
+          <span>Stay In Touch &mdash; Northwestern CS Software Studio, Spring 2026</span>
+          <span class="mx-2">&middot;</span>
+          <%= link_to "Privacy Policy", privacy_path, class: "text-muted" %>
+          <span class="mx-2">&middot;</span>
+          <%= link_to "About", about_path, class: "text-muted" %>
+          <span class="mx-2">&middot;</span>
+          <%= link_to "GitHub", "https://github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch",
+                target: "_blank", rel: "noopener noreferrer", class: "text-muted" %>
+        </div>
+      </footer>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartkick@5.0.1/dist/chartkick.js"></script>

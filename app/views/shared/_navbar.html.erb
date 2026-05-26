@@ -1,50 +1,121 @@
-<nav class="navbar navbar-expand-lg navbar-app">
-  <div class="container">
-    <%= link_to root_path, class: "navbar-brand" do %>
-      <i class="bi bi-heart-pulse me-1 text-primary"></i>Stay In Touch
+<%# ── Mobile topbar ────────────────────────────────────────── %>
+<header class="mobile-topbar">
+  <button class="btn p-1 border-0" type="button"
+          data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar"
+          aria-label="Open navigation">
+    <i class="bi bi-list" style="font-size:1.4rem;"></i>
+  </button>
+  <span class="fw-bold" style="font-size:0.95rem;">Stay In Touch</span>
+  <% if authenticated? %>
+    <%= link_to new_event_path, class: "btn btn-primary btn-sm" do %>
+      <i class="bi bi-plus"></i>
     <% end %>
-    <button class="navbar-toggler border-0" type="button"
-            data-bs-toggle="collapse" data-bs-target="#primary-nav"
-            aria-controls="primary-nav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+  <% else %>
+    <span style="width:40px;"></span>
+  <% end %>
+</header>
 
-    <div class="collapse navbar-collapse" id="primary-nav">
-      <% if authenticated? %>
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <%= link_to "Dashboard", dashboard_path,
-                  class: "nav-link #{"active fw-semibold" if request.path == root_path || request.path == dashboard_path}" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to "People", people_path,
-                  class: "nav-link #{"active fw-semibold" if request.path.start_with?(people_path)}" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to "Events", events_path,
-                  class: "nav-link #{"active fw-semibold" if request.path.start_with?(events_path)}" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to "Timeline", timeline_path,
-                  class: "nav-link #{"active fw-semibold" if request.path == timeline_path}" %>
-          </li>
-        </ul>
+<%# ── Mobile offcanvas ─────────────────────────────────────── %>
+<div class="offcanvas offcanvas-start d-lg-none"
+     tabindex="-1" id="mobileSidebar"
+     style="width:240px; background:#1E1B4B;">
+  <div class="offcanvas-header" style="border-bottom:1px solid rgba(255,255,255,0.08);">
+    <span class="d-flex align-items-center gap-2">
+      <i class="bi bi-heart-pulse" style="color:#A5B4FC; font-size:1.1rem;"></i>
+      <span class="fw-bold text-white" style="font-size:0.9rem;">Stay In Touch</span>
+    </span>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column p-0">
+    <% if authenticated? %>
+      <nav class="sidebar-nav pt-2">
+        <%= link_to dashboard_path, class: "sidebar-link #{request.path == root_path || request.path == dashboard_path ? 'active' : ''}" do %>
+          <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+        <% end %>
+        <%= link_to people_path, class: "sidebar-link #{request.path.start_with?(people_path) ? 'active' : ''}" do %>
+          <i class="bi bi-people-fill"></i><span>People</span>
+        <% end %>
+        <%= link_to events_path, class: "sidebar-link #{request.path.start_with?(events_path) ? 'active' : ''}" do %>
+          <i class="bi bi-calendar3"></i><span>Events</span>
+        <% end %>
+        <%= link_to timeline_path, class: "sidebar-link #{request.path == timeline_path ? 'active' : ''}" do %>
+          <i class="bi bi-activity"></i><span>Timeline</span>
+        <% end %>
+      </nav>
+      <div class="mt-auto p-3">
+        <%= link_to new_event_path, class: "sidebar-log-event mx-0 mb-2" do %>
+          <i class="bi bi-plus-circle"></i>Log Event
+        <% end %>
+        <%= button_to "Log out", logout_path, method: :delete,
+              class: "btn btn-sm w-100",
+              style: "background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:none;" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# ── Desktop sidebar ─────────────────────────────────────── %>
+<aside class="app-sidebar d-none d-lg-flex flex-column" aria-label="Main navigation">
+  <%# Brand %>
+  <%= link_to root_path, class: "sidebar-brand" do %>
+    <i class="bi bi-heart-pulse sidebar-brand-icon"></i>
+    <span class="sidebar-brand-text">Stay In Touch</span>
+  <% end %>
+
+  <% if authenticated? %>
+    <%# Nav %>
+    <nav class="sidebar-nav">
+      <%= link_to dashboard_path, class: "sidebar-link #{request.path == root_path || request.path == dashboard_path ? 'active' : ''}" do %>
+        <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
       <% end %>
-      <div class="d-flex align-items-center gap-2 ms-auto">
-        <% if authenticated? %>
-          <span class="navbar-text text-muted small me-1">
-            Signed in as <strong><%= current_user.email %></strong>
-          </span>
-          <%= link_to "Log Event", new_event_path, class: "btn btn-primary btn-sm" %>
-          <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-outline-danger btn-sm" %>
-          <%= link_to edit_settings_path, class: "text-muted", aria: { label: "Settings" } do %>
-            <i class="bi bi-gear fs-5"></i>
-          <% end %>
-        <% else %>
-          <%= link_to "Log In",  login_path,  class: "btn btn-outline-secondary btn-sm" %>
-          <%= link_to "Sign Up", signup_path, class: "btn btn-primary btn-sm" %>
+      <%= link_to people_path, class: "sidebar-link #{request.path.start_with?(people_path) ? 'active' : ''}" do %>
+        <i class="bi bi-people-fill"></i><span>People</span>
+      <% end %>
+      <%= link_to events_path, class: "sidebar-link #{request.path.start_with?(events_path) ? 'active' : ''}" do %>
+        <i class="bi bi-calendar3"></i><span>Events</span>
+      <% end %>
+      <%= link_to timeline_path, class: "sidebar-link #{request.path == timeline_path ? 'active' : ''}" do %>
+        <i class="bi bi-activity"></i><span>Timeline</span>
+      <% end %>
+
+      <div class="sidebar-section mt-3">Settings</div>
+      <%= link_to edit_settings_path, class: "sidebar-link #{request.path == edit_settings_path ? 'active' : ''}" do %>
+        <i class="bi bi-gear"></i><span>Settings</span>
+      <% end %>
+      <%= link_to tags_path, class: "sidebar-link #{request.path.start_with?(tags_path) ? 'active' : ''}" do %>
+        <i class="bi bi-tags"></i><span>Tags</span>
+      <% end %>
+    </nav>
+
+    <%# Log Event CTA %>
+    <%= link_to new_event_path, class: "sidebar-log-event" do %>
+      <i class="bi bi-plus-circle"></i>Log Event
+    <% end %>
+
+    <%# User footer %>
+    <div class="sidebar-footer">
+      <div class="d-flex align-items-center gap-2">
+        <div class="flex-grow-1 min-w-0">
+          <div class="fw-semibold text-truncate" style="color:#fff; font-size:0.8rem;">
+            <%= current_user.email.split("@").first %>
+          </div>
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.35);">
+            <%= current_user.email %>
+          </div>
+        </div>
+        <%= button_to logout_path, method: :delete,
+              class: "btn btn-sm flex-shrink-0",
+              style: "background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border:none; padding:0.3rem 0.5rem;",
+              title: "Log out",
+              aria: { label: "Log out" } do %>
+          <i class="bi bi-box-arrow-right"></i>
         <% end %>
       </div>
     </div>
-  </div>
-</nav>
+  <% else %>
+    <div class="mt-auto p-3 d-flex flex-column gap-2">
+      <%= link_to "Log In",  login_path,  class: "btn btn-outline-light btn-sm w-100" %>
+      <%= link_to "Sign Up", signup_path, class: "btn btn-primary btn-sm w-100" %>
+    </div>
+  <% end %>
+</aside>
