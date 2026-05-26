@@ -109,26 +109,24 @@ end %>
       No people yet. <%= link_to "Add the first one", new_person_path, class: "alert-link" %>.
     </div>
   <% else %>
-    <div class="card" style="overflow: visible;">
-      <div class="table-responsive" style="overflow: visible;">
-        <table class="table table-hover mb-0 align-middle">
-          <thead>
-            <tr>
-              <th><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
-              <th class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
-              <th><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
-              <th style="width: 1%;"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @people.each do |person| %>
-              <turbo-frame id="person_<%= person.id %>">
-                <%= render "person_row", person: person %>
-              </turbo-frame>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+    <div class="table-responsive" style="overflow: visible;">
+      <table class="table table-row-cards mb-0 align-middle">
+        <thead>
+          <tr>
+            <th><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
+            <th class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
+            <th><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
+            <th style="width: 1%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @people.each do |person| %>
+            <turbo-frame id="person_<%= person.id %>">
+              <%= render "person_row", person: person %>
+            </turbo-frame>
+          <% end %>
+        </tbody>
+      </table>
     </div>
   <% end %>
 <% if @people_pagy&.pages.to_i > 1 %>

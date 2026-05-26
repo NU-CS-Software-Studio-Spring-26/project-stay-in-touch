@@ -2,7 +2,7 @@
 <% color = avatar_colors[person.name.bytes.sum % avatar_colors.length] %>
 <% initials = person.name.split.first(2).map { |w| w[0].upcase }.join %>
 <% overdue = person.days_until_due&.negative? && !person.snoozed? %>
-<tr style="<%= "box-shadow: inset 4px 0 0 #DC2626;" if overdue %>">
+<tr class="<%= 'people-row-overdue' if overdue %>">
   <td>
     <div class="d-flex align-items-center gap-2">
       <%= button_to toggle_favorite_person_path(person),

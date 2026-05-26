@@ -112,25 +112,37 @@ body {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
 }
-.table thead tr {
-  background: #F5F4FF;
-}
-.table tbody tr {
-  border-bottom: 1px solid #EDEDF4;
-  transition: background 0.1s;
-}
-.table tbody td {
-  padding-top: 0.85rem;
-  padding-bottom: 0.85rem;
-}
-.table tbody tr:hover {
-  background-color: #EEEEF8;
-}
-.table tbody tr:last-child {
-  border-bottom: none;
-}
 .table-light {
   --bs-table-bg: #FAFAFA;
+}
+
+/* Card-row table: each row floats as its own surface */
+.table-row-cards {
+  border-collapse: separate;
+  border-spacing: 0 5px;
+}
+.table-row-cards thead th {
+  border: none;
+  background: transparent;
+  padding-bottom: 0.25rem;
+}
+.table-row-cards tbody tr { border: none; }
+.table-row-cards tbody td {
+  background: #fff;
+  border: none !important;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px rgba(99,102,241,0.06);
+}
+.table-row-cards tbody td:first-child { border-radius: 10px 0 0 10px; }
+.table-row-cards tbody td:last-child  { border-radius: 0 10px 10px 0; }
+.table-row-cards tbody tr:hover td {
+  background: #F5F4FF;
+  box-shadow: 0 3px 8px rgba(67,56,202,0.09), 0 0 0 1px rgba(99,102,241,0.12);
+}
+.table-row-cards tbody tr.people-row-overdue td:first-child {
+  box-shadow: inset 4px 0 0 #DC2626, 0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px rgba(99,102,241,0.06);
+  border-radius: 10px 0 0 10px;
 }
 
 /* ── Status badges ───────────────────────────────────────── */
