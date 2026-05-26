@@ -118,6 +118,40 @@
 
   </div>
 
+  <%# Activity charts %>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-8">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h6 fw-semibold mb-3">
+            <i class="bi bi-bar-chart me-1 text-muted"></i>Catch-ups per Month
+          </h2>
+          <%= column_chart @catchups_by_month,
+                colors: ["#4F46E5"],
+                height: "180px",
+                library: { scales: { y: { ticks: { precision: 0 }, beginAtZero: true } } } %>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h6 fw-semibold mb-3">
+            <i class="bi bi-pie-chart me-1 text-muted"></i>By Medium
+          </h2>
+          <% if @catchups_by_medium.any? %>
+            <%= pie_chart @catchups_by_medium,
+                  colors: ["#4F46E5", "#0D9488", "#D97706", "#059669", "#DC2626", "#9333EA"],
+                  height: "180px",
+                  legend: true %>
+          <% else %>
+            <div class="text-center text-muted small py-4">No catch-ups logged yet.</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <%# Detail panels row %>
   <div class="row g-3 mb-4">
 

@@ -33,6 +33,16 @@ class DashboardController < ApplicationController
 
     @total_catchups = current_user.events.count
     @total_people   = current_user.people.count
+
+    @catchups_by_month = current_user.events
+      .group_by_month(:occurred_at, last: 6)
+      .count
+      .transform_keys { |d| d.strftime("%b %Y") }
+
+    @catchups_by_medium = current_user.events
+      .group(:medium)
+      .count
+      .transform_keys { |k| k.titleize }
   end
 
   def timeline

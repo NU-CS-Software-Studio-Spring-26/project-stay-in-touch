@@ -75,3 +75,6 @@ gem "ruby-openai"
 
 # CSV parsing (no longer in Ruby stdlib since Ruby 3.4)
 gem "csv"
+
+gem "chartkick"
+gem "groupdate"
