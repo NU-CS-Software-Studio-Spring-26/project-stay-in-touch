@@ -124,11 +124,9 @@
       </div>
     </div>
 
-    <% if @person.notes.present? %>
-      <div class="mt-4 pt-3 border-top text-muted small">
-        <%= simple_format(@person.notes) %>
-      </div>
-    <% end %>
+    <turbo-frame id="notes">
+      <%= render "notes_display" %>
+    </turbo-frame>
   </div>
 </div>
 

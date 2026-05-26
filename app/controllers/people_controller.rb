@@ -1,5 +1,5 @@
 class PeopleController < ApplicationController
-  before_action :set_person, only: %i[show edit update destroy snooze toggle_favorite toggle_tag]
+  before_action :set_person, only: %i[show edit update destroy snooze toggle_favorite toggle_tag notes_edit]
 
   SORTABLE_COLUMNS = %w[name frequency status].freeze
 
@@ -86,10 +86,18 @@ class PeopleController < ApplicationController
   def update
     if @person.update(person_params)
       assign_new_tag_name
-      redirect_to @person, notice: "Person was successfully updated."
+      if params[:inline_notes]
+        redirect_to @person
+      else
+        redirect_to @person, notice: "Person was successfully updated."
+      end
     else
-      @all_tags = current_user.tags.order(:name)
-      render :edit, status: :unprocessable_content
+      if params[:inline_notes]
+        render "notes_edit"
+      else
+        @all_tags = current_user.tags.order(:name)
+        render :edit, status: :unprocessable_content
+      end
     end
   end
 
@@ -116,6 +124,10 @@ class PeopleController < ApplicationController
       @person.tags << tag
     end
     redirect_back fallback_location: person_path(@person)
+  end
+
+  def notes_edit
+    render "notes_edit"
   end
 
   private

@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       patch :snooze
       patch :toggle_favorite
       patch :toggle_tag
+      get :notes_edit
     end
   end
   resources :events
