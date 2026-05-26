@@ -195,6 +195,73 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* ── Pill search bar ─────────────────────────────────────── */
+.search-pill-wrap {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+.search-pill-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9CA3AF;
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+.search-pill-input {
+  width: 100%;
+  border: 1.5px solid rgba(99,102,241,0.18);
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem 0.55rem 2.5rem;
+  font-size: 0.875rem;
+  background: rgba(255,255,255,0.85);
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-pill-input::placeholder { color: #9CA3AF; }
+.search-pill-input:focus {
+  border-color: #4338CA;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(67,56,202,0.1);
+}
+
+/* ── Filter chips ────────────────────────────────────────── */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(99,102,241,0.18);
+  background: rgba(255,255,255,0.75);
+  color: #4B5563;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.filter-chip:hover {
+  border-color: #4338CA;
+  background: #fff;
+  color: #4338CA;
+}
+.filter-chip.active,
+.filter-chip.filter-chip-active {
+  background: #4338CA;
+  border-color: #4338CA;
+  color: #fff;
+}
+.filter-chip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9CA3AF;
+  flex-shrink: 0;
+}
+
 /* ── Sort links ──────────────────────────────────────────── */
 th a.sort-link {
   color: #4B5563;

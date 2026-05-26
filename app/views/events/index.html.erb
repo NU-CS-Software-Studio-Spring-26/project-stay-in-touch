@@ -62,37 +62,35 @@
         data: { controller: "auto-submit" },
         class: "mb-3" do %>
     <label for="events-search-input" class="visually-hidden">Search events</label>
-    <div class="input-group">
+    <div class="search-pill-wrap">
+      <i class="bi bi-search search-pill-icon"></i>
       <input type="text"
              id="events-search-input"
              name="q"
              value="<%= params[:q] %>"
-             class="form-control"
+             class="search-pill-input"
              placeholder="Search by event or person…"
              autocomplete="off"
              aria-label="Search events"
              data-auto-submit-target="input"
              data-action="input->auto-submit#inputChanged">
-      <input type="hidden" name="month" value="<%= params[:month] %>">
-      <button class="btn btn-outline-secondary" type="submit">
-        <i class="bi bi-search"></i>
-      </button>
     </div>
+    <input type="hidden" name="month" value="<%= params[:month] %>">
   <% end %>
 
   <div class="d-flex flex-wrap gap-2 mb-3">
-    <button class="btn btn-sm btn-outline-secondary active"
+    <button class="filter-chip filter-chip-active"
             data-medium="all"
             data-medium-filter-target="pill"
             data-action="click->medium-filter#filter">
-      <i class="bi bi-grid me-1"></i>All
+      <i class="bi bi-grid"></i>All
     </button>
     <% Event::MEDIA.each do |medium| %>
-      <button class="btn btn-sm btn-outline-secondary"
+      <button class="filter-chip"
               data-medium="<%= medium %>"
               data-medium-filter-target="pill"
               data-action="click->medium-filter#filter">
-        <i class="bi <%= medium_icons[medium] %> me-1"></i><%= medium.titleize %>
+        <i class="bi <%= medium_icons[medium] %>"></i><%= medium.titleize %>
       </button>
     <% end %>
   </div>

@@ -57,48 +57,44 @@ end %>
   </div>
 <% end %>
 
-<div class="card mb-4 p-3" style="border-radius:10px;">
-  <%= form_with url: people_path, method: :get,
-        data: { controller: "auto-submit", turbo_frame: "people-table" },
-        class: "mb-2" do %>
-    <label for="people-search-input" class="visually-hidden">Search people</label>
-    <div class="input-group">
-      <span class="input-group-text bg-white" style="border-right:none;">
-        <i class="bi bi-search text-muted" style="font-size:0.85rem;"></i>
-      </span>
-      <input type="text"
-             id="people-search-input"
-             name="q"
-             value="<%= params[:q] %>"
-             class="form-control"
-             style="border-left:none;"
-             placeholder="Search by name…"
-             autocomplete="off"
-             aria-label="Search people"
-             data-auto-submit-target="input"
-             data-action="input->auto-submit#inputChanged">
-    </div>
-    <input type="hidden" name="sort" value="<%= @sort %>">
-    <input type="hidden" name="direction" value="<%= @direction %>">
-  <% end %>
-
-  <% tag_colors = %w[#0D9488 #7C3AED #D97706 #E11D48 #2563EB #059669 #9333EA #B45309] %>
-  <div class="d-flex flex-wrap gap-2 align-items-center">
-    <%= link_to people_path(favorites: @favorites_filter ? nil : "1", sort: @sort, direction: @direction),
-          class: "btn btn-sm #{@favorites_filter ? 'btn-warning' : 'btn-outline-secondary'}" do %>
-      <i class="bi bi-star<%= '-fill' if @favorites_filter %> me-1"></i>
-      <%= @favorites_filter ? "Showing favorites" : "Favorites only" %>
-    <% end %>
-    <% @all_tags.each_with_index do |tag, i| %>
-      <% active = @tag_filter&.id == tag.id %>
-      <% color = tag_colors[i % tag_colors.length] %>
-      <%= link_to people_path(tag_id: active ? nil : tag.id, sort: @sort, direction: @direction, q: params[:q]),
-            class: "btn btn-sm #{'btn-outline-secondary' unless active}",
-            style: (active ? "background:#{color}; border-color:#{color}; color:#fff;" : nil) do %>
-        <i class="bi bi-tag me-1"></i><%= tag.name %>
-      <% end %>
-    <% end %>
+<%= form_with url: people_path, method: :get,
+      data: { controller: "auto-submit", turbo_frame: "people-table" },
+      class: "mb-3" do %>
+  <label for="people-search-input" class="visually-hidden">Search people</label>
+  <div class="search-pill-wrap">
+    <i class="bi bi-search search-pill-icon"></i>
+    <input type="text"
+           id="people-search-input"
+           name="q"
+           value="<%= params[:q] %>"
+           class="search-pill-input"
+           placeholder="Search by name…"
+           autocomplete="off"
+           aria-label="Search people"
+           data-auto-submit-target="input"
+           data-action="input->auto-submit#inputChanged">
   </div>
+  <input type="hidden" name="sort" value="<%= @sort %>">
+  <input type="hidden" name="direction" value="<%= @direction %>">
+<% end %>
+
+<% tag_colors = %w[#0D9488 #7C3AED #D97706 #E11D48 #2563EB #059669 #9333EA #B45309] %>
+<div class="d-flex flex-wrap gap-2 align-items-center mb-4">
+  <%= link_to people_path(favorites: @favorites_filter ? nil : "1", sort: @sort, direction: @direction),
+        class: "filter-chip #{@favorites_filter ? 'filter-chip-active' : ''}" do %>
+    <i class="bi bi-star<%= '-fill' if @favorites_filter %>"></i>
+    <%= @favorites_filter ? "Favorites" : "Favorites" %>
+  <% end %>
+  <% @all_tags.each_with_index do |tag, i| %>
+    <% active = @tag_filter&.id == tag.id %>
+    <% color = tag_colors[i % tag_colors.length] %>
+    <%= link_to people_path(tag_id: active ? nil : tag.id, sort: @sort, direction: @direction, q: params[:q]),
+          class: "filter-chip #{active ? 'filter-chip-active' : ''}",
+          style: (active ? "--chip-color:#{color};" : nil) do %>
+      <span class="filter-chip-dot" style="<%= active ? "background:#{color};" : '' %>"></span>
+      <%= tag.name %>
+    <% end %>
+  <% end %>
 </div>
 
 <div>
