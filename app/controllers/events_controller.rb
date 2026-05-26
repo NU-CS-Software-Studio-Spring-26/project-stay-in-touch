@@ -51,14 +51,14 @@ class EventsController < ApplicationController
 
   def create
     @event = current_user.events.build(event_params)
-    @event.occurred_at = find_scheduled_slot
+    @event.occurred_at = params[:quick_log] == "1" ? event_params[:occurred_at] : find_scheduled_slot
 
     if @event.save
       push_to_google_calendar(@event) if current_user.google_calendar_connected?
       send_calendar_invites(@event)
 
       if params[:quick_log] == "1"
-        redirect_to root_path, notice: "Catch-up scheduled!"
+        redirect_to request.referer || root_path, notice: "Catch-up logged!"
       else
         redirect_to @event, notice: "Catch-up scheduled!"
       end
