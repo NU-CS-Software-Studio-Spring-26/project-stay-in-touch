@@ -20,6 +20,11 @@
               class: "text-decoration-none fw-medium text-dark d-block",
               data: { turbo_frame: "_top" } do %>
           <%= highlight_match(person.name, params[:q]) %>
+          <% if defined?(@upcoming_birthday_ids) && @upcoming_birthday_ids&.include?(person.id) %>
+            <% bday = person.birthday.change(year: Date.current.year); bday = bday.next_year if bday < Date.current %>
+            <span class="ms-1" title="Birthday <%= bday.strftime('%b %-d') %> (in <%= (bday - Date.current).to_i %> days)"
+                  style="font-size:0.75rem;">🎂</span>
+          <% end %>
         <% end %>
         <div class="d-flex align-items-center gap-1 flex-wrap mt-1">
           <%= link_to "mailto:#{person.email}", class: "text-muted text-decoration-none", style: "font-size:0.75rem;" do %>

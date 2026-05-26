@@ -5,11 +5,12 @@
 - **People index UI** — full table layout with color-hashed initials avatars, soft pill status badges (Overdue / Due Soon / On Track), sortable columns with Turbo Frame swaps, real-time search with debounce, tag filter chips, and favorites filter.
 - **Overdue alerts** — highlighted panel at the top of the People index surfacing contacts past their catch-up deadline with direct "Log Event" links.
 - **Person show page** — restructured into a card layout with contact info, streak/days-until-due stats, event history, timezone conversion (contact's local time + preferred hours converted to the user's timezone), and AI reconnect message in one view.
-- **Events index UI** — per-medium color badges, medium filter bar, and a month-picker for browsing event history by calendar month.
+- **Events index UI** — per-medium color badges, medium filter bar, and a full monthly calendar grid view where events are placed on their actual days; hovering any event shows a popover with full title, people, medium, time, and notes snippet.
 - **Log Event form UX** — participant search bar, person pre-fill when navigating from a contact, notes character counter, and 12-hour time select dropdowns for preferred hours.
-- **Relationship health dashboard** — collapsible summary panel categorizing all contacts into Overdue / Slipping / On Track with stat cards (this month's catch-ups, streak, avg frequency, top contacts).
+- **Relationship health dashboard** — collapsible summary panel categorizing all contacts into Overdue / Slipping / On Track with stat cards (this month's catch-ups, streak, avg frequency, top contacts); catch-ups-per-month bar chart and by-medium pie chart (Chartkick + Groupdate); upcoming birthdays alert showing contacts with birthdays in the next 30 days; set as the app's default landing page.
 - **AI reconnect messages** — integrated OpenRouter (Gemma 4) to generate a personalized reach-out suggestion on the Person show page, with one-click clipboard copy.
 - **Contact import** — CSV and vCard (.vcf) upload flow with smart header normalization (Google Contacts and Apple Contacts formats), duplicate detection, and a results summary.
+- **Birthday tracking** — birthday field on contacts with inline save on the show page; 🎂 indicator next to names on the People list for anyone with a birthday in the next 30 days; birthday badge on the show page counting down days.
 - **Login & signup UI** — redesigned as a split-panel layout with brand panel on the left and form on the right.
 - **PWA & mobile** — web manifest, service worker with offline cache, and offline fallback page; app is installable via "Add to Home Screen" on iOS and Android; custom app logo and icon.
 - **Tags** — tags management page (rename, delete, person count), inline toggle-tag on People.

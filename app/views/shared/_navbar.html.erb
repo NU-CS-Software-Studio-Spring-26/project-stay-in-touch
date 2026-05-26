@@ -13,8 +13,12 @@
       <% if authenticated? %>
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <%= link_to "People", root_path,
-                  class: "nav-link #{"active fw-semibold" if request.path == root_path || request.path.start_with?(people_path)}" %>
+            <%= link_to "Dashboard", dashboard_path,
+                  class: "nav-link #{"active fw-semibold" if request.path == root_path || request.path == dashboard_path}" %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "People", people_path,
+                  class: "nav-link #{"active fw-semibold" if request.path.start_with?(people_path)}" %>
           </li>
           <li class="nav-item">
             <%= link_to "Events", events_path,
@@ -23,10 +27,6 @@
           <li class="nav-item">
             <%= link_to "Timeline", timeline_path,
                   class: "nav-link #{"active fw-semibold" if request.path == timeline_path}" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to "Dashboard", dashboard_path,
-                  class: "nav-link #{"active fw-semibold" if request.path == dashboard_path}" %>
           </li>
         </ul>
       <% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_184311) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_034622) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_184311) do
   end
 
   create_table "people", force: :cascade do |t|
+    t.date "birthday"
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.boolean "favorite", default: false, null: false

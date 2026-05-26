@@ -118,6 +118,70 @@
 
   </div>
 
+  <%# Upcoming birthdays %>
+  <% if @upcoming_birthdays.any? %>
+    <div class="card mb-4" style="border-left: 4px solid #D97706; background:#FFFBEB;">
+      <div class="card-body py-3">
+        <h2 class="h6 fw-semibold mb-3" style="color:#92400E;">
+          <i class="bi bi-cake2 me-1"></i>Upcoming Birthdays
+        </h2>
+        <div class="d-flex flex-wrap gap-3">
+          <% @upcoming_birthdays.each do |person| %>
+            <% bday = person.birthday.change(year: Date.current.year) %>
+            <% bday = bday.next_year if bday < Date.current %>
+            <% days = (bday - Date.current).to_i %>
+            <div class="d-flex align-items-center gap-2">
+              <%= link_to person_path(person), class: "fw-semibold text-decoration-none text-dark" do %>
+                <%= person.name %>
+              <% end %>
+              <% if days == 0 %>
+                <span class="badge bg-warning text-dark">🎂 Today!</span>
+              <% else %>
+                <span class="badge" style="background:#FEF3C7; color:#92400E;">
+                  <%= bday.strftime("%b %-d") %> &middot; in <%= days %> <%= "day".pluralize(days) %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Activity charts %>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-8">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h6 fw-semibold mb-3">
+            <i class="bi bi-bar-chart me-1 text-muted"></i>Catch-ups per Month
+          </h2>
+          <%= column_chart @catchups_by_month,
+                colors: ["#4F46E5"],
+                height: "180px",
+                library: { scales: { y: { ticks: { precision: 0 }, beginAtZero: true } } } %>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h6 fw-semibold mb-3">
+            <i class="bi bi-pie-chart me-1 text-muted"></i>By Medium
+          </h2>
+          <% if @catchups_by_medium.any? %>
+            <%= pie_chart @catchups_by_medium,
+                  colors: ["#4F46E5", "#0D9488", "#D97706", "#059669", "#DC2626", "#9333EA"],
+                  height: "180px",
+                  legend: true %>
+          <% else %>
+            <div class="text-center text-muted small py-4">No catch-ups logged yet.</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <%# Detail panels row %>
   <div class="row g-3 mb-4">
 

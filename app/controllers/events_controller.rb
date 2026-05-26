@@ -30,7 +30,8 @@ class EventsController < ApplicationController
         .distinct
     end
 
-    @events = events_scope.includes(:people).order(occurred_at: :desc)
+    @events = events_scope.includes(:people).order(occurred_at: :asc)
+    @events_by_day = @events.group_by { |e| e.occurred_at.to_date }
   end
 
   def show; end
