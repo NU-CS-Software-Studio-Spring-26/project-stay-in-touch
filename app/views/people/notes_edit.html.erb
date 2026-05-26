@@ -1,0 +1,7 @@
+<turbo-frame id="notes">
+  <% if params[:cancel] %>
+    <%= render "notes_display" %>
+  <% else %>
+    <%= render "notes_edit" %>
+  <% end %>
+</turbo-frame>
