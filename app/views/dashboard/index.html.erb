@@ -1,8 +1,20 @@
 <% avatar_colors = %w[#4F46E5 #7C3AED #0D9488 #D97706 #DC2626 #2563EB #059669 #9333EA] %>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h4 mb-0 fw-bold">Dashboard</h1>
-  <span class="text-muted small"><%= Date.current.strftime("%B %Y") %></span>
+<%# Hero greeting %>
+<div class="dashboard-hero mb-4">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+    <div>
+      <h1 class="h4 fw-bold mb-1" style="color:#fff;">
+        Hey, <%= current_user.email.split("@").first.capitalize %> 👋
+      </h1>
+      <p class="mb-0" style="color:rgba(255,255,255,0.7); font-size:0.9rem;">
+        <%= Date.current.strftime("%A, %B %-d") %> &mdash; here's how your relationships are doing.
+      </p>
+    </div>
+    <%= link_to new_event_path, class: "btn btn-light btn-sm fw-semibold flex-shrink-0" do %>
+      <i class="bi bi-plus-circle me-1"></i>Log a Catch-up
+    <% end %>
+  </div>
 </div>
 
 <% if @total_people == 0 %>
@@ -21,16 +33,13 @@
 
     <%# Catch-ups this month %>
     <div class="col-6 col-md-3">
-      <div class="card h-100" style="border-top: 3px solid #059669;">
+      <div class="card h-100 card-lift">
         <div class="card-body">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <i class="bi bi-calendar-check text-muted"></i>
-            <span class="text-muted small">This Month</span>
+          <div class="stat-card-icon" style="background:#ECFDF5; color:#059669;">
+            <i class="bi bi-calendar-check"></i>
           </div>
-          <div class="fw-bold" style="font-size: 2rem; line-height: 1.1; color: #111827;">
-            <%= @catchups_this_month %>
-          </div>
-          <div class="text-muted small mt-1">catch-ups logged</div>
+          <div class="stat-card-value"><%= @catchups_this_month %></div>
+          <div class="stat-card-label">catch-ups this month</div>
           <% delta = @catchups_this_month - @catchups_last_month %>
           <% if @catchups_last_month > 0 || @catchups_this_month > 0 %>
             <div class="mt-2">
@@ -49,68 +58,55 @@
 
     <%# Streak %>
     <div class="col-6 col-md-3">
-      <div class="card h-100" style="border-top: 3px solid #D97706;">
+      <div class="card h-100 card-lift">
         <div class="card-body">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <i class="bi bi-fire text-muted"></i>
-            <span class="text-muted small">Current Streak</span>
+          <div class="stat-card-icon" style="background:#FFFBEB; color:#D97706;">
+            <i class="bi bi-fire"></i>
           </div>
-          <div class="fw-bold" style="font-size: 2rem; line-height: 1.1; color: #111827;">
-            <%= @streak %>
-          </div>
-          <div class="text-muted small mt-1">consecutive <%= "week".pluralize(@streak) %></div>
-          <% if @streak >= 4 %>
-            <div class="mt-2">
+          <div class="stat-card-value"><%= @streak %></div>
+          <div class="stat-card-label">week streak</div>
+          <div class="mt-2">
+            <% if @streak >= 4 %>
               <span class="badge" style="background:#D1FAE5; color:#065F46;">On a roll!</span>
-            </div>
-          <% elsif @streak == 0 %>
-            <div class="mt-2">
+            <% elsif @streak == 0 %>
               <span class="badge" style="background:#F3F4F6; color:#4B5563;">Log a catch-up to start</span>
-            </div>
-          <% end %>
+            <% end %>
+          </div>
         </div>
       </div>
     </div>
 
     <%# People overdue %>
     <div class="col-6 col-md-3">
-      <div class="card h-100" style="border-top: 3px solid #DC2626;">
+      <div class="card h-100 card-lift">
         <div class="card-body">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <i class="bi bi-clock-history text-muted"></i>
-            <span class="text-muted small">Overdue</span>
+          <div class="stat-card-icon" style="background:#FEF2F2; color:#DC2626;">
+            <i class="bi bi-clock-history"></i>
           </div>
-          <div class="fw-bold" style="font-size: 2rem; line-height: 1.1; color: #111827;">
-            <%= @overdue_people.count %>
+          <div class="stat-card-value"><%= @overdue_people.count %></div>
+          <div class="stat-card-label"><%= "person".pluralize(@overdue_people.count) %> overdue</div>
+          <div class="mt-2">
+            <% if @overdue_people.any? %>
+              <span class="badge" style="background:#FEE2E2; color:#B91C1C;">needs attention</span>
+            <% else %>
+              <span class="badge" style="background:#D1FAE5; color:#065F46;">All caught up!</span>
+            <% end %>
           </div>
-          <div class="text-muted small mt-1"><%= "person".pluralize(@overdue_people.count) %> need attention</div>
-          <% if @overdue_people.any? %>
-            <div class="mt-2">
-              <span class="badge badge-overdue"><%= @overdue_people.count %> overdue</span>
-            </div>
-          <% else %>
-            <div class="mt-2">
-              <span class="badge badge-upcoming">All caught up!</span>
-            </div>
-          <% end %>
         </div>
       </div>
     </div>
 
     <%# Average frequency %>
     <div class="col-6 col-md-3">
-      <div class="card h-100" style="border-top: 3px solid #0D9488;">
+      <div class="card h-100 card-lift">
         <div class="card-body">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <i class="bi bi-arrow-repeat text-muted"></i>
-            <span class="text-muted small">Avg. Frequency</span>
+          <div class="stat-card-icon" style="background:#EFF6FF; color:#2563EB;">
+            <i class="bi bi-people-fill"></i>
           </div>
-          <div class="fw-bold" style="font-size: 2rem; line-height: 1.1; color: #111827;">
-            <%= @avg_frequency_weeks || "—" %>
-          </div>
-          <div class="text-muted small mt-1">weeks between catch-ups</div>
+          <div class="stat-card-value"><%= @total_people %></div>
+          <div class="stat-card-label"><%= "contact".pluralize(@total_people) %> tracked</div>
           <div class="mt-2">
-            <span class="stat-chip"><%= @total_people %> <%= "contact".pluralize(@total_people) %></span>
+            <span class="stat-chip">avg <%= @avg_frequency_weeks || "—" %>w cadence</span>
           </div>
         </div>
       </div>
