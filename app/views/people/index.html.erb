@@ -49,7 +49,7 @@ end %>
               in <strong><%= days_ago %> days</strong>
               <span class="text-muted small">(every <%= "%g" % person.frequency_weeks %> <%= person.frequency_weeks == 1 ? "week" : "weeks" %>)</span>
             </span>
-            <%= link_to "Log catch-up", new_event_path(person_id: person.id), class: "btn btn-sm btn-warning" %>
+            <%= link_to "Log catch-up", new_event_path(person_id: person.id), class: "btn btn-sm btn-warning", data: { turbo_frame: "quick-log-modal", turbo_action: "advance" } %>
           </li>
         <% end %>
       </ul>
