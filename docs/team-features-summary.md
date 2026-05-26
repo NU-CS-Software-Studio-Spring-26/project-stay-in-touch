@@ -16,6 +16,7 @@
 - **Tags** — tags management page (rename, delete, person count), inline toggle-tag on People.
 - **Pagination & seed data** — Pagy pagination (25/page) on People and Events; large seed dataset (10 users, 550 people, 1650 events) for load testing and demos.
 - **Polish & quality** — About + Privacy Policy pages, footer links, server-side field length limits, name/title whitespace normalization, RuboCop CI job, custom 404/500 pages, `rescue_from RecordNotFound`.
+- **Frontend modernization** — fixed sidebar nav (desktop) + offcanvas drawer (mobile) replacing top navbar; indigo-tinted page background bridging sidebar to content; dashboard greeting hero; icon-forward stat cards; card-row people table where each row floats as its own surface; frameless pill search bar and filter chips; on-theme pagination.
 
 ---
 
