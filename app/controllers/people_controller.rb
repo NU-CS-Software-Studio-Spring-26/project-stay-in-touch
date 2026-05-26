@@ -128,6 +128,7 @@ class PeopleController < ApplicationController
       :frequency_weeks,
       :favorite,
       :notes,
+      :birthday,
       tag_ids: []
     )
   end

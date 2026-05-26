@@ -35,6 +35,14 @@
 
   <div class="row g-3">
     <div class="col-md-6">
+      <%= f.label :birthday, class: "form-label" do %><i class="bi bi-cake2 me-1"></i>Birthday<% end %>
+      <%= f.date_field :birthday, class: "form-control" %>
+      <div class="form-text">Optional — used for birthday reminders.</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
       <%= f.label :preferred_start_hour, class: "form-label" do %><i class="bi bi-sun me-1"></i>Preferred start time<% end %>
       <%= f.select :preferred_start_hour,
             (0..23).map { |h| [Time.new(2000, 1, 1, h).strftime("%-I %p"), h] },

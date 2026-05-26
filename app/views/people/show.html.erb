@@ -34,6 +34,17 @@
           <%= mail_to @person.email, class: "text-muted" %>
           <span class="mx-1">&middot;</span>
           <i class="bi bi-globe2 me-1"></i><%= @person.timezone %>
+          <% if @person.birthday.present? %>
+            <span class="mx-1">&middot;</span>
+            <i class="bi bi-cake2 me-1"></i><%= @person.birthday.strftime("%B %-d") %>
+            <% days = (@person.birthday.change(year: Date.current.year) - Date.current).to_i %>
+            <% days = (@person.birthday.change(year: Date.current.year + 1) - Date.current).to_i if days < 0 %>
+            <% if days == 0 %>
+              <span class="badge bg-warning text-dark">🎂 Today!</span>
+            <% elsif days <= 14 %>
+              <span class="badge" style="background:#FEF3C7;color:#92400E;">in <%= days %> days</span>
+            <% end %>
+          <% end %>
         </p>
         <div class="d-flex gap-2 flex-wrap">
           <span class="stat-chip">
@@ -86,12 +97,21 @@
         <% end %>
         <%= form_with url: snooze_person_path(@person), method: :patch,
               class: "d-inline-flex align-items-center gap-1", data: { turbo: true } do |f| %>
+          <label class="text-muted small me-1" style="white-space:nowrap;">Snooze until:</label>
           <%= f.date_field :snoozed_until, value: @person.snoozed_until,
                 class: "form-control form-control-sm",
-                style: "width: 150px;",
+                style: "width: 140px;",
                 min: Date.current.to_s %>
           <%= f.button class: "btn btn-sm #{@person.snoozed? ? 'btn-outline-secondary' : 'btn-outline-info'}" do %>
             <i class="bi bi-bell-slash me-1"></i><%= @person.snoozed? ? "Update" : "Snooze" %>
+          <% end %>
+        <% end %>
+        <%= form_with model: @person,
+              class: "d-inline-flex align-items-center gap-1", data: { turbo: true } do |f| %>
+          <label class="text-muted small me-1" style="white-space:nowrap;"><i class="bi bi-cake2"></i> Birthday:</label>
+          <%= f.date_field :birthday, class: "form-control form-control-sm", style: "width: 140px;" %>
+          <%= f.button class: "btn btn-sm btn-outline-secondary" do %>
+            Save
           <% end %>
         <% end %>
         <%= link_to "Edit", edit_person_path(@person), class: "btn btn-outline-primary btn-sm" %>
