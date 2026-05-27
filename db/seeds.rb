@@ -24,6 +24,28 @@ TIMEZONES = %w[America/Chicago America/New_York America/Los_Angeles America/Denv
 MEDIUMS   = Event::MEDIA.freeze
 FREQ_OPTS = [1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0].freeze
 
+# Realistic filler so the seeded activity timeline reads like real catch-ups
+# rather than lorem ipsum.
+EVENT_TITLES = [
+  "Birthday call", "Quick check-in", "Long overdue chat", "Coffee downtown",
+  "Lunch meetup", "Weekend hangout", "Congrats call", "Just checking in",
+  "Holiday catch-up", "Welcome-home dinner", "Catching up", "Game night"
+].freeze
+EVENT_NOTES = [
+  "Great to reconnect after so long.", "Talked about the new job.",
+  "Caught up on family news.", "Planned a trip for next month.",
+  "Shared updates about work and kids.", "Reminisced about old times.",
+  "Quick chat — promised to meet up soon.", "Lots of laughs, felt good.",
+  "Talked through some big life decisions.", "Made plans for the holidays."
+].freeze
+PERSON_NOTES = [
+  "Met at a conference in 2023.", "College roommate.",
+  "Former coworker, now in Seattle.", "Loves hiking and photography.",
+  "Has two kids, recently moved.", "Met through mutual friends.",
+  "Always up for a coffee.", "Neighbor from the old apartment.",
+  "Friend from grad school.", "We go way back — high school."
+].freeze
+
 # ── Clear existing data ───────────────────────────────────────────────────────
 # Order matters: delete_all does not fire association callbacks, so children
 # (and FK-referencing rows like tags) must go before their parents or the
@@ -64,7 +86,7 @@ def seed_people_and_events(user, people_count:, events_count:)
       frequency_weeks:      FREQ_OPTS.sample,
       favorite:             rand < 0.15,
       birthday:             (rand < 0.3 ? Faker::Date.birthday(min_age: 18, max_age: 75) : nil),
-      notes:                Faker::Lorem.sentence(word_count: 6)
+      notes:                (rand < 0.8 ? PERSON_NOTES.sample : nil)
     )
   end
   Faker::Name.unique.clear
@@ -75,8 +97,8 @@ def seed_people_and_events(user, people_count:, events_count:)
     user.events.create!(
       occurred_at: Faker::Time.between(from: 2.years.ago, to: Time.current),
       medium:      MEDIUMS.sample,
-      title:       rand < 0.6 ? Faker::Lorem.words(number: rand(2..4)).join(" ").capitalize : nil,
-      notes:       rand < 0.5 ? Faker::Lorem.sentence(word_count: 8) : nil,
+      title:       rand < 0.6 ? EVENT_TITLES.sample : nil,
+      notes:       rand < 0.5 ? EVENT_NOTES.sample : nil,
       people:      participants
     )
   end
