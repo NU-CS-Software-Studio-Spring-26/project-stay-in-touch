@@ -12,12 +12,40 @@
       <% end %>
 
       <div>
+        <%= f.label :display_name, "Display name", class: "form-label fw-semibold" %>
+        <%= f.text_field :display_name, class: "form-control",
+              placeholder: current_user.email.split("@").first %>
+        <div class="form-text">Shown to other members (and their AI secretaries) instead of your email.</div>
+      </div>
+
+      <div>
         <%= f.label :timezone, "Your timezone", class: "form-label fw-semibold" %>
         <%= f.select :timezone,
               ActiveSupport::TimeZone::MAPPING.values.sort,
               { selected: current_user.timezone },
               class: "form-select" %>
         <div class="form-text">Used to show contact availability in your local time.</div>
+      </div>
+
+      <hr class="my-1">
+
+      <div>
+        <h2 class="h6 fw-semibold mb-1"><i class="bi bi-chat-heart me-1"></i>AI Matchmaking</h2>
+        <p class="text-muted small mb-2">
+          Let your AI secretary set up meetings with other members. Your interests below
+          are read by other opted-in members' AI secretaries when they look for matches.
+        </p>
+
+        <%= f.label :meeting_interests, "What do you want to get/receive from meetings?",
+              class: "form-label fw-semibold" %>
+        <%= f.text_area :meeting_interests, rows: 4, class: "form-control",
+              placeholder: "e.g. Feedback on my startup idea, intros to ML researchers, a running buddy…" %>
+        <div class="form-text">Plain text. Up to 2000 characters.</div>
+
+        <div class="form-check mt-3">
+          <%= f.check_box :matchmaking_enabled, class: "form-check-input" %>
+          <%= f.label :matchmaking_enabled, "Enable matchmaking (opt in)", class: "form-check-label" %>
+        </div>
       </div>
 
       <%= f.submit "Save", class: "btn btn-primary" %>

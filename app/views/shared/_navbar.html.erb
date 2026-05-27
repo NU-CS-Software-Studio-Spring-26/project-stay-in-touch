@@ -41,6 +41,9 @@
         <%= link_to timeline_path, class: "sidebar-link #{request.path == timeline_path ? 'active' : ''}" do %>
           <i class="bi bi-activity"></i><span>Timeline</span>
         <% end %>
+        <%= link_to matches_path, class: "sidebar-link #{request.path.start_with?(matches_path) ? 'active' : ''}" do %>
+          <i class="bi bi-chat-heart"></i><span>Matches</span>
+        <% end %>
       </nav>
       <div class="mt-auto p-3">
         <%= link_to new_event_path, class: "sidebar-log-event mx-0 mb-2" do %>
@@ -76,6 +79,9 @@
       <% end %>
       <%= link_to timeline_path, class: "sidebar-link #{request.path == timeline_path ? 'active' : ''}" do %>
         <i class="bi bi-activity"></i><span>Timeline</span>
+      <% end %>
+      <%= link_to matches_path, class: "sidebar-link #{request.path.start_with?(matches_path) ? 'active' : ''}" do %>
+        <i class="bi bi-chat-heart"></i><span>Matches</span>
       <% end %>
 
       <div class="sidebar-section mt-3">Settings</div>

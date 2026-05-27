@@ -12,6 +12,6 @@ class SettingsController < ApplicationController
   private
 
   def settings_params
-    params.require(:user).permit(:timezone)
+    params.require(:user).permit(:timezone, :display_name, :meeting_interests, :matchmaking_enabled)
   end
 end

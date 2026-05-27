@@ -1,0 +1,75 @@
+<% content_for :title, "Match" %>
+
+<%
+  status_badge = {
+    "accepted" => "bg-success",
+    "declined" => "bg-secondary",
+    "pending"  => "bg-warning text-dark",
+    "error"    => "bg-danger"
+  }
+%>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <%= link_to matches_path, class: "btn btn-link btn-sm px-0 mb-2" do %>
+      <i class="bi bi-arrow-left me-1"></i>Back to Matches
+    <% end %>
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h1 class="h5 fw-bold mb-0">
+        <%= @proposal.requester.display_label %> &rarr; <%= @proposal.recipient.display_label %>
+      </h1>
+      <span class="badge <%= status_badge[@proposal.status] %>"><%= @proposal.status.titleize %></span>
+    </div>
+
+    <%# Requester's pitch %>
+    <div class="card mb-3">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-robot me-1"></i><%= @proposal.requester.display_label %>'s secretary pitched:
+      </div>
+      <div class="card-body">
+        <p class="mb-2"><%= @proposal.pitch.presence || "—" %></p>
+        <% if @proposal.requester_profile_snapshot.present? %>
+          <div class="text-muted small">
+            <span class="fw-semibold">Their interests:</span> <%= @proposal.requester_profile_snapshot %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Recipient's verdict %>
+    <div class="card mb-3">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-robot me-1"></i><%= @proposal.recipient.display_label %>'s secretary
+        <%= @proposal.accepted? ? "accepted" : "declined" %>:
+      </div>
+      <div class="card-body">
+        <p class="mb-2"><%= @proposal.decision_reason.presence || "—" %></p>
+        <% if @proposal.recipient_profile_snapshot.present? %>
+          <div class="text-muted small">
+            <span class="fw-semibold">Their interests:</span> <%= @proposal.recipient_profile_snapshot %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Outcome %>
+    <% if @proposal.accepted? %>
+      <% if @proposal.calendar_created? %>
+        <div class="alert alert-success">
+          <i class="bi bi-calendar-check me-1"></i>
+          Meeting scheduled<%= " for #{l(@proposal.meeting_at, format: :short)}" if @proposal.meeting_at %>.
+          <% if @proposal.calendar_event_link.present? %>
+            <%= link_to "Open in Google Calendar", @proposal.calendar_event_link,
+                  class: "alert-link", target: "_blank", rel: "noopener" %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="alert alert-secondary">
+          <i class="bi bi-info-circle me-1"></i>
+          Recorded only — connect Google Calendar (either party) to auto-schedule accepted matches.
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

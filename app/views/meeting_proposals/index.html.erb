@@ -1,0 +1,57 @@
+<% content_for :title, "Matches" %>
+
+<%
+  status_badge = {
+    "accepted" => "bg-success",
+    "declined" => "bg-secondary",
+    "pending"  => "bg-warning text-dark",
+    "error"    => "bg-danger"
+  }
+%>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h1 class="h4 fw-bold mb-0"><i class="bi bi-chat-heart me-2"></i>Matches</h1>
+  <%= button_to run_matchmaking_path, method: :post, class: "btn btn-primary btn-sm" do %>
+    <i class="bi bi-magic me-1"></i>Run matchmaking now
+  <% end %>
+</div>
+
+<% unless current_user.matchmaking_ready? %>
+  <div class="alert alert-info">
+    Matchmaking is off. Add your meeting interests and opt in on the
+    <%= link_to "Settings page", edit_settings_path, class: "alert-link" %> to take part.
+  </div>
+<% end %>
+
+<% if @proposals.any? %>
+  <div class="list-group">
+    <% @proposals.each do |proposal| %>
+      <% other = proposal.other_party(current_user) %>
+      <%= link_to match_path(proposal), class: "list-group-item list-group-item-action" do %>
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="min-w-0">
+            <div class="fw-semibold text-truncate">
+              <% if proposal.requester_id == current_user.id %>
+                <i class="bi bi-arrow-up-right text-muted me-1"></i>Your AI pitched <%= other.display_label %>
+              <% else %>
+                <i class="bi bi-arrow-down-left text-muted me-1"></i><%= other.display_label %>'s AI pitched you
+              <% end %>
+            </div>
+            <div class="text-muted small text-truncate"><%= proposal.pitch %></div>
+          </div>
+          <div class="text-end flex-shrink-0 ms-3">
+            <span class="badge <%= status_badge[proposal.status] %>"><%= proposal.status.titleize %></span>
+            <% if proposal.calendar_created? %>
+              <div class="text-success small mt-1"><i class="bi bi-calendar-check"></i> Scheduled</div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-chat-heart" style="font-size:2rem;"></i>
+    <p class="mt-2 mb-0">No matches yet. Opt in on Settings, then run matchmaking to see your AI secretary get to work.</p>
+  </div>
+<% end %>
