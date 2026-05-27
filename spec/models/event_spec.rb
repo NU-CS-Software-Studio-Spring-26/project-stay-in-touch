@@ -30,6 +30,22 @@ RSpec.describe Event, type: :model do
       event  = build(:event, people: people)
       expect(event).to be_valid
     end
+
+    describe "duration_minutes" do
+      it "accepts every value the form's picker offers" do
+        [ 15, 30, 45, 60, 90, 120 ].each do |mins|
+          expect(build(:event, duration_minutes: mins)).to be_valid
+        end
+      end
+
+      it "rejects zero, negative, and absurdly large values" do
+        [ 0, -5, 5000 ].each do |bad|
+          event = build(:event, duration_minutes: bad)
+          expect(event).not_to be_valid
+          expect(event.errors[:duration_minutes]).to be_present
+        end
+      end
+    end
   end
 
   describe ".recent" do

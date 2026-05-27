@@ -20,6 +20,11 @@ class Event < ApplicationRecord
   validates :medium, presence: true, inclusion: { in: MEDIA }
   validates :title, length: { maximum: 255 }, allow_blank: true
   validates :notes, length: { maximum: 5000 }, allow_blank: true
+  # Server-side guard for the form's duration picker (15–120 min). The DB
+  # column is `default: 60, null: false`, so this never rejects normal input;
+  # it exists to reject crafted/out-of-range values (e.g. negative or absurd).
+  validates :duration_minutes,
+            numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 1440 }
   validate  :must_have_at_least_one_person
 
   scope :recent, -> { order(occurred_at: :desc) }
