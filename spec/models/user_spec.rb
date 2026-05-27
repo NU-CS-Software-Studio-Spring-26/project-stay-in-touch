@@ -105,4 +105,47 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe "matchmaking" do
+    describe ".matchmaking_candidates" do
+      it "includes opted-in users with interests" do
+        ready = create(:user, :matchmaking_ready)
+        expect(User.matchmaking_candidates).to include(ready)
+      end
+
+      it "excludes users who have not opted in" do
+        not_opted = create(:user, meeting_interests: "things", matchmaking_enabled: false)
+        expect(User.matchmaking_candidates).not_to include(not_opted)
+      end
+
+      it "excludes opted-in users with blank interests" do
+        blank = create(:user, meeting_interests: "", matchmaking_enabled: true)
+        expect(User.matchmaking_candidates).not_to include(blank)
+      end
+    end
+
+    describe "#matchmaking_ready?" do
+      it "is true when opted in with interests" do
+        expect(build(:user, :matchmaking_ready)).to be_matchmaking_ready
+      end
+
+      it "is false when opted in but interests are blank" do
+        expect(build(:user, matchmaking_enabled: true, meeting_interests: "")).not_to be_matchmaking_ready
+      end
+
+      it "is false when not opted in" do
+        expect(build(:user, matchmaking_enabled: false, meeting_interests: "x")).not_to be_matchmaking_ready
+      end
+    end
+
+    describe "#display_label" do
+      it "uses display_name when present" do
+        expect(build(:user, display_name: "Jordan").display_label).to eq("Jordan")
+      end
+
+      it "falls back to the email local-part" do
+        expect(build(:user, display_name: nil, email: "sam@example.com").display_label).to eq("sam")
+      end
+    end
+  end
 end

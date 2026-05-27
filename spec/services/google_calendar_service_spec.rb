@@ -117,6 +117,55 @@ RSpec.describe GoogleCalendarService, type: :service do
     end
   end
 
+  describe "#push_user_meeting" do
+    let(:calendar_service_double) { instance_double(Google::Apis::CalendarV3::CalendarService) }
+    let(:auth_double)             { instance_double(Signet::OAuth2::Client) }
+
+    before do
+      credential.update!(expires_at: 1.hour.from_now)
+      allow(Signet::OAuth2::Client).to receive(:new).and_return(auth_double)
+      allow(Google::Apis::CalendarV3::CalendarService).to receive(:new).and_return(calendar_service_double)
+      allow(calendar_service_double).to receive(:authorization=)
+      allow(calendar_service_double).to receive(:insert_event)
+        .and_return(double("gcal_event", id: "user-meeting-1"))
+    end
+
+    it "inserts the event on the primary calendar and returns it" do
+      expect(calendar_service_double).to receive(:insert_event).with("primary", anything)
+        .and_return(double("gcal_event", id: "user-meeting-1"))
+      result = service.push_user_meeting(
+        summary: "Intro", start_time: Time.utc(2026, 6, 1, 15, 0),
+        attendee_emails: ["guest@example.com"]
+      )
+      expect(result.id).to eq("user-meeting-1")
+    end
+
+    it "adds the given attendee emails" do
+      expect(calendar_service_double).to receive(:insert_event) do |_calendar, cal_event|
+        expect(cal_event.attendees.map(&:email)).to eq(["guest@example.com"])
+        double("gcal_event")
+      end
+      service.push_user_meeting(
+        summary: "Intro", start_time: Time.utc(2026, 6, 1, 15, 0),
+        attendee_emails: ["guest@example.com"]
+      )
+    end
+
+    it "builds start and end times duration_minutes apart in the given timezone" do
+      expect(calendar_service_double).to receive(:insert_event) do |_calendar, cal_event|
+        expect(cal_event.start.time_zone).to eq("America/New_York")
+        start_t = Time.parse(cal_event.start.date_time)
+        end_t   = Time.parse(cal_event.end.date_time)
+        expect((end_t - start_t) / 60).to eq(30)
+        double("gcal_event")
+      end
+      service.push_user_meeting(
+        summary: "Intro", start_time: Time.utc(2026, 6, 1, 15, 0),
+        duration_minutes: 30, tz_name: "America/New_York", attendee_emails: []
+      )
+    end
+  end
+
   private
 
   def stub_env_vars
