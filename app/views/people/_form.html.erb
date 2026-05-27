@@ -2,7 +2,7 @@
       data: { controller: "dirty-form",
               action: "input->dirty-form#check change->dirty-form#check submit->dirty-form#markSaved" } do |f| %>
   <div data-dirty-form-target="indicator" role="status"
-       class="alert alert-warning d-flex align-items-center gap-2 py-2 mb-0" hidden>
+       class="unsaved-banner alert alert-warning d-flex align-items-center gap-2 py-2 mb-0" hidden>
     <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
     <span>You have unsaved changes — don't forget to <strong>Save</strong>.</span>
   </div>

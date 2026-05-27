@@ -606,6 +606,18 @@ form.is-dirty .btn-primary {
   }
 }
 
+/* Keep the unsaved-changes banner pinned to the top while scrolling the form. */
+.unsaved-banner {
+  position: sticky;
+  top: 0;
+  z-index: 90; /* above scrolling form fields; below the mobile topbar (100) */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+@media (max-width: 991.98px) {
+  /* Sit just below the sticky mobile topbar instead of behind it. */
+  .unsaved-banner { top: 52px; }
+}
+
 /* ── Turbo Frame modal overlay ──────────────────────────── */
 turbo-frame#quick-log-modal.turbo-modal {
   display: none;
