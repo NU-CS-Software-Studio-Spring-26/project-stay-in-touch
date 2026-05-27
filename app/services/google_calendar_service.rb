@@ -16,6 +16,37 @@ class GoogleCalendarService
     service.insert_event("primary", calendar_event)
   end
 
+  # Pushes a User<->User meeting to this user's primary Google Calendar, adding the
+  # other party as an attendee by email (they need no account or connected calendar).
+  # Built from primitives so it stays decoupled from the Event/Person models, which
+  # the matchmaking feature does not use. Returns the created Google event.
+  def push_user_meeting(summary:, start_time:, description: nil, attendee_emails: [],
+                        duration_minutes: 30, tz_name: "UTC")
+    service = build_service
+    start_t = start_time.in_time_zone(tz_name)
+    end_t   = start_t + duration_minutes.minutes
+
+    attendees = attendee_emails.compact_blank.map do |email|
+      Google::Apis::CalendarV3::EventAttendee.new(email: email)
+    end
+
+    calendar_event = Google::Apis::CalendarV3::Event.new(
+      summary:     summary,
+      description: description.presence,
+      start:       Google::Apis::CalendarV3::EventDateTime.new(
+                     date_time: start_t.iso8601,
+                     time_zone: tz_name
+                   ),
+      end:         Google::Apis::CalendarV3::EventDateTime.new(
+                     date_time: end_t.iso8601,
+                     time_zone: tz_name
+                   ),
+      attendees:   attendees.presence
+    )
+
+    service.insert_event("primary", calendar_event)
+  end
+
   # Returns busy [start, end] Time pairs for the user's primary calendar on a given date.
   def busy_for_day(date, tz)
     service  = build_service
