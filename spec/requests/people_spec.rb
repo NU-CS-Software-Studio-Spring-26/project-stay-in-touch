@@ -1,4 +1,5 @@
 require "rails_helper"
+require "tempfile"
 
 RSpec.describe "People", type: :request do
   let(:user) { create(:user) }
@@ -186,6 +187,48 @@ RSpec.describe "People", type: :request do
       fav = create(:person, user: user, favorite: true,  name: "Zara Aaa")
       get people_path
       expect(response.body.index(fav.name)).to be < response.body.index("Aaron Zzz")
+    end
+  end
+
+  describe "POST /people/import" do
+    def csv_upload(content, filename: "contacts.csv")
+      file = Tempfile.new([ "upload", File.extname(filename) ])
+      file.binmode
+      file.write(content)
+      file.rewind
+      Rack::Test::UploadedFile.new(file.path, nil, original_filename: filename)
+    end
+
+    it "imports people from a valid CSV" do
+      csv = "name,email\nJane Smith,jane@example.com\n"
+      expect {
+        post import_people_path, params: { csv_file: csv_upload(csv) }
+      }.to change(user.people, :count).by(1)
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Import complete")
+    end
+
+    it "rejects an unsupported file type without importing" do
+      expect {
+        post import_people_path, params: { csv_file: csv_upload("whatever", filename: "notes.txt") }
+      }.not_to change(Person, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Unsupported file type")
+    end
+
+    it "rejects a file over the size limit without importing" do
+      stub_const("CsvImportService::MAX_FILE_SIZE", 10)
+      expect {
+        post import_people_path, params: { csv_file: csv_upload("name,email\nJane,jane@example.com\n") }
+      }.not_to change(Person, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("too large")
+    end
+
+    it "rejects a missing file" do
+      post import_people_path
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Please select")
     end
   end
 

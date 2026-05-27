@@ -11,6 +11,21 @@ class CsvImportService
     timezone:        %w[timezone time_zone tz]
   }.freeze
 
+  # Upload guards (the controller rejects oversized/wrong-type files before we
+  # ever read them; MAX_ROWS is the in-parser backstop against a small file
+  # that still expands into a huge number of rows).
+  MAX_FILE_SIZE       = 2.megabytes
+  MAX_ROWS            = 5_000
+  ALLOWED_EXTENSIONS  = %w[.csv .vcf].freeze
+
+  # True when the uploaded file's name ends in an accepted extension. Extension
+  # rather than browser-supplied content_type because the latter is unreliable
+  # and easily spoofed; the parsers below are also defensive about content.
+  def self.allowed_file?(file)
+    name = file.try(:original_filename).to_s.downcase
+    ALLOWED_EXTENSIONS.any? { |ext| name.end_with?(ext) }
+  end
+
   Result = Data.define(:created, :skipped, :errors)
 
   def initialize(file, user)
@@ -22,6 +37,14 @@ class CsvImportService
     content  = read_content
     filename = @file.respond_to?(:original_filename) ? @file.original_filename.to_s : ""
     rows     = filename.end_with?(".vcf") || vcf_content?(content) ? parse_vcf(content) : parse_csv(content)
+
+    if rows.size > MAX_ROWS
+      return Result.new(
+        created: 0,
+        skipped: [],
+        errors:  [ "File has #{rows.size} entries; the maximum is #{MAX_ROWS}. Please split it into smaller files." ]
+      )
+    end
 
     created = 0
     skipped = []
