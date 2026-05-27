@@ -31,11 +31,11 @@ class EventMailer < ApplicationMailer
     lines = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
-      "PRODID:-//Stay In Touch//EN",
+      "PRODID:-//Serendipity//EN",
       "CALSCALE:GREGORIAN",
       "METHOD:REQUEST",
       "BEGIN:VEVENT",
-      "UID:event-#{@event.id}-#{SecureRandom.hex(6)}@stayintouch",
+      "UID:event-#{@event.id}-#{SecureRandom.hex(6)}@serendipity",
       "DTSTAMP:#{Time.now.utc.strftime(fmt_utc)}",
       "DTSTART;TZID=#{tz_name}:#{local_start.strftime(fmt_local)}",
       "DTEND;TZID=#{tz_name}:#{local_end.strftime(fmt_local)}",

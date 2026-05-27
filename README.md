@@ -1,4 +1,4 @@
-# Stay In Touch
+# Serendipity
 
 [![CI](https://github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch/actions/workflows/ci.yml/badge.svg)](https://github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch/actions/workflows/ci.yml)
 
@@ -6,7 +6,7 @@ A Rails web app that helps you intentionally maintain friendships by tracking th
 
 ## MVP
 
-Stay In Touch lets a user record the people they care about (with timezone, preferred call hours, and a target catch-up frequency) and log actual events (calls, coffee, group dinners, etc.) against one or more of those people. The app surfaces a "days until due" status for each person so it's obvious who you're overdue to reach out to.
+Serendipity lets a user record the people they care about (with timezone, preferred call hours, and a target catch-up frequency) and log actual events (calls, coffee, group dinners, etc.) against one or more of those people. The app surfaces a "days until due" status for each person so it's obvious who you're overdue to reach out to.
 
 The long-term vision (see `wiki.md`) builds on top of this foundation: mutual opt-in pairing, automated scheduling against Google Calendar, and gentle nudges so neither party bears the social cost of initiating a catch-up.
 
@@ -97,6 +97,12 @@ The `Procfile` runs `rails db:migrate` automatically in the release phase, so su
 - **EventParticipant** — Join model between Person and Event. Deliberately a real model (not `has_and_belongs_to_many`) so future fields like `rsvp_status`, `role`, or `was_organizer` can be added without another migration.
 
 More on the domain model and future direction in `wiki.md`.
+
+## Branding
+
+The logo and app icons (the teacup-and-clover mark) live in `app/assets/images/`
+and `public/icon.*`. See [`docs/MAKING_LOGOS.md`](docs/MAKING_LOGOS.md) for the
+design walkthrough, asset locations, and how to regenerate `public/icon.png`.
 
 ## Project layout
 

@@ -1,18 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- White iOS/Android-style App Background -->
-  <rect width="512" height="512" rx="115" fill="#FFFFFF"/>
-  
-  <!-- Back Speech Bubble (Solid Indigo, Top-Left) -->
-  <path d="M320 200 C320 266.27 266.27 320 200 320 C180.26 320 161.64 315.24 145.2 306.8 L80 320 L93.2 254.8 C84.76 238.36 80 219.74 80 200 C80 133.73 133.73 80 200 80 C266.27 80 320 133.73 320 200 Z" fill="#4F46E5"/>
-  
-  <!-- Clock Icon inside Back Bubble (White) -->
-  <circle cx="200" cy="200" r="42" fill="none" stroke="#FFFFFF" stroke-width="12"/>
-  <path d="M200 170 L200 200 L216 216" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-
-  <!-- Front Speech Bubble (White Fill, Thick Outline, Bottom-Right) -->
-  <path d="M432 312 C432 245.73 378.27 192 312 192 C245.73 192 192 245.73 192 312 C192 378.27 245.73 432 312 432 C331.74 432 350.36 427.24 366.8 418.8 L432 432 L418.8 366.8 C427.24 350.36 432 331.74 432 312 Z" fill="#FFFFFF" stroke="#4F46E5" stroke-width="22" stroke-linejoin="round"/>
-
-  <!-- Friend / Person Icon inside Front Bubble (Indigo) -->
-  <circle cx="312" cy="280" r="28" fill="#4F46E5"/>
-  <path d="M360 355 C360 335 340 325 312 325 C284 325 264 335 264 355 L264 360 L360 360 Z" fill="#4F46E5"/>
+<svg viewBox="0 0 512 512" width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Serendipity app icon: cup + clover mark on a white rounded tile.
+       Derived from app/assets/images/serendipity-logo.svg (wordmark dropped).
+       Used for the favicon, apple-touch-icon, and PWA manifest. -->
+  <rect width="512" height="512" rx="115" fill="#ffffff"/>
+  <g transform="translate(256 256) scale(1.7) translate(-168 -203)">
+    <g transform="translate(160 210)">
+      <path d="M 34 18 C 66 18 66 70 34 70 L 34 66 C 56 66 56 22 34 22 Z" fill="#fae4bd" stroke="#1a1a1a" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M -36 0 L 36 0 L 34 84 Q 34 92 26 92 L -26 92 Q -34 92 -34 84 Z" fill="#fae4bd" stroke="#1a1a1a" stroke-width="2.5" stroke-linejoin="round"/>
+      <ellipse cx="0" cy="0" rx="36" ry="4" fill="#fae4bd" fill-opacity="1" stroke="#1a1a1a" stroke-width="1.75" stroke-opacity="0.7"/>
+    </g>
+    <g transform="translate(160 146)">
+      <path d="M 0 0 C -37 23.1875 37 43.0625 0 66.25" fill="none" stroke="#6f4e37" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(160 146) scale(1 0.8) rotate(0)">
+      <path d="M 0 0 C -2.6999999999999997 -9.36 -22.5 -14.560000000000002 -22.5 -28.6 C -22.5 -45.76 -10.125 -53.04 0 -40.56 C 10.125 -53.04 22.5 -45.76 22.5 -28.6 C 22.5 -14.560000000000002 2.6999999999999997 -9.36 0 0 Z" transform="rotate(45)" fill="#3b8e4e" stroke="#3b8e4e" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M 0 0 C -2.6999999999999997 -9.36 -22.5 -14.560000000000002 -22.5 -28.6 C -22.5 -45.76 -10.125 -53.04 0 -40.56 C 10.125 -53.04 22.5 -45.76 22.5 -28.6 C 22.5 -14.560000000000002 2.6999999999999997 -9.36 0 0 Z" transform="rotate(315)" fill="#95d26e" stroke="#3b8e4e" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M 0 0 C -2.6999999999999997 -9.36 -22.5 -14.560000000000002 -22.5 -28.6 C -22.5 -45.76 -10.125 -53.04 0 -40.56 C 10.125 -53.04 22.5 -45.76 22.5 -28.6 C 22.5 -14.560000000000002 2.6999999999999997 -9.36 0 0 Z" transform="rotate(135)" fill="#95d26e" stroke="#3b8e4e" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M 0 0 C -2.6999999999999997 -9.36 -22.5 -14.560000000000002 -22.5 -28.6 C -22.5 -45.76 -10.125 -53.04 0 -40.56 C 10.125 -53.04 22.5 -45.76 22.5 -28.6 C 22.5 -14.560000000000002 2.6999999999999997 -9.36 0 0 Z" transform="rotate(225)" fill="#3b8e4e" stroke="#3b8e4e" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="0" cy="0" r="3" fill="#6f4e37"/>
+    </g>
+  </g>
 </svg>
