@@ -124,6 +124,14 @@ RSpec.describe "People", type: :request do
       get edit_person_path(person)
       expect(response).to have_http_status(:ok)
     end
+
+    it "wires up the dirty-form and tag-toggle Stimulus controllers" do
+      person = create(:person, user: user) # user gets default tags on create
+      get edit_person_path(person)
+      expect(response.body).to include('data-controller="dirty-form"')
+      expect(response.body).to include("You have unsaved changes")
+      expect(response.body).to include('data-controller="tag-toggle"')
+    end
   end
 
   describe "PATCH /people/:id" do
