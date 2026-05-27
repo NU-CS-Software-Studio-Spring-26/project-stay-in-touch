@@ -83,12 +83,17 @@ First-time setup from the project root:
 ```bash
 heroku create stay-in-touch-<team-suffix>        # pick a unique suffix
 heroku addons:create heroku-postgresql:essential-0
-git push heroku claude/m0-rails-foundation:main   # or main once merged
-heroku run rails db:seed
+git push heroku main
 heroku open
 ```
 
 The `Procfile` runs `rails db:migrate` automatically in the release phase, so subsequent deploys just need `git push heroku main`.
+
+> **Do not run `rails db:seed` against production.** The seed file is
+> development-only — it deletes every row in the People, Events, Tags, and
+> Users tables and creates demo accounts whose passwords are committed to this
+> repo. The script will refuse to run (and exit non-zero) if
+> `RAILS_ENV=production`. Sign up a real account through the UI instead.
 
 ## Terminology
 
@@ -110,7 +115,7 @@ design walkthrough, asset locations, and how to regenerate `public/icon.png`.
 - `app/controllers/` - Thin controllers with strong params and the seven REST actions.
 - `app/views/people/` and `app/views/events/` - Bootstrap 5 index, show, new, edit, and `_form` partials.
 - `app/views/shared/` - Navbar and flash partials used across the app.
-- `db/seeds.rb` - 12 people + 15 events, idempotent.
+- `db/seeds.rb` - Faker-generated demo data (a demo user plus extra users, each with people and events); re-runnable, development-only.
 - `spec/` - RSpec model and request specs.
 - `claude-initial-files/` - Original Python prototype and product vision for Serendipity (historical reference only).
 

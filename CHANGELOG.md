@@ -14,6 +14,11 @@
 - RuboCop added to CI pipeline as a `lint` job; deploy gate now requires lint to pass
 - Configured `.rubocop.yml` to allow `%i[ ]` / `%w[ ]` bracket style produced by Rails generators
 
+### Security
+- `db/seeds.rb` now `abort`s (exits non-zero) if run against `production` (closes #23, #24). The script is destructive (`User.delete_all`, etc.) and creates demo accounts with hardcoded passwords — both intentional for local dev and unsafe for prod.
+- `README.md` no longer instructs running `heroku run rails db:seed`; real users should sign up through the UI on the live deployment.
+- Added `docs/schema.md` — a human-readable mirror of `db/schema.rb` documenting tables, columns, indexes, and relationships.
+
 ## [v1.2.0] — 2026-05-10 — Pagination & Large Dataset Support
 
 ### Added

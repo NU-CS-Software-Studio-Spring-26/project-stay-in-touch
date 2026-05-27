@@ -1,8 +1,13 @@
-# Idempotent seed script for development only.
-# NEVER run db:seed in production — it wipes all data.
+# Development/test-only seed script. Re-runnable: wipes every row in the tables
+# below and re-creates demo users plus Faker-generated example data.
+#
+# Refuse to run against production: the script is destructive (User.delete_all
+# would wipe every real account) and creates demo accounts whose passwords are
+# committed to this public repo. Both behaviors are intentional for local dev
+# and unsafe for prod. See GitHub issues #23 and #24.
 if Rails.env.production?
-  puts "Skipping seeds in production."
-  return
+  abort "db/seeds.rb is development-only — refusing to run in #{Rails.env}. " \
+        "If you really need to seed prod, do it from the rails console with explicit data."
 end
 
 require "faker"
