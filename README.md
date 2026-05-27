@@ -76,6 +76,42 @@ heroku config:set GOOGLE_REDIRECT_URI=https://<your-app>.herokuapp.com/google/oa
 
 Add the production redirect URI in the Google Cloud Console as well.
 
+## AI meeting matchmaking ("your AI talks to my AI")
+
+An opt-in feature where each user's "AI secretary" negotiates meetings with other users' secretaries. It is additive — the private per-user CRM is unchanged — and degrades gracefully when `OPENROUTER_API_KEY` is absent.
+
+### How it works
+
+1. On the **Settings** page a user writes what they want to get/receive from meetings and toggles **matchmaking on**. Their interests are read by other opted-in members' AI secretaries (disclosed in the UI).
+2. A matchmaking round gives each opted-in user an AI secretary that is shown the other opted-in users + profiles, picks one target, and writes an invitation pitch (`Matchmaking::SecretaryPitchService`).
+3. The target's AI secretary — told to screen out bad matches — accepts or declines with a reason (`Matchmaking::SecretaryReviewService`).
+4. The exchange is recorded as a `MeetingProposal` on the **Matches** page for both users. On acceptance, if at least one party has Google Calendar connected, a real event is created — the connected user hosts and the other is added as an attendee by email (`RoundOrchestratorService` → `GoogleCalendarService#push_user_meeting`).
+
+All AI calls reuse the existing OpenRouter setup (`ruby-openai` → `google/gemma-4-26b-a4b-it:free`). User emails are never sent to the model — only a display name.
+
+### Running a matchmaking round
+
+```bash
+# All opted-in users (the daily batch):
+bundle exec rake matchmaking:run
+
+# A single user (the in-app "Run matchmaking now" button does this):
+#   RunMatchmakingJob.perform_later(user_id)
+```
+
+### Scheduling the daily run
+
+The app uses the `:async` ActiveJob adapter, which runs in-process and is tied to the web dyno — it cannot guarantee a daily run on its own. Drive `rake matchmaking:run` from an external scheduler instead:
+
+- **Heroku Scheduler** (recommended): `heroku addons:create scheduler:standard`, then add a daily job running `bundle exec rake matchmaking:run`.
+- **GitHub Actions**: a `schedule:` cron workflow running `heroku run rake matchmaking:run -a <app>`.
+
+Set the API key in each environment:
+
+```bash
+heroku config:set OPENROUTER_API_KEY=...
+```
+
 ## Deployment (Heroku)
 
 First-time setup from the project root:
