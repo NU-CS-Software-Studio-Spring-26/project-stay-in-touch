@@ -5,6 +5,7 @@ class EventMailer < ApplicationMailer
     @event          = event
     @person         = person
     @organizer      = organizer
+    @registered     = person.registered?
     @slot_time      = event.occurred_at.in_time_zone(person.timezone.presence || CHICAGO_TZ)
     @duration_label = format_duration(event.duration_minutes || 60)
 
