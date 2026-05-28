@@ -20,7 +20,13 @@ module Matchmaking
         yield
       rescue Faraday::TooManyRequestsError => e
         attempt += 1
-        raise if attempt >= MAX_ATTEMPTS
+        if attempt >= MAX_ATTEMPTS
+          Rails.logger.error(
+            "Matchmaking: OpenRouter 429 retries exhausted after " \
+            "#{MAX_ATTEMPTS} attempts; re-raising"
+          )
+          raise
+        end
 
         delay = retry_after(e) || [ BASE_DELAY * (2**(attempt - 1)), MAX_DELAY ].min
         Rails.logger.info(

@@ -16,17 +16,37 @@ module Matchmaking
     end
 
     def call
-      return nil if ENV["OPENROUTER_API_KEY"].blank?
-      return nil unless @requester.matchmaking_ready?
+      # Configuration / opt-in gates: log but don't record an :error proposal —
+      # these aren't per-round failures, they're "this round can't run." The
+      # controller already flashes the API-key case, and the Matches page
+      # already prompts users who haven't opted in.
+      if ENV["OPENROUTER_API_KEY"].blank?
+        Rails.logger.warn("RoundOrchestrator: requester=#{@requester.id} skipped — OPENROUTER_API_KEY blank")
+        return nil
+      end
+      unless @requester.matchmaking_ready?
+        Rails.logger.warn("RoundOrchestrator: requester=#{@requester.id} skipped — not matchmaking_ready")
+        return nil
+      end
 
       candidates = eligible_candidates
-      return nil if candidates.empty?
+      if candidates.empty?
+        Rails.logger.warn("RoundOrchestrator: requester=#{@requester.id} has no eligible candidates")
+        return record_error("No other opted-in users to pitch right now. Ask a teammate to opt in on Settings.")
+      end
 
       pitch = SecretaryPitchService.new(@requester, candidates).call
-      return nil unless pitch
+      unless pitch
+        Rails.logger.warn("RoundOrchestrator: requester=#{@requester.id} got no pitch from SecretaryPitchService")
+        return record_error("Your AI couldn't generate an invitation. The AI service was unreachable, " \
+                            "rate-limited, or returned unparseable output — see Heroku logs for details.")
+      end
 
       target = pitch.target_user
-      return nil unless candidates.include?(target) && target != @requester
+      unless candidates.include?(target) && target != @requester
+        Rails.logger.warn("RoundOrchestrator: requester=#{@requester.id} got invalid target=#{target&.id}")
+        return record_error("Your AI picked an invalid target. See Heroku logs for details.")
+      end
 
       review = SecretaryReviewService.new(target, @requester.display_label, pitch.pitch_text).call
 
@@ -45,6 +65,19 @@ module Matchmaking
     end
 
     private
+
+    # Record a visible :error proposal so the failure surfaces on the Matches
+    # page instead of vanishing. Recipient is nil because we didn't reach the
+    # point of picking one (or the one we picked was rejected as invalid).
+    def record_error(reason)
+      MeetingProposal.create!(
+        requester:                  @requester,
+        recipient:                  nil,
+        status:                     :error,
+        decision_reason:            reason,
+        requester_profile_snapshot: @requester.meeting_interests
+      )
+    end
 
     # Opted-in users other than the requester, excluding pairs proposed recently.
     def eligible_candidates
