@@ -31,13 +31,17 @@
         <div class="d-flex align-items-center justify-content-between">
           <div class="min-w-0">
             <div class="fw-semibold text-truncate">
-              <% if proposal.requester_id == current_user.id %>
-                <i class="bi bi-arrow-up-right text-muted me-1"></i>Your AI pitched <%= other.display_label %>
+              <% if proposal.error? %>
+                <i class="bi bi-exclamation-triangle text-danger me-1"></i>Run failed
+              <% elsif proposal.requester_id == current_user.id %>
+                <i class="bi bi-arrow-up-right text-muted me-1"></i>Your AI pitched <%= other&.display_label %>
               <% else %>
-                <i class="bi bi-arrow-down-left text-muted me-1"></i><%= other.display_label %>'s AI pitched you
+                <i class="bi bi-arrow-down-left text-muted me-1"></i><%= other&.display_label %>'s AI pitched you
               <% end %>
             </div>
-            <div class="text-muted small text-truncate"><%= proposal.pitch %></div>
+            <div class="text-muted small text-truncate">
+              <%= proposal.error? ? proposal.decision_reason : proposal.pitch %>
+            </div>
           </div>
           <div class="text-end flex-shrink-0 ms-3">
             <span class="badge <%= status_badge[proposal.status] %>"><%= proposal.status.titleize %></span>

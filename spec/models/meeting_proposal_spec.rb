@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe MeetingProposal, type: :model do
   describe "associations" do
     it { is_expected.to belong_to(:requester).class_name("User") }
-    it { is_expected.to belong_to(:recipient).class_name("User") }
+    it { is_expected.to belong_to(:recipient).class_name("User").optional }
   end
 
   describe "status enum" do
@@ -19,6 +19,11 @@ RSpec.describe MeetingProposal, type: :model do
       proposal = build(:meeting_proposal, requester: user, recipient: user)
       expect(proposal).not_to be_valid
       expect(proposal.errors[:recipient_id]).to be_present
+    end
+
+    it "allows recipient to be nil (used by :error rows for failed rounds)" do
+      proposal = build(:meeting_proposal, requester: create(:user), recipient: nil, status: :error)
+      expect(proposal).to be_valid
     end
   end
 
@@ -56,6 +61,12 @@ RSpec.describe MeetingProposal, type: :model do
       create(:meeting_proposal, requester: bob, recipient: alice, created_at: 1.day.ago)
       expect(described_class.recently_proposed_between?(alice, bob)).to be(false)
     end
+
+    it "ignores :error rows (a failed round shouldn't block a real retry)" do
+      create(:meeting_proposal, requester: alice, recipient: bob,
+                                status: :error, created_at: 1.day.ago)
+      expect(described_class.recently_proposed_between?(alice, bob)).to be(false)
+    end
   end
 
   describe "#other_party" do
@@ -69,6 +80,11 @@ RSpec.describe MeetingProposal, type: :model do
 
     it "returns the requester for the recipient" do
       expect(proposal.other_party(bob)).to eq(alice)
+    end
+
+    it "returns nil when called by the requester of a recipient-less :error row" do
+      error_row = create(:meeting_proposal, requester: alice, recipient: nil, status: :error)
+      expect(error_row.other_party(alice)).to be_nil
     end
   end
 end

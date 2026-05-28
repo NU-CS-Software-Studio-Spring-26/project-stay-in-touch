@@ -24,7 +24,17 @@ class RunMatchmakingJob < ApplicationJob
       begin
         Matchmaking::RoundOrchestratorService.new(requester).call
       rescue StandardError => e
-        Rails.logger.warn("Matchmaking failed for user #{requester.id}: #{e.message}")
+        Rails.logger.error("RunMatchmakingJob: requester=#{requester.id} raised #{e.class}: #{e.message}")
+        # Surface the failure on the user's Matches page so they don't just see
+        # nothing happen. The orchestrator already records :error rows for its
+        # own controlled-nil paths; this catches whatever it missed.
+        MeetingProposal.create!(
+          requester:                  requester,
+          recipient:                  nil,
+          status:                     :error,
+          decision_reason:            "Matchmaking failed unexpectedly (#{e.class}). See Heroku logs for details.",
+          requester_profile_snapshot: requester.meeting_interests
+        )
       end
     end
   end

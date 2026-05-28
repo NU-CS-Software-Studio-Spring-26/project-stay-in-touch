@@ -34,7 +34,11 @@ module Matchmaking
         )
       end
       parse(response.dig("choices", 0, "message", "content"))
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error(
+        "SecretaryReviewService: recipient=#{@recipient.id} failed with " \
+        "#{e.class}: #{e.message}; falling back to decline"
+      )
       decline(FALLBACK_REASON)
     end
 

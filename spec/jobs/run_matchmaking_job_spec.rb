@@ -64,6 +64,9 @@ RSpec.describe RunMatchmakingJob, type: :job do
 
       expect { described_class.new.perform }.not_to raise_error
       expect(ok).to have_received(:call)
+      # The failing user's round records an :error proposal so the user can see
+      # it on the Matches page instead of nothing happening.
+      expect(MeetingProposal.where(requester: ready_a, status: :error).count).to eq(1)
     end
   end
 end
