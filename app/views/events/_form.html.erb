@@ -124,14 +124,36 @@
     <% end %>
   </fieldset>
 
-  <%# ── Notes ── %>
-  <div data-controller="char-counter" data-char-counter-max-value="5000">
-    <%= f.label :notes, class: "form-label fw-semibold" do %><i class="bi bi-chat-text me-1"></i>Notes<% end %>
-    <%= f.text_area :notes, rows: 4, class: "form-control",
-          placeholder: "What did you talk about? Anything to follow up on?", maxlength: 5000,
-          data: { char_counter_target: "input", action: "input->char-counter#update" } %>
-    <div class="form-text text-end">
-      <span data-char-counter-target="count"></span>
+  <%# ── Notes + AI topic suggestions ── %>
+  <div data-controller="topic-chip">
+    <% if @topic_suggestions&.any? %>
+      <div class="mb-3">
+        <p class="form-label fw-semibold mb-2">
+          <i class="bi bi-stars me-1"></i>Suggested topics
+          <span class="text-muted fw-normal" style="font-size:0.82rem;">&mdash; click a chip to fill notes</span>
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          <% @topic_suggestions.each do |topic| %>
+            <button type="button"
+                    class="btn btn-sm btn-outline-primary rounded-pill"
+                    data-action="click->topic-chip#fill"
+                    data-topic-chip-text-param="<%= h(topic) %>">
+              <%= topic %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div data-controller="char-counter" data-char-counter-max-value="5000">
+      <%= f.label :notes, class: "form-label fw-semibold" do %><i class="bi bi-chat-text me-1"></i>Notes<% end %>
+      <%= f.text_area :notes, rows: 4, class: "form-control",
+            placeholder: "What did you talk about? Anything to follow up on?", maxlength: 5000,
+            data: { char_counter_target: "input", action: "input->char-counter#update",
+                    topic_chip_target: "notes" } %>
+      <div class="form-text text-end">
+        <span data-char-counter-target="count"></span>
+      </div>
     </div>
   </div>
 

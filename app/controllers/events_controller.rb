@@ -41,7 +41,8 @@ class EventsController < ApplicationController
     @event.occurred_at = params[:occurred_at] if params[:occurred_at].present?
     if params[:person_id].present? && current_user.people.exists?(params[:person_id])
       @event.person_ids = [params[:person_id]]
-      @person = current_user.people.find(params[:person_id])
+      @person = current_user.people.includes(:events).find(params[:person_id])
+      @topic_suggestions = TopicSuggestionService.new(@person).call
     end
     @people = current_user.people.order(:name)
   end
