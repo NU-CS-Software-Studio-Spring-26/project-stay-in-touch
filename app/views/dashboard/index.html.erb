@@ -178,6 +178,26 @@
     </div>
   </div>
 
+  <%# Catch-ups per week chart %>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="h6 fw-semibold mb-3">
+        <i class="bi bi-graph-up me-1 text-muted"></i>Catch-ups per Week
+        <span class="text-muted fw-normal" style="font-size:0.8rem;">(last 12 weeks)</span>
+      </h2>
+      <% if @catchups_by_week.values.sum > 0 %>
+        <%= line_chart @catchups_by_week,
+              colors: ["#4F46E5"],
+              height: "160px",
+              curve: false,
+              points: true,
+              library: { scales: { y: { ticks: { precision: 0 }, beginAtZero: true } } } %>
+      <% else %>
+        <div class="text-center text-muted small py-4">No catch-ups logged in the last 12 weeks.</div>
+      <% end %>
+    </div>
+  </div>
+
   <%# Detail panels row %>
   <div class="row g-3 mb-4">
 

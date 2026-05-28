@@ -49,6 +49,11 @@ class DashboardController < ApplicationController
       .count
       .transform_keys { |d| d.strftime("%b %Y") }
 
+    @catchups_by_week = current_user.events
+      .group_by_week(:occurred_at, last: 12)
+      .count
+      .transform_keys { |d| d.strftime("%-m/%-d") }
+
     @catchups_by_medium = current_user.events
       .group(:medium)
       .count
