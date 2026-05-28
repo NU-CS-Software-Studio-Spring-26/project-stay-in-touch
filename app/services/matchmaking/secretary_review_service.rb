@@ -21,16 +21,18 @@ module Matchmaking
         access_token: ENV["OPENROUTER_API_KEY"],
         uri_base:     "https://openrouter.ai/api/v1"
       )
-      response = client.chat(
-        parameters: {
-          model:    MODEL,
-          messages: [
-            { role: "system", content: system_prompt },
-            { role: "user",   content: user_prompt }
-          ],
-          max_tokens: 250
-        }
-      )
+      response = RateLimitedChat.with_retry do
+        client.chat(
+          parameters: {
+            model:    MODEL,
+            messages: [
+              { role: "system", content: system_prompt },
+              { role: "user",   content: user_prompt }
+            ],
+            max_tokens: 250
+          }
+        )
+      end
       parse(response.dig("choices", 0, "message", "content"))
     rescue StandardError
       decline(FALLBACK_REASON)

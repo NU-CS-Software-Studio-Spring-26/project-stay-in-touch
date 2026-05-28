@@ -4,6 +4,8 @@ RSpec.describe RunMatchmakingJob, type: :job do
   before do
     allow(ENV).to receive(:[]).and_call_original
     allow(ENV).to receive(:[]).with("OPENROUTER_API_KEY").and_return("test-key")
+    # Don't really sleep between batch rounds.
+    allow(Matchmaking::RateLimitedChat).to receive(:pause)
   end
 
   describe "#perform" do
@@ -34,6 +36,19 @@ RSpec.describe RunMatchmakingJob, type: :job do
       expect(Matchmaking::RoundOrchestratorService).to receive(:new).once.with(ready_a).and_return(orchestrator)
 
       described_class.new.perform(ready_a.id)
+    end
+
+    it "spaces out rounds in the batch but not for a single user" do
+      ready_a = create(:user, :matchmaking_ready)
+      ready_b = create(:user, :matchmaking_ready)
+      orchestrator = instance_double(Matchmaking::RoundOrchestratorService, call: nil)
+      allow(Matchmaking::RoundOrchestratorService).to receive(:new).and_return(orchestrator)
+
+      described_class.new.perform # batch: two users -> one pause between them
+      expect(Matchmaking::RateLimitedChat).to have_received(:pause).once
+
+      described_class.new.perform(ready_a.id) # single user -> no extra pause
+      expect(Matchmaking::RateLimitedChat).to have_received(:pause).once
     end
 
     it "continues past a per-user failure" do
