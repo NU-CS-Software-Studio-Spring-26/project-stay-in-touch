@@ -62,11 +62,15 @@ module Matchmaking
 
       guest   = proposal.other_party(host)
       service = GoogleCalendarService.new(host)
-      start_time = service.find_earliest_slot(
+      tz      = ActiveSupport::TimeZone[host.timezone] || Time.zone
+      busy    = service.busy_intervals(window_days: SLOT_WINDOW_DAYS)
+      start_time = GoogleCalendarService.earliest_free_slot(
+        busy:          busy,
         window_days:   SLOT_WINDOW_DAYS,
         from_hour:     SLOT_FROM_HOUR,
         to_hour:       SLOT_TO_HOUR,
-        slot_duration: MEETING_DURATION_MINUTES.minutes
+        slot_duration: MEETING_DURATION_MINUTES.minutes,
+        tz:            tz
       ) || default_slot(host)
 
       event = service.push_user_meeting(

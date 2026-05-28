@@ -5,6 +5,7 @@ class EventMailer < ApplicationMailer
     @event          = event
     @person         = person
     @organizer      = organizer
+    @registered     = person.registered?
     @slot_time      = event.occurred_at.in_time_zone(person.timezone.presence || CHICAGO_TZ)
     @duration_label = format_duration(event.duration_minutes || 60)
 
@@ -31,11 +32,11 @@ class EventMailer < ApplicationMailer
     lines = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
-      "PRODID:-//Stay In Touch//EN",
+      "PRODID:-//Serendipity//EN",
       "CALSCALE:GREGORIAN",
       "METHOD:REQUEST",
       "BEGIN:VEVENT",
-      "UID:event-#{@event.id}-#{SecureRandom.hex(6)}@stayintouch",
+      "UID:event-#{@event.id}-#{SecureRandom.hex(6)}@serendipity",
       "DTSTAMP:#{Time.now.utc.strftime(fmt_utc)}",
       "DTSTART;TZID=#{tz_name}:#{local_start.strftime(fmt_local)}",
       "DTEND;TZID=#{tz_name}:#{local_end.strftime(fmt_local)}",

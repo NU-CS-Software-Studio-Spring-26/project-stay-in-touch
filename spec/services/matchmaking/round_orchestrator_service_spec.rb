@@ -71,7 +71,8 @@ RSpec.describe Matchmaking::RoundOrchestratorService, type: :service do
         stub_pitch(pitch_for(target))
         stub_review(accepted: true)
         allow(GoogleCalendarService).to receive(:new).with(requester).and_return(calendar)
-        allow(calendar).to receive(:find_earliest_slot).and_return(Time.utc(2026, 6, 1, 15, 0))
+        allow(calendar).to receive(:busy_intervals).and_return([])
+        allow(GoogleCalendarService).to receive(:earliest_free_slot).and_return(Time.utc(2026, 6, 1, 15, 0))
         allow(calendar).to receive(:push_user_meeting).and_return(gcal_event)
       end
 
@@ -98,7 +99,8 @@ RSpec.describe Matchmaking::RoundOrchestratorService, type: :service do
         stub_pitch(pitch_for(target))
         stub_review(accepted: true)
         allow(GoogleCalendarService).to receive(:new).with(target).and_return(calendar)
-        allow(calendar).to receive(:find_earliest_slot).and_return(nil) # falls back to default slot
+        allow(calendar).to receive(:busy_intervals).and_return([])
+        allow(GoogleCalendarService).to receive(:earliest_free_slot).and_return(nil) # falls back to default slot
         allow(calendar).to receive(:push_user_meeting).and_return(gcal_event)
       end
 

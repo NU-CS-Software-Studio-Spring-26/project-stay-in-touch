@@ -62,7 +62,11 @@
                  class="form-control"
                  accept=".csv,.vcf,text/csv,text/vcard"
                  required>
-          <div class="form-text">CSV or vCard (.vcf) files accepted.</div>
+          <div class="form-text">
+            CSV or vCard (.vcf) files accepted —
+            up to <%= CsvImportService::MAX_FILE_SIZE / 1.megabyte %> MB
+            and <%= number_with_delimiter(CsvImportService::MAX_ROWS) %> contacts.
+          </div>
         </div>
         <div class="card-footer bg-transparent d-flex justify-content-end">
           <%= f.submit "Import", class: "btn btn-primary" %>

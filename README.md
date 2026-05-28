@@ -1,4 +1,4 @@
-# Stay In Touch
+# Serendipity
 
 [![CI](https://github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch/actions/workflows/ci.yml/badge.svg)](https://github.com/NU-CS-Software-Studio-Spring-26/project-stay-in-touch/actions/workflows/ci.yml)
 
@@ -6,7 +6,7 @@ A Rails web app that helps you intentionally maintain friendships by tracking th
 
 ## MVP
 
-Stay In Touch lets a user record the people they care about (with timezone, preferred call hours, and a target catch-up frequency) and log actual events (calls, coffee, group dinners, etc.) against one or more of those people. The app surfaces a "days until due" status for each person so it's obvious who you're overdue to reach out to.
+Serendipity lets a user record the people they care about (with timezone, preferred call hours, and a target catch-up frequency) and log actual events (calls, coffee, group dinners, etc.) against one or more of those people. The app surfaces a "days until due" status for each person so it's obvious who you're overdue to reach out to.
 
 The long-term vision (see `wiki.md`) builds on top of this foundation: mutual opt-in pairing, automated scheduling against Google Calendar, and gentle nudges so neither party bears the social cost of initiating a catch-up.
 
@@ -20,7 +20,7 @@ The long-term vision (see `wiki.md`) builds on top of this foundation: mutual op
 | Tais Martinez | [@taismartinezz](https://github.com/taismartinezz) |
 
 ## Live app
-> Heroku URL: https://rocky-cove-15980-acbcac59777d.herokuapp.com/
+> Heroku URL: https://stay-in-touch-cs396-743fabf79c08.herokuapp.com
 
 ## Local development
 
@@ -119,12 +119,17 @@ First-time setup from the project root:
 ```bash
 heroku create stay-in-touch-<team-suffix>        # pick a unique suffix
 heroku addons:create heroku-postgresql:essential-0
-git push heroku claude/m0-rails-foundation:main   # or main once merged
-heroku run rails db:seed
+git push heroku main
 heroku open
 ```
 
 The `Procfile` runs `rails db:migrate` automatically in the release phase, so subsequent deploys just need `git push heroku main`.
+
+> **Do not run `rails db:seed` against production.** The seed file is
+> development-only — it deletes every row in the People, Events, Tags, and
+> Users tables and creates demo accounts whose passwords are committed to this
+> repo. The script will refuse to run (and exit non-zero) if
+> `RAILS_ENV=production`. Sign up a real account through the UI instead.
 
 ## Terminology
 
@@ -134,13 +139,19 @@ The `Procfile` runs `rails db:migrate` automatically in the release phase, so su
 
 More on the domain model and future direction in `wiki.md`.
 
+## Branding
+
+The logo and app icons (the teacup-and-clover mark) live in `app/assets/images/`
+and `public/icon.*`. See [`docs/MAKING_LOGOS.md`](docs/MAKING_LOGOS.md) for the
+design walkthrough, asset locations, and how to regenerate `public/icon.png`.
+
 ## Project layout
 
 - `app/models/` - `Person`, `Event`, `EventParticipant` (join model enabling group events).
 - `app/controllers/` - Thin controllers with strong params and the seven REST actions.
 - `app/views/people/` and `app/views/events/` - Bootstrap 5 index, show, new, edit, and `_form` partials.
 - `app/views/shared/` - Navbar and flash partials used across the app.
-- `db/seeds.rb` - 12 people + 15 events, idempotent.
+- `db/seeds.rb` - Faker-generated demo data (a demo user plus extra users, each with people and events); re-runnable, development-only.
 - `spec/` - RSpec model and request specs.
 - `claude-initial-files/` - Original Python prototype and product vision for Serendipity (historical reference only).
 

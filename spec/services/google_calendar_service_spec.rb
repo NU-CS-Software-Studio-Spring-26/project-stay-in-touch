@@ -166,6 +166,64 @@ RSpec.describe GoogleCalendarService, type: :service do
     end
   end
 
+  describe ".earliest_free_slot" do
+    let(:tz)  { ActiveSupport::TimeZone["UTC"] }
+    let(:now) { tz.local(2026, 5, 1, 8, 0, 0) } # Fri 08:00 UTC
+
+    it "returns the first slot inside preferred hours when nothing is busy" do
+      slot = described_class.earliest_free_slot(
+        busy: [], window_days: 1, from_hour: 9, to_hour: 17, now: now, tz: tz
+      )
+      expect(slot).to eq(tz.local(2026, 5, 1, 9, 0, 0))
+    end
+
+    it "skips a busy block, respecting the 15-minute buffer" do
+      busy = [[tz.local(2026, 5, 1, 9, 0, 0), tz.local(2026, 5, 1, 10, 0, 0)]]
+      slot = described_class.earliest_free_slot(
+        busy: busy, window_days: 1, from_hour: 9, to_hour: 17, now: now, tz: tz
+      )
+      expect(slot).to eq(tz.local(2026, 5, 1, 10, 15, 0))
+    end
+
+    it "returns nil when every preferred-hour slot is busy" do
+      busy = [[tz.local(2026, 5, 1, 0, 0, 0), tz.local(2026, 5, 2, 0, 0, 0)]]
+      slot = described_class.earliest_free_slot(
+        busy: busy, window_days: 1, from_hour: 9, to_hour: 10, now: now, tz: tz
+      )
+      expect(slot).to be_nil
+    end
+  end
+
+  describe "#busy_intervals" do
+    let(:calendar_service_double) { instance_double(Google::Apis::CalendarV3::CalendarService) }
+    let(:auth_double)             { instance_double(Signet::OAuth2::Client) }
+    let(:t1) { Time.utc(2026, 5, 1, 14, 0, 0) }
+    let(:t2) { Time.utc(2026, 5, 1, 15, 0, 0) }
+
+    before do
+      allow(Signet::OAuth2::Client).to receive(:new).and_return(auth_double)
+      allow(auth_double).to receive(:refresh!)
+      allow(auth_double).to receive(:access_token).and_return("new-access-token")
+      allow(auth_double).to receive(:expires_at).and_return(1.hour.from_now.to_i)
+      allow(Google::Apis::CalendarV3::CalendarService).to receive(:new).and_return(calendar_service_double)
+      allow(calendar_service_double).to receive(:authorization=)
+      credential.update!(expires_at: 1.hour.from_now)
+    end
+
+    it "returns busy [start, end] pairs from the primary calendar" do
+      cal      = double("calendar", errors: [], busy: [double(start: t1, end: t2)])
+      response = double("freebusy", calendars: { "primary" => cal })
+      allow(calendar_service_double).to receive(:query_freebusy).and_return(response)
+
+      expect(service.busy_intervals(window_days: 7)).to eq([[t1, t2]])
+    end
+
+    it "returns [] when the free/busy query raises" do
+      allow(calendar_service_double).to receive(:query_freebusy).and_raise(StandardError)
+      expect(service.busy_intervals(window_days: 7)).to eq([])
+    end
+  end
+
   private
 
   def stub_env_vars

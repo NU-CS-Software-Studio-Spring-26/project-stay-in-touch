@@ -71,10 +71,10 @@ class GoogleCalendarService
     []
   end
 
-  # Finds the earliest 15-min-aligned free 30-min slot within the next window_days days,
-  # restricted to hours [from_hour, to_hour) in the user's timezone. Returns a UTC Time,
-  # or nil if no slot found.
-  def find_earliest_slot(window_days:, from_hour:, to_hour:, slot_duration: 60.minutes, buffer: 15.minutes)
+  # Returns busy [start, end] Time pairs for the user's primary calendar over
+  # the next window_days days. Returns [] if the free/busy query fails, so a
+  # caller merging several users' calendars degrades gracefully per-user.
+  def busy_intervals(window_days:)
     service    = build_service
     now        = Time.current
     window_end = now + window_days.days
@@ -85,11 +85,23 @@ class GoogleCalendarService
       items:    [{ id: "primary" }]
     )
     response = service.query_freebusy(request)
-    cal  = response.calendars["primary"] || response.calendars.values.first
-    busy = (cal && !cal.errors&.any?) ? cal.busy.map { |s| [s.start, s.end] } : []
+    cal = response.calendars["primary"] || response.calendars.values.first
+    (cal && !cal.errors&.any?) ? cal.busy.map { |s| [s.start, s.end] } : []
+  rescue StandardError => e
+    Rails.logger.warn("busy_intervals failed: #{e.message}")
+    []
+  end
 
-    cursor = now.ceil(15.minutes)
-    tz     = Time.zone
+  # Finds the earliest free slot_duration slot within the next window_days days,
+  # restricted to hours [from_hour, to_hour) in tz, that avoids every interval in
+  # busy (each a [start, end] pair) plus a buffer on either side. Pure function:
+  # the caller passes the merged busy intervals from however many calendars it
+  # wants considered (e.g. organizer + registered invitees). Returns a Time or nil.
+  def self.earliest_free_slot(busy:, window_days:, from_hour:, to_hour:,
+                              slot_duration: 60.minutes, buffer: 15.minutes,
+                              tz: Time.zone, now: Time.current)
+    window_end = now + window_days.days
+    cursor     = now.ceil(15.minutes)
 
     while cursor + slot_duration <= window_end
       local = cursor.in_time_zone(tz)
@@ -101,9 +113,6 @@ class GoogleCalendarService
       cursor += 15.minutes
     end
 
-    nil
-  rescue StandardError => e
-    Rails.logger.warn("find_earliest_slot failed: #{e.message}")
     nil
   end
 

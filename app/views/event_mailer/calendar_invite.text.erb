@@ -10,4 +10,8 @@ Hi <%= @person.name.split.first %>,
 Open the attached .ics file to accept or decline this invitation.
 
 ---
-Does this time not work for you? Join Stay In Touch at <%= signup_url %> and connect your Google Calendar for more precise scheduling.
+<% if @registered -%>
+We checked your calendar and picked a time that looked free for you. Open the attached .ics to confirm.
+<% else -%>
+Does this time not work for you? Join Serendipity at <%= signup_url %> and connect your Google Calendar so future invites land on a time you're free.
+<% end -%>

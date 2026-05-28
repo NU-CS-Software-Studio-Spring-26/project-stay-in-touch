@@ -1,10 +1,10 @@
-# Stay In Touch - Project Wiki
+# Serendipity - Project Wiki
 
 ## Problem
 
 Friendships take effort to maintain, and that effort is asymmetric: initiating a catch-up feels weirder the longer it's been, so both sides wait, and the relationship quietly cools. Calendar reminders ("call Alice every 4 weeks") feel cold, and a scheduled block on the calendar without a warm reason to reach out tends to get skipped.
 
-"Stay In Touch" (codename Serendipity) is the Software Studio team's attempt at a small tool that removes the social cost of initiating a catch-up while keeping the interaction itself feeling natural - not robotically scheduled.
+Serendipity (formerly "Stay In Touch") is the Software Studio team's attempt at a small tool that removes the social cost of initiating a catch-up while keeping the interaction itself feeling natural - not robotically scheduled.
 
 ## Milestone 0 scope
 

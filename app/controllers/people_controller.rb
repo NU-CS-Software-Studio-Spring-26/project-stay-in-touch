@@ -55,8 +55,19 @@ class PeopleController < ApplicationController
     return unless request.post?
 
     file = params[:csv_file]
-    unless file
-      flash.now[:alert] = "Please select a CSV file."
+    unless file.respond_to?(:read)
+      flash.now[:alert] = "Please select a CSV or vCard file."
+      return render :import, status: :unprocessable_content
+    end
+
+    unless CsvImportService.allowed_file?(file)
+      flash.now[:alert] = "Unsupported file type. Please upload a .csv or .vcf file."
+      return render :import, status: :unprocessable_content
+    end
+
+    if file.size > CsvImportService::MAX_FILE_SIZE
+      max_mb = CsvImportService::MAX_FILE_SIZE / 1.megabyte
+      flash.now[:alert] = "That file is too large (max #{max_mb} MB)."
       return render :import, status: :unprocessable_content
     end
 

@@ -22,7 +22,20 @@
 
 ## Rohit Katakam
 
-_(fill in your contributions here)_
+- **User authentication & per-user data scoping** — Devise-based sign-up/login with full per-user isolation of contacts and events; safe NOT NULL migration on `user_id` columns via a backfill-then-constrain approach; changelog entry documenting the deployment steps.
+- **Password reset flow** — email-based password reset with `reset_token` and `reset_token_expires_at` columns, a request form, and a reset form with token validation and expiry enforcement.
+- **Accessibility fixes** — fixed two WCAG violations: associated the Participants label to its multi-select checkboxes (1.3.1) and added `aria-label` to icon-only dropdown trigger buttons (4.1.2).
+- **Real-time person search** — debounced live search on the People index using a Stimulus controller + Turbo Frames; filters the contact table without a page reload.
+- **Favorite/star contacts** — boolean `favorite` column with a star toggle button on each person row; favorited contacts are pinned to the top of the People list.
+- **AI reconnect message suggestions** — AI-generated short, personalized reach-out message on the Person show page, pre-populated in an editable textarea with one-click clipboard copy.
+- **Calendar-based meeting time recommendations** — queries Google Calendar free/busy for both the user and the contact, then surfaces open slots on the Person show page as clickable suggested times.
+- **Quick Log Modal** — Turbo Frame modal that lets users log a catch-up directly from the People list or overdue banner without navigating away; refined in a follow-up iteration with improved UX.
+- **Suggested time slot → Quick Log pre-fill** — clicking a suggested calendar slot on the Person show page opens the Quick Log modal pre-filled with that exact datetime, removing double-entry.
+- **Activity timeline** — chronological feed view accessible from the dashboard; all events grouped by week so users can browse their relationship history at a glance.
+- **Snooze contacts** — "Snooze" button on the Person show page writes a `snoozed_until` date that suppresses the contact from the overdue list until that date.
+- **Inline notes editing** — edit a person's notes directly on the show page via an inline Turbo Frame; no navigation to the full edit form required.
+- **ERB-Lint CI job** — added `erb_lint` to the CI pipeline alongside RuboCop so ERB templates are linted on every push.
+- **Analytics/activity dashboard** — dashboard page with engagement metrics: catch-ups logged this month, most-frequently-contacted people, and streak stats.
 
 ---
 

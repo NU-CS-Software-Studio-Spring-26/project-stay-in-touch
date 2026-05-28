@@ -1,4 +1,12 @@
-<%= form_with model: person, class: "vstack gap-3" do |f| %>
+<%= form_with model: person, class: "vstack gap-3",
+      data: { controller: "dirty-form",
+              action: "input->dirty-form#check change->dirty-form#check submit->dirty-form#markSaved" } do |f| %>
+  <div data-dirty-form-target="indicator" role="status"
+       class="unsaved-banner alert alert-warning d-flex align-items-center gap-2 py-2 mb-0" hidden>
+    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+    <span>You have unsaved changes — don't forget to <strong>Save</strong>.</span>
+  </div>
+
   <% if person.errors.any? %>
     <div class="alert alert-danger">
       <strong><%= pluralize(person.errors.count, "error") %> prevented this person from being saved:</strong>
@@ -70,7 +78,8 @@
   <div>
     <label class="form-label fw-semibold"><i class="bi bi-tag me-1"></i>Tags</label>
     <% if @all_tags.any? %>
-      <div class="d-flex flex-wrap gap-2 mb-2">
+      <div class="d-flex flex-wrap gap-2 mb-2"
+           data-controller="tag-toggle" data-action="change->tag-toggle#toggle">
         <% @all_tags.each do |tag| %>
           <% checked = person.tags.include?(tag) %>
           <label class="tag-checkbox-label <%= 'active' if checked %>">
