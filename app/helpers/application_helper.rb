@@ -43,4 +43,19 @@ module ApplicationHelper
 
     ["Snoozed until #{person.snoozed_until.strftime("%b %-d")}", "badge-snoozed"]
   end
+
+  # Inline replacement for the abandoned gravatar_image_tag gem (which calls
+  # URI.escape, removed in Ruby 3+). Matches the same call shape used in
+  # _person_row.html.erb: positional email + an optional gravatar: { size:,
+  # default: } hash, plus pass-through HTML options (class:, style:, alt:, ...).
+  def gravatar_image_tag(email, **options)
+    gravatar_opts = options.delete(:gravatar) || {}
+    size    = gravatar_opts[:size]    || 80
+    default = gravatar_opts[:default] || "identicon"
+
+    hash = Digest::MD5.hexdigest(email.to_s.strip.downcase)
+    url  = "https://www.gravatar.com/avatar/#{hash}?s=#{size}&d=#{CGI.escape(default.to_s)}"
+
+    image_tag(url, **options)
+  end
 end
