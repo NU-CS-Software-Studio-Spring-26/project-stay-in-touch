@@ -56,7 +56,7 @@ PERSON_NOTES = [
 # (and FK-referencing rows like tags) must go before their parents or the
 # foreign keys will reject the delete.
 puts "Clearing existing data..."
-[ EventParticipant, Event, PersonTag, Tag, GoogleCredential, Session, Person, User ].each(&:delete_all)
+[ EventParticipant, Event, PersonTag, Tag, GoogleCredential, MeetingProposal, Session, Person, User ].each(&:delete_all)
 
 # ── Demo user (known credentials for easy dev login) ──────────────────────────
 seed_email    = ENV.fetch("SEED_USER_EMAIL",    "demo@example.com")
@@ -78,6 +78,56 @@ rich_users = RICH_USERS.times.map do |i|
     password_confirmation: "Demo1!password"
   )
 end
+
+# ── AI matchmaking demo profiles ──────────────────────────────────────────────
+# Give a handful of users opted-in matchmaking profiles so the "your AI talks to
+# my AI" feature can be demoed end to end. The demo user is the natural initiator:
+# log in as the demo user and click "Run matchmaking now" on the Matches page
+# (requires OPENROUTER_API_KEY to be set).
+#
+# The pool is designed to show both outcomes:
+#   • Priya and Marcus complement Maya's interests → expect an ACCEPT.
+#   • Otto's interests don't overlap with anyone's → expect a DECLINE.
+puts "Adding AI matchmaking demo profiles..."
+
+demo_user.update!(
+  display_name:        "Maya (demo)",
+  meeting_interests:   "Final-year CS undergrad trying to break into machine " \
+                       "learning research. I'd love to meet people who have done " \
+                       "ML research internships or published papers and can share " \
+                       "how they got started. In return I can offer hands-on help " \
+                       "with Rails / full-stack web development and code review.",
+  matchmaking_enabled: true
+)
+
+matchmaking_profiles = {
+  rich_users[0] => { # user2@example.com — strong mutual match with Maya
+    display_name:      "Priya (ML PhD)",
+    meeting_interests: "Third-year machine learning PhD student. Happy to mentor " \
+                       "undergrads who want to get into research and walk them " \
+                       "through the paper-publishing process. In return I'm looking " \
+                       "for someone who can help me build a polished web demo " \
+                       "(Rails or similar) for my research project."
+  },
+  rich_users[1] => { # user3@example.com — also a good match for Maya
+    display_name:      "Marcus (SWE)",
+    meeting_interests: "Software engineer who did two ML research internships before " \
+                       "moving into industry. Glad to give career and grad-school " \
+                       "advice to students. Keen to sharpen my web-dev skills and " \
+                       "learn modern Rails."
+  },
+  rich_users[2] => { # user4@example.com — deliberate mismatch; expect a decline
+    display_name:      "Otto (off-topic)",
+    meeting_interests: "Retired pastry chef. Looking to swap sourdough starters, " \
+                       "talk competitive vegetable gardening, and find a doubles " \
+                       "partner for weekend tennis."
+  }
+}
+
+matchmaking_profiles.each do |user, attrs|
+  user.update!(attrs.merge(matchmaking_enabled: true))
+end
+
 
 # ── Helper: seed people + events for one user ─────────────────────────────────
 def seed_people_and_events(user, people_count:, events_count:)
@@ -149,3 +199,9 @@ puts "  #{User.count} users (login: #{seed_email} / #{seed_password})"
 puts "  #{Person.count} people"
 puts "  #{Event.count} events"
 puts "  #{Tag.count} tags, #{EventParticipant.count} event participants"
+puts ""
+puts "AI matchmaking demo (all use password '#{seed_password}'):"
+puts "  initiator:  #{seed_email}            (Maya — run matchmaking from the Matches page)"
+puts "  matches:    user2@example.com (Priya), user3@example.com (Marcus)"
+puts "  mismatch:   user4@example.com (Otto)"
+puts "  Requires OPENROUTER_API_KEY to be set."

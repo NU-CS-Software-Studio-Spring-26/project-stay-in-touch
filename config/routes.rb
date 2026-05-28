@@ -27,6 +27,11 @@ Rails.application.routes.draw do
   get "dashboard/timeline", to: "dashboard#timeline", as: :timeline
 
   resource  :settings, only: %i[edit update]
+
+  # AI-negotiated meeting matchmaking
+  resources :matches, only: %i[index show], controller: "meeting_proposals"
+  post "matchmaking/run", to: "matchmaking#create", as: :run_matchmaking
+
   resources :people do
     collection do
       match :import, via: %i[get post]

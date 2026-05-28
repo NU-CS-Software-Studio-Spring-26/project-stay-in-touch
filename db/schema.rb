@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_034622) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_120001) do
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -42,6 +42,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_034622) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_google_credentials_on_user_id", unique: true
+  end
+
+  create_table "meeting_proposals", force: :cascade do |t|
+    t.boolean "calendar_created", default: false, null: false
+    t.string "calendar_event_id"
+    t.string "calendar_event_link"
+    t.datetime "created_at", null: false
+    t.text "decision_reason"
+    t.datetime "meeting_at"
+    t.text "pitch"
+    t.integer "recipient_id", null: false
+    t.text "recipient_profile_snapshot"
+    t.integer "requester_id", null: false
+    t.text "requester_profile_snapshot"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["recipient_id", "created_at"], name: "index_meeting_proposals_on_recipient_id_and_created_at"
+    t.index ["recipient_id"], name: "index_meeting_proposals_on_recipient_id"
+    t.index ["requester_id", "created_at"], name: "index_meeting_proposals_on_requester_id_and_created_at"
+    t.index ["requester_id", "recipient_id", "created_at"], name: "idx_on_requester_id_recipient_id_created_at_18774dba88"
+    t.index ["requester_id"], name: "index_meeting_proposals_on_requester_id"
   end
 
   create_table "people", force: :cascade do |t|
@@ -95,13 +116,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_034622) do
 
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "display_name"
     t.string "email", null: false
+    t.boolean "matchmaking_enabled", default: false, null: false
+    t.text "meeting_interests"
     t.string "password_digest", null: false
     t.string "reset_token"
     t.datetime "reset_token_expires_at"
     t.string "timezone", default: "America/Chicago", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["matchmaking_enabled"], name: "index_users_on_matchmaking_enabled"
     t.index ["reset_token"], name: "index_users_on_reset_token"
   end
 
@@ -109,6 +134,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_034622) do
   add_foreign_key "event_participants", "people"
   add_foreign_key "events", "users"
   add_foreign_key "google_credentials", "users"
+  add_foreign_key "meeting_proposals", "users", column: "recipient_id"
+  add_foreign_key "meeting_proposals", "users", column: "requester_id"
   add_foreign_key "people", "users"
   add_foreign_key "person_tags", "people"
   add_foreign_key "person_tags", "tags"
