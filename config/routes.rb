@@ -35,6 +35,7 @@ Rails.application.routes.draw do
   resources :people do
     collection do
       match :import, via: %i[get post]
+      get :export
     end
     member do
       patch :snooze

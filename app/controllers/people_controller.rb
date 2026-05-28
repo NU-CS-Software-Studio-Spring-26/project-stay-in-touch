@@ -51,6 +51,25 @@ class PeopleController < ApplicationController
     end
   end
 
+  def export
+    people = current_user.people.preload(:tags, :events).order(:name)
+    csv_data = CSV.generate(headers: true) do |csv|
+      csv << %w[Name Email Tags Last\ Contact\ Date]
+      people.each do |person|
+        csv << [
+          person.name,
+          person.email,
+          person.tags.map(&:name).join("; "),
+          person.latest_event&.occurred_at&.to_date
+        ]
+      end
+    end
+    send_data csv_data,
+              filename: "contacts-#{Date.current}.csv",
+              type: "text/csv",
+              disposition: "attachment"
+  end
+
   def import
     return unless request.post?
 
