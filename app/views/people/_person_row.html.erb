@@ -12,7 +12,15 @@
             form: { data: { turbo_frame: "_top" } } do %>
         <i class="bi bi-star<%= '-fill text-warning' if person.favorite? %>"></i>
       <% end %>
-      <span class="avatar" style="background: <%= color %>18; color: <%= color %>">
+      <%= gravatar_image_tag(
+            person.email,
+            class: "avatar rounded-circle flex-shrink-0",
+            style: "width:36px;height:36px;object-fit:cover;",
+            alt: person.name,
+            gravatar: { size: 36, default: "404" },
+            onerror: "this.style.display='none';this.nextElementSibling.style.display='inline-flex';"
+          ) %>
+      <span class="avatar flex-shrink-0" style="background:<%=color%>18;color:<%=color%>;display:none;">
         <%= initials %>
       </span>
       <div>

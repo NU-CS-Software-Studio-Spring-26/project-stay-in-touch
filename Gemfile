@@ -78,3 +78,6 @@ gem "csv"
 
 gem "chartkick"
 gem "groupdate"
+
+# Gravatar avatars for contacts
+gem "gravatar_image_tag", "~> 1.2"
