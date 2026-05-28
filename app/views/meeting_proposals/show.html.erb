@@ -59,9 +59,14 @@
         <div class="alert alert-success">
           <i class="bi bi-calendar-check me-1"></i>
           Meeting scheduled<%= " for #{l(@proposal.meeting_at, format: :short)}" if @proposal.meeting_at %>.
-          <% if @proposal.calendar_event_link.present? %>
-            <%= link_to "Open in Google Calendar", @proposal.calendar_event_link,
-                  class: "alert-link", target: "_blank", rel: "noopener" %>
+          <%# Guard the href: only render the link if the stored URL is a real
+              https URL. Brakeman flags model-derived hrefs because, untrusted,
+              they could be a "javascript:" URL. The value comes from Google's
+              event.html_link, but we still verify the scheme here defensively. %>
+          <% link_url = @proposal.calendar_event_link.to_s %>
+          <% if link_url.start_with?("https://") %>
+            <%= link_to "Open in Google Calendar", link_url,
+                  class: "alert-link", target: "_blank", rel: "noopener noreferrer" %>
           <% end %>
         </div>
       <% else %>
