@@ -41,7 +41,19 @@
 
 ## Tais Martinez
 
-_(fill in your contributions here)_
+- **Google Calendar integration** — full OAuth flow with a `GoogleCredential` model storing tokens, `GoogleCalendarService` to push events to the user's calendar on creation, OAuth callback controller and routes, "Connect Google Calendar" button on the People index, and RSpec tests for the service.
+- **Sign in with Google** — added Google OAuth to the login and signup pages as an alternative to email/password authentication; guarded against missing env vars in production.
+- **Session security** — sessions expire after 30 days; guarded seeds against running in production; added SRI integrity hash to the Bootstrap Icons CDN link.
+- **Password strength UI** — live checklist that validates complexity requirements as the user types, with show/hide toggle extended to the confirm password field.
+- **Accessibility improvements** — added `aria-labels` to icon-only buttons and status badge icons to meet WCAG guidelines.
+- **Log Event form redesign** — calendar-aware scheduling with 15-minute slot suggestions pulled from Google Calendar free/busy data, iCal invite generation, duration field, and timezone bug fix.
+- **Email delivery via Gmail SMTP** — configured Action Mailer to send emails through Gmail in production, enabling iCal invites and future notifications to reach users.
+- **Events index polish** — converted to a single scrollable page, fixed event display title and dropdown overflow, updated datetime format to 12-hour MM/DD display, and renamed table headers.
+- **Gravatar avatars on People index** — auto-loads each contact's Gravatar from their email with a colored-initials fallback.
+- **CSV export for contacts** — "Export CSV" button downloads all contacts with name, email, tags, and last contact date.
+- **Weekly catch-ups chart on dashboard** — line chart showing catch-ups per week over the last 12 weeks using `chartkick` and `groupdate`.
+- **AI conversation topic suggestions on Log Event form** — `TopicSuggestionService` queries the OpenRouter API from the contact's previous notes and surfaces 2–3 clickable chips via a custom Stimulus controller.
+- **RuboCop linting CI workflow** — standalone `lint.yml` GitHub Actions workflow running RuboCop on every push and pull request to main.
 
 ---
 
