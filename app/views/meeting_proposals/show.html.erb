@@ -17,41 +17,60 @@
 
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h1 class="h5 fw-bold mb-0">
-        <%= @proposal.requester.display_label %> &rarr; <%= @proposal.recipient.display_label %>
+        <% if @proposal.error? %>
+          <i class="bi bi-exclamation-triangle text-danger me-1"></i>Run failed
+        <% else %>
+          <%= @proposal.requester.display_label %> &rarr; <%= @proposal.recipient.display_label %>
+        <% end %>
       </h1>
       <span class="badge <%= status_badge[@proposal.status] %>"><%= @proposal.status.titleize %></span>
     </div>
 
-    <%# Requester's pitch %>
-    <div class="card mb-3">
-      <div class="card-header fw-semibold">
-        <i class="bi bi-robot me-1"></i><%= @proposal.requester.display_label %>'s secretary pitched:
+    <% if @proposal.error? %>
+      <%# Loud-failure row: surfaces a round that died (rate-limited, unparseable
+          AI output, no candidates, unexpected exception) so the user sees what
+          went wrong instead of nothing appearing. %>
+      <div class="alert alert-danger">
+        <div class="fw-semibold mb-1">
+          <i class="bi bi-exclamation-triangle me-1"></i>This round didn't complete.
+        </div>
+        <p class="mb-0"><%= @proposal.decision_reason.presence || "No reason recorded — see Heroku logs." %></p>
       </div>
-      <div class="card-body">
-        <p class="mb-2"><%= @proposal.pitch.presence || "—" %></p>
-        <% if @proposal.requester_profile_snapshot.present? %>
-          <div class="text-muted small">
-            <span class="fw-semibold">Their interests:</span> <%= @proposal.requester_profile_snapshot %>
-          </div>
-        <% end %>
+      <p class="text-muted small">
+        Try again — the most common cause is the free Gemma model being temporarily rate-limited upstream.
+      </p>
+    <% else %>
+      <%# Requester's pitch %>
+      <div class="card mb-3">
+        <div class="card-header fw-semibold">
+          <i class="bi bi-robot me-1"></i><%= @proposal.requester.display_label %>'s secretary pitched:
+        </div>
+        <div class="card-body">
+          <p class="mb-2"><%= @proposal.pitch.presence || "—" %></p>
+          <% if @proposal.requester_profile_snapshot.present? %>
+            <div class="text-muted small">
+              <span class="fw-semibold">Their interests:</span> <%= @proposal.requester_profile_snapshot %>
+            </div>
+          <% end %>
+        </div>
       </div>
-    </div>
 
-    <%# Recipient's verdict %>
-    <div class="card mb-3">
-      <div class="card-header fw-semibold">
-        <i class="bi bi-robot me-1"></i><%= @proposal.recipient.display_label %>'s secretary
-        <%= @proposal.accepted? ? "accepted" : "declined" %>:
+      <%# Recipient's verdict %>
+      <div class="card mb-3">
+        <div class="card-header fw-semibold">
+          <i class="bi bi-robot me-1"></i><%= @proposal.recipient.display_label %>'s secretary
+          <%= @proposal.accepted? ? "accepted" : "declined" %>:
+        </div>
+        <div class="card-body">
+          <p class="mb-2"><%= @proposal.decision_reason.presence || "—" %></p>
+          <% if @proposal.recipient_profile_snapshot.present? %>
+            <div class="text-muted small">
+              <span class="fw-semibold">Their interests:</span> <%= @proposal.recipient_profile_snapshot %>
+            </div>
+          <% end %>
+        </div>
       </div>
-      <div class="card-body">
-        <p class="mb-2"><%= @proposal.decision_reason.presence || "—" %></p>
-        <% if @proposal.recipient_profile_snapshot.present? %>
-          <div class="text-muted small">
-            <span class="fw-semibold">Their interests:</span> <%= @proposal.recipient_profile_snapshot %>
-          </div>
-        <% end %>
-      </div>
-    </div>
+    <% end %>
 
     <%# Outcome %>
     <% if @proposal.accepted? %>

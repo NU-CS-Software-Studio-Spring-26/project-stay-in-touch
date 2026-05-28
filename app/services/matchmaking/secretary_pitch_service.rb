@@ -35,7 +35,11 @@ module Matchmaking
         )
       end
       parse(response.dig("choices", 0, "message", "content"))
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error(
+        "SecretaryPitchService: requester=#{@requester.id} failed with " \
+        "#{e.class}: #{e.message}"
+      )
       nil
     end
 
@@ -43,14 +47,32 @@ module Matchmaking
 
     def parse(content)
       data = extract_json(content)
-      return nil unless data
+      unless data
+        Rails.logger.warn(
+          "SecretaryPitchService: requester=#{@requester.id} returned " \
+          "unparseable output (no JSON object found): #{content.to_s.truncate(200)}"
+        )
+        return nil
+      end
 
       choice = data["choice"]
       pitch  = data["pitch"].to_s.strip
-      return nil if choice.blank? || pitch.blank?
+      if choice.blank? || pitch.blank?
+        Rails.logger.warn(
+          "SecretaryPitchService: requester=#{@requester.id} returned JSON " \
+          "with missing choice/pitch: #{data.inspect.truncate(200)}"
+        )
+        return nil
+      end
 
       index = choice.to_i - 1
-      return nil unless index.between?(0, @candidates.size - 1)
+      unless index.between?(0, @candidates.size - 1)
+        Rails.logger.warn(
+          "SecretaryPitchService: requester=#{@requester.id} picked " \
+          "out-of-range choice=#{choice.inspect} (candidates=#{@candidates.size})"
+        )
+        return nil
+      end
 
       PitchResult.new(@candidates[index], pitch)
     end

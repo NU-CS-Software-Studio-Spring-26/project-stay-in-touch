@@ -114,32 +114,41 @@ RSpec.describe Matchmaking::RoundOrchestratorService, type: :service do
       end
     end
 
-    context "guards" do
-      it "returns nil when the API key is absent" do
+    context "guards (records :error proposals when a round fails, so the user sees it)" do
+      it "returns nil and records nothing when the API key is absent" do
         allow(ENV).to receive(:[]).with("OPENROUTER_API_KEY").and_return(nil)
         expect(service.call).to be_nil
         expect(MeetingProposal.count).to eq(0)
       end
 
-      it "returns nil when the requester is not matchmaking-ready" do
+      it "returns nil and records nothing when the requester is not matchmaking-ready" do
         requester.update!(matchmaking_enabled: false)
         expect(service.call).to be_nil
+        expect(MeetingProposal.count).to eq(0)
       end
 
-      it "returns nil when there are no eligible candidates" do
+      it "records an :error proposal when there are no eligible candidates" do
         target.update!(matchmaking_enabled: false)
-        expect(service.call).to be_nil
+        result = service.call
+        expect(result).to be_error
+        expect(result.recipient).to be_nil
+        expect(result.decision_reason).to match(/no other opted-in users/i)
       end
 
-      it "returns nil when the pitch service yields nothing" do
+      it "records an :error proposal when the pitch service yields nothing" do
         stub_pitch(nil)
-        expect(service.call).to be_nil
+        result = service.call
+        expect(result).to be_error
+        expect(result.recipient).to be_nil
+        expect(result.decision_reason).to match(/couldn't generate an invitation/i)
       end
 
-      it "skips candidates proposed within the recency window" do
+      it "skips candidates proposed within the recency window (records an :error proposal)" do
         create(:meeting_proposal, requester: requester, recipient: target, created_at: 1.day.ago)
-        expect(service.call).to be_nil
-        expect(MeetingProposal.count).to eq(1) # only the pre-existing one; no new proposal
+        result = service.call
+        expect(result).to be_error
+        # Two MeetingProposals total: the pre-existing one + the new :error row.
+        expect(MeetingProposal.count).to eq(2)
       end
     end
   end
