@@ -26,7 +26,9 @@ Rails.application.routes.draw do
   get "dashboard",     to: "dashboard#index"
   get "dashboard/timeline", to: "dashboard#timeline", as: :timeline
 
-  resource  :settings, only: %i[edit update]
+  resource :settings, only: %i[edit update]
+  patch "/settings/change_password", to: "settings#change_password", as: :change_password_settings
+  delete "/account", to: "registrations#destroy", as: :delete_account
 
   # AI-negotiated meeting matchmaking
   resources :matches, only: %i[index show], controller: "meeting_proposals"
