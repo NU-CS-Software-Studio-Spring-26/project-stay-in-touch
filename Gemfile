@@ -79,6 +79,7 @@ gem "csv"
 gem "chartkick"
 gem "groupdate"
 
+gem "cloudinary"
 gem "activestorage-cloudinary-service"
 gem "active_storage_validations"
 
