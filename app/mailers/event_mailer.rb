@@ -1,12 +1,10 @@
 class EventMailer < ApplicationMailer
-  CHICAGO_TZ = "America/Chicago"
-
   def calendar_invite(event, person, organizer)
     @event          = event
     @person         = person
     @organizer      = organizer
     @registered     = person.registered?
-    @slot_time      = event.occurred_at.in_time_zone(person.timezone.presence || CHICAGO_TZ)
+    @slot_time      = event.occurred_at.in_time_zone(person.timezone.presence || "UTC")
     @duration_label = format_duration(event.duration_minutes || 60)
 
     attachments["invite.ics"] = {
@@ -23,7 +21,7 @@ class EventMailer < ApplicationMailer
   private
 
   def generate_ical
-    tz_name     = CHICAGO_TZ
+    tz_name     = @person.timezone.presence || "UTC"
     local_start = @event.occurred_at.in_time_zone(tz_name)
     local_end   = local_start + (@event.duration_minutes || 60).minutes
     fmt_local   = "%Y%m%dT%H%M%S"
