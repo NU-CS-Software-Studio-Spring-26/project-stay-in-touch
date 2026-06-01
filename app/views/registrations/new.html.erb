@@ -108,6 +108,12 @@
                 document.getElementById("user_timezone").value =
                   Intl.DateTimeFormat().resolvedOptions().timeZone;
               </script>
+              <div class="form-check">
+                <%= f.check_box :terms_accepted, class: "form-check-input" %>
+                <%= f.label :terms_accepted, class: "form-check-label" do %>
+                  I agree to the <%= link_to "Terms of Service", terms_path, target: "_blank" %>
+                <% end %>
+              </div>
               <%= f.submit "Sign Up", class: "btn btn-primary w-100" %>
             <% end %>
 

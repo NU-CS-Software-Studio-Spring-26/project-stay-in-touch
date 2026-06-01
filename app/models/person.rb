@@ -27,7 +27,7 @@ class Person < ApplicationRecord
 
   normalizes :name, with: ->(n) { n.strip }
 
-  validates :name, presence: true, length: { maximum: 255 }
+  validates :name, presence: true, length: { maximum: 255 }, no_profanity: true
   validates :email,
             presence: true,
             format: { with: EMAIL_FORMAT },
@@ -43,7 +43,7 @@ class Person < ApplicationRecord
   validates :preferred_end_hour,
             presence: true,
             numericality: { only_integer: true, in: HOUR_RANGE }
-  validates :notes, length: { maximum: 5000 }, allow_blank: true
+  validates :notes, length: { maximum: 5000 }, no_profanity: true, allow_blank: true
   validates :frequency_weeks,
             presence: true,
             numericality: { greater_than: 0, less_than_or_equal_to: 520 }

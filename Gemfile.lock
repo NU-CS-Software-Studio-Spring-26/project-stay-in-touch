@@ -244,6 +244,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.3-x86_64-linux-musl)
       racc (~> 1.4)
+    obscenity (1.0.2)
     os (1.1.4)
     ostruct (0.6.3)
     overcommit (0.69.0)
@@ -456,6 +457,7 @@ DEPENDENCIES
   googleauth (~> 1.11)
   groupdate
   importmap-rails
+  obscenity
   overcommit
   pagy (~> 9.3)
   pg (~> 1.5)
@@ -562,6 +564,7 @@ CHECKSUMS
   nokogiri (1.19.3-x86_64-darwin) sha256=77f3fba57d46c53ab31e62fc6c28f705109d1bf6264356c76f132b2be5728d4d
   nokogiri (1.19.3-x86_64-linux-gnu) sha256=2f5078620fe12e83669b5b17311b32532a8153d02eee7ad06948b926d6080976
   nokogiri (1.19.3-x86_64-linux-musl) sha256=248c906d2166eca5efb56d52fdee5f9a1f51d69a72e2b64fdac647b4ce39ea3f
+  obscenity (1.0.2) sha256=6d6bb4e651b4d028714be13b9de5214870f6964288487a99f1f78104407c52d7
   os (1.1.4) sha256=57816d6a334e7bd6aed048f4b0308226c5fb027433b67d90a9ab435f35108d3f
   ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
   overcommit (0.69.0) sha256=1509042558eb04cb780a3e15943e2b7770298f93f55e5a286b4afeb57f4f8697
