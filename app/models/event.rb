@@ -18,8 +18,8 @@ class Event < ApplicationRecord
 
   validates :occurred_at, presence: true
   validates :medium, presence: true, inclusion: { in: MEDIA }
-  validates :title, length: { maximum: 255 }, allow_blank: true
-  validates :notes, length: { maximum: 5000 }, allow_blank: true
+  validates :title, length: { maximum: 255 }, no_profanity: true, allow_blank: true
+  validates :notes, length: { maximum: 5000 }, no_profanity: true, allow_blank: true
   # Server-side guard for the form's duration picker (15–120 min). The DB
   # column is `default: 60, null: false`, so this never rejects normal input;
   # it exists to reject crafted/out-of-range values (e.g. negative or absurd).

@@ -81,6 +81,12 @@ class User < ApplicationRecord
   validates :meeting_interests, length: { maximum: 2000 }, allow_blank: true
 
   attr_accessor :skip_password_complexity
+  attr_accessor :terms_accepted
+  validates :terms_accepted, acceptance: true, on: :create
+  before_create :record_terms_acceptance
+
+  validates :display_name,      no_profanity: true, allow_blank: true
+  validates :meeting_interests, no_profanity: true, allow_blank: true
 
   validate :password_complexity, if: -> { password.present? && !skip_password_complexity }
 
@@ -92,6 +98,10 @@ class User < ApplicationRecord
     errors.add(:password, "must include at least one lowercase letter") unless password.match?(/[a-z]/)
     errors.add(:password, "must include at least one number")           unless password.match?(/\d/)
     errors.add(:password, "must include at least one special character") unless password.match?(/[^A-Za-z\d\s]/)
+  end
+
+  def record_terms_acceptance
+    self.terms_accepted_at = Time.current
   end
 
   def seed_default_tags

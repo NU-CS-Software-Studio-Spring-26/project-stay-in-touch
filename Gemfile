@@ -83,6 +83,9 @@ gem "cloudinary"
 gem "activestorage-cloudinary-service"
 gem "active_storage_validations"
 
+# Profanity filtering for user-generated content
+gem "obscenity"
+
 # Gravatar avatars: replaced the gravatar_image_tag gem (v1.2.0, last release
 # ~2013) with a small inline helper in ApplicationHelper — the gem calls
 # URI.escape, which Ruby 3+ removed, so it crashed the people index. A Gravatar

@@ -4,6 +4,6 @@ class Tag < ApplicationRecord
   has_many :people, through: :person_tags
 
   normalizes :name, with: ->(n) { n.strip }
-  validates :name, presence: true, length: { maximum: 50 },
+  validates :name, presence: true, length: { maximum: 50 }, no_profanity: true,
                    uniqueness: { scope: :user_id, case_sensitive: false }
 end
