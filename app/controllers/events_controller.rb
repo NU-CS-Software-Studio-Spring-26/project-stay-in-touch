@@ -15,7 +15,7 @@ class EventsController < ApplicationController
       year, mon = params[:month].split("-").map(&:to_i)
       Date.new(year, mon, 1)
     else
-      @event_months.first || Date.current.beginning_of_month
+      Date.current.beginning_of_month
     end
 
     events_scope = current_user.events.where(
