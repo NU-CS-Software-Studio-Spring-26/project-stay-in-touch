@@ -103,6 +103,11 @@
                   </div>
                 </div>
               </div>
+              <%= f.hidden_field :timezone, id: "user_timezone" %>
+              <script>
+                document.getElementById("user_timezone").value =
+                  Intl.DateTimeFormat().resolvedOptions().timeZone;
+              </script>
               <%= f.submit "Sign Up", class: "btn btn-primary w-100" %>
             <% end %>
 
