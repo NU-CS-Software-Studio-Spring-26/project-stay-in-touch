@@ -24,38 +24,26 @@
 </div>
 
 <%# ── Month navigator ─────────────────────────────────────── %>
-<% if @event_months.any? %>
-  <% prev_month = @event_months.find  { |m| m < @current_month } %>
-  <% next_month = @event_months.select { |m| m > @current_month }.last %>
-  <div class="card mb-4">
-    <div class="card-body py-3 d-flex align-items-center justify-content-between">
+<div class="card mb-4">
+  <div class="card-body py-3 d-flex align-items-center justify-content-between">
 
-      <% if prev_month %>
-        <%= link_to events_path(month: prev_month.strftime("%Y-%m"), q: params[:q]),
-              class: "btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" do %>
-          <i class="bi bi-chevron-left"></i><%= prev_month.strftime("%b %Y") %>
-        <% end %>
-      <% else %>
-        <span class="btn btn-sm btn-outline-secondary invisible">placeholder</span>
-      <% end %>
+    <%= link_to events_path(month: (@current_month - 1.month).strftime("%Y-%m"), q: params[:q]),
+          class: "btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" do %>
+      <i class="bi bi-chevron-left"></i><%= (@current_month - 1.month).strftime("%b %Y") %>
+    <% end %>
 
-      <div class="text-center">
-        <div class="fw-bold"><%= @current_month.strftime("%B %Y") %></div>
-        <div class="text-muted" style="font-size:0.75rem;"><%= pluralize(@events.size, "event") %></div>
-      </div>
-
-      <% if next_month %>
-        <%= link_to events_path(month: next_month.strftime("%Y-%m"), q: params[:q]),
-              class: "btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" do %>
-          <%= next_month.strftime("%b %Y") %><i class="bi bi-chevron-right"></i>
-        <% end %>
-      <% else %>
-        <span class="btn btn-sm btn-outline-secondary invisible">placeholder</span>
-      <% end %>
-
+    <div class="text-center">
+      <div class="fw-bold"><%= @current_month.strftime("%B %Y") %></div>
+      <div class="text-muted" style="font-size:0.75rem;"><%= pluralize(@events.size, "event") %></div>
     </div>
+
+    <%= link_to events_path(month: (@current_month + 1.month).strftime("%Y-%m"), q: params[:q]),
+          class: "btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" do %>
+      <%= (@current_month + 1.month).strftime("%b %Y") %><i class="bi bi-chevron-right"></i>
+    <% end %>
+
   </div>
-<% end %>
+</div>
 
 <div data-controller="medium-filter">
   <%= form_with url: events_path, method: :get,
