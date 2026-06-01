@@ -30,7 +30,7 @@
       <%= f.label :timezone, class: "form-label" do %><i class="bi bi-globe2 me-1"></i>Timezone<% end %>
       <%= f.select :timezone,
             ActiveSupport::TimeZone::MAPPING.values.sort,
-            { selected: person.timezone || "America/Chicago" },
+            { selected: person.timezone || current_user.timezone },
             class: "form-select" %>
       <div class="form-text">IANA identifier (e.g., America/Chicago).</div>
     </div>
