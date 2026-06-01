@@ -24,9 +24,14 @@
 <div class="card mb-4" style="border-top: 4px solid <%= color %>;">
   <div class="card-body p-4">
     <div class="d-flex align-items-start gap-4 flex-wrap">
-      <span class="avatar avatar-xl flex-shrink-0" style="background: <%= color %>18; color: <%= color %>">
-        <%= initials %>
-      </span>
+      <% registered_user = User.find_by(email: @person.email) %>
+      <% if registered_user&.avatar&.attached? %>
+        <%= image_tag registered_user.avatar, class: "avatar avatar-xl rounded-circle flex-shrink-0", style: "object-fit:cover;" %>
+      <% else %>
+        <span class="avatar avatar-xl flex-shrink-0" style="background: <%= color %>18; color: <%= color %>">
+          <%= initials %>
+        </span>
+      <% end %>
       <div class="flex-grow-1">
         <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
           <h1 class="h2 mb-0 fw-bold"><%= @person.name %></h1>

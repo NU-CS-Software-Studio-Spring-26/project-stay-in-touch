@@ -103,6 +103,12 @@
     <%# User footer %>
     <div class="sidebar-footer">
       <div class="d-flex align-items-center gap-2">
+        <% if current_user.avatar.attached? %>
+          <%= image_tag current_user.avatar, class: "avatar rounded-circle flex-shrink-0", style: "object-fit:cover;" %>
+        <% else %>
+          <% nav_initials = current_user.display_label.split.first(2).map { |w| w[0].upcase }.join %>
+          <span class="avatar flex-shrink-0" style="background:#4F46E5;color:#fff;font-size:0.7rem;"><%= nav_initials %></span>
+        <% end %>
         <div class="flex-grow-1 min-w-0">
           <div class="fw-semibold text-truncate" style="color:#fff; font-size:0.8rem;">
             <%= current_user.email.split("@").first %>

@@ -12,6 +12,11 @@ class User < ApplicationRecord
   has_many :received_proposals,  class_name: "MeetingProposal",
                                  foreign_key: :recipient_id, dependent: :destroy
 
+  has_one_attached :avatar
+  validates :avatar, content_type: %i[png jpg jpeg gif],
+                     size: { less_than: 5.megabytes },
+                     allow_blank: true
+
   # Users who have opted into matchmaking and written what they want from meetings.
   scope :matchmaking_candidates, -> {
     where(matchmaking_enabled: true).where.not(meeting_interests: [nil, ""])
