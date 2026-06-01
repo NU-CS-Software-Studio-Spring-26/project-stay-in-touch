@@ -25,7 +25,7 @@ module ProjectStayInTouch
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
-    config.time_zone = "America/Chicago"
+    config.time_zone = "UTC"
 
     # Don't generate system test files.
     config.generators.system_tests = nil
