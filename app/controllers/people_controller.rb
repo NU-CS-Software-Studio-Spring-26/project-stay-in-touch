@@ -41,6 +41,7 @@ class PeopleController < ApplicationController
 
   def show
     @events = @person.events.recent
+    @facts  = @person.person_facts.order(created_at: :desc)
     @suggested_times = if current_user.google_calendar_connected?
       GoogleCalendarService.new(current_user).suggest_times(@person)
     else

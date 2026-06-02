@@ -153,6 +153,9 @@
 <turbo-frame id="quick-log-modal" class="turbo-modal" data-turbo-action="advance">
 </turbo-frame>
 
+<%# ── What I Know (person facts) ────────────────────────── %>
+<%= render "person_facts/section", person: @person, facts: @facts %>
+
 <%# ── Suggested times ─────────────────────────────────────── %>
 <% if current_user.google_calendar_connected? %>
   <% if @suggested_times.any? %>
