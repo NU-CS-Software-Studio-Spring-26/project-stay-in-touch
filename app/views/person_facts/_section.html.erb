@@ -1,0 +1,71 @@
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h6 fw-semibold mb-0">
+        <i class="bi bi-journal-bookmark me-1 text-primary"></i>What I Know
+      </h2>
+      <% if ENV["OPENROUTER_API_KEY"].present? %>
+        <%= button_to extract_person_person_facts_path(person),
+              method: :post,
+              class: "btn btn-sm btn-outline-warning",
+              form: { data: { turbo_confirm: "Extract facts from your event notes using AI?" } } do %>
+          <i class="bi bi-stars me-1"></i>Extract from notes
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if facts.any? %>
+      <div class="mb-3">
+        <% facts.each do |fact| %>
+          <turbo-frame id="fact_<%= fact.id %>">
+            <%= render "person_facts/fact_row", person: person, fact: fact %>
+          </turbo-frame>
+        <% end %>
+      </div>
+    <% elsif events.empty? %>
+      <div class="alert alert-light border mb-3 d-flex align-items-start gap-3" style="border-left:3px solid #4F46E5 !important;">
+        <i class="bi bi-person-plus text-primary mt-1" style="font-size:1.1rem;"></i>
+        <div>
+          <div class="fw-semibold small mb-1">Nothing recorded about <%= person.name %> yet</div>
+          <div class="text-muted small">
+            Add a fact below to remember something about them, or
+            <%= link_to "log your first catch-up", new_event_path(person_id: person.id) %>
+            to get started.
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <p class="text-muted small mb-3">
+        No facts yet — add one below<% if ENV["OPENROUTER_API_KEY"].present? %> or let AI extract them from your event notes<% end %>.
+      </p>
+    <% end %>
+
+    <%# Add fact inline form %>
+    <%= form_with url: person_person_facts_path(person) do |f| %>
+      <div class="row g-2 align-items-center">
+        <div class="col-auto">
+          <%= f.select "person_fact[category]",
+                PersonFact::CATEGORIES.map { |c| [PersonFact::CATEGORY_META[c][:label], c] },
+                {},
+                class: "form-select form-select-sm" %>
+        </div>
+        <div class="col">
+          <%= f.text_field "person_fact[body]",
+                class: "form-control form-control-sm",
+                placeholder: "e.g. Works as a senior PM at Google",
+                maxlength: 500,
+                required: true %>
+        </div>
+        <div class="col-auto">
+          <%= f.date_field "person_fact[noted_at]",
+                class: "form-control form-control-sm",
+                style: "width:140px;",
+                title: "Date (optional)" %>
+        </div>
+        <div class="col-auto">
+          <%= f.submit "Add", class: "btn btn-sm btn-primary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_232545) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_232600) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -112,6 +112,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_232545) do
     t.index ["user_id"], name: "index_people_on_user_id"
   end
 
+  create_table "person_facts", force: :cascade do |t|
+    t.text "body", null: false
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.date "noted_at"
+    t.integer "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id", "created_at"], name: "index_person_facts_on_person_id_and_created_at"
+    t.index ["person_id"], name: "index_person_facts_on_person_id"
+  end
+
   create_table "person_tags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "person_id", null: false
@@ -168,6 +179,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_232545) do
   add_foreign_key "meeting_proposals", "users", column: "recipient_id"
   add_foreign_key "meeting_proposals", "users", column: "requester_id"
   add_foreign_key "people", "users"
+  add_foreign_key "person_facts", "people"
   add_foreign_key "person_tags", "people"
   add_foreign_key "person_tags", "tags"
   add_foreign_key "sessions", "users"

@@ -1,0 +1,24 @@
+<turbo-frame id="fact_<%= @fact.id %>">
+  <%= form_with model: [@person, @fact],
+        class: "d-flex align-items-center gap-2 mb-2 p-2 rounded flex-wrap",
+        style: "background:#eef2ff;" do |f| %>
+    <%= f.select :category,
+          PersonFact::CATEGORIES.map { |c| [PersonFact::CATEGORY_META[c][:label], c] },
+          {},
+          class: "form-select form-select-sm", style: "width:auto;" %>
+    <%= f.text_field :body,
+          class: "form-control form-control-sm flex-grow-1",
+          placeholder: "Fact...",
+          maxlength: 500,
+          required: true %>
+    <%= f.date_field :noted_at,
+          class: "form-control form-control-sm",
+          style: "width:140px;",
+          title: "Date (optional)" %>
+    <div class="d-flex gap-1">
+      <%= f.submit "Save", class: "btn btn-sm btn-primary" %>
+      <%= link_to "Cancel", person_person_fact_path(@person, @fact),
+            class: "btn btn-sm btn-outline-secondary" %>
+    </div>
+  <% end %>
+</turbo-frame>
