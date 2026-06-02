@@ -1,12 +1,29 @@
 class PersonFactsController < ApplicationController
   before_action :set_person
 
+  def show
+    @fact = @person.person_facts.find(params[:id])
+  end
+
+  def edit
+    @fact = @person.person_facts.find(params[:id])
+  end
+
   def create
     fact = @person.person_facts.build(fact_params)
     if fact.save
       redirect_to person_path(@person), notice: "Fact added."
     else
       redirect_to person_path(@person), alert: fact.errors.full_messages.to_sentence
+    end
+  end
+
+  def update
+    @fact = @person.person_facts.find(params[:id])
+    if @fact.update(fact_params)
+      redirect_to person_path(@person)
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 

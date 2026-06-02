@@ -1,0 +1,21 @@
+<div class="d-flex align-items-start gap-2 mb-2 p-2 rounded" style="background:#f8f9fa;">
+  <span class="badge d-inline-flex align-items-center gap-1 flex-shrink-0 mt-1 <%= fact.meta[:css] %>">
+    <i class="bi <%= fact.meta[:icon] %>"></i>
+    <%= fact.meta[:label] %>
+  </span>
+  <div class="flex-grow-1 small"><%= fact.body %></div>
+  <% if fact.noted_at.present? %>
+    <span class="text-muted flex-shrink-0" style="font-size:0.7rem;"><%= fact.noted_at.strftime("%b %-d, %Y") %></span>
+  <% end %>
+  <%= link_to edit_person_person_fact_path(person, fact),
+        class: "btn btn-sm btn-link text-muted p-0 flex-shrink-0",
+        aria: { label: "Edit fact" } do %>
+    <i class="bi bi-pencil" style="font-size:0.75rem;"></i>
+  <% end %>
+  <%= button_to person_person_fact_path(person, fact),
+        method: :delete,
+        class: "btn btn-sm btn-link text-danger p-0 flex-shrink-0",
+        form: { data: { turbo_confirm: "Remove this fact?" } } do %>
+    <i class="bi bi-x-lg" style="font-size:0.75rem;"></i>
+  <% end %>
+</div>

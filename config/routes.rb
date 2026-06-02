@@ -36,7 +36,7 @@ Rails.application.routes.draw do
   post "matchmaking/run", to: "matchmaking#create", as: :run_matchmaking
 
   resources :people do
-    resources :person_facts, only: %i[create destroy] do
+    resources :person_facts, only: %i[show edit create update destroy] do
       collection { post :extract }
     end
     collection do

@@ -154,7 +154,7 @@
 </turbo-frame>
 
 <%# ── What I Know (person facts) ────────────────────────── %>
-<%= render "person_facts/section", person: @person, facts: @facts %>
+<%= render "person_facts/section", person: @person, facts: @facts, events: @events %>
 
 <%# ── Suggested times ─────────────────────────────────────── %>
 <% if current_user.google_calendar_connected? %>

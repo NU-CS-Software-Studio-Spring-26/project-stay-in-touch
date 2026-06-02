@@ -17,26 +17,27 @@
     <% if facts.any? %>
       <div class="mb-3">
         <% facts.each do |fact| %>
-          <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded" style="background:#f8f9fa;">
-            <span class="badge d-inline-flex align-items-center gap-1 flex-shrink-0 mt-1 <%= fact.meta[:css] %>">
-              <i class="bi <%= fact.meta[:icon] %>"></i>
-              <%= fact.meta[:label] %>
-            </span>
-            <div class="flex-grow-1 small"><%= fact.body %></div>
-            <% if fact.noted_at.present? %>
-              <span class="text-muted flex-shrink-0" style="font-size:0.7rem;"><%= fact.noted_at.strftime("%b %-d, %Y") %></span>
-            <% end %>
-            <%= button_to person_person_fact_path(person, fact),
-                  method: :delete,
-                  class: "btn btn-sm btn-link text-danger p-0 flex-shrink-0",
-                  form: { data: { turbo_confirm: "Remove this fact?" } } do %>
-              <i class="bi bi-x-lg" style="font-size:0.75rem;"></i>
-            <% end %>
-          </div>
+          <turbo-frame id="fact_<%= fact.id %>">
+            <%= render "person_facts/fact_row", person: person, fact: fact %>
+          </turbo-frame>
         <% end %>
       </div>
+    <% elsif events.empty? %>
+      <div class="alert alert-light border mb-3 d-flex align-items-start gap-3" style="border-left:3px solid #4F46E5 !important;">
+        <i class="bi bi-person-plus text-primary mt-1" style="font-size:1.1rem;"></i>
+        <div>
+          <div class="fw-semibold small mb-1">Nothing recorded about <%= person.name %> yet</div>
+          <div class="text-muted small">
+            Add a fact below to remember something about them, or
+            <%= link_to "log your first catch-up", new_event_path(person_id: person.id) %>
+            to get started.
+          </div>
+        </div>
+      </div>
     <% else %>
-      <p class="text-muted small mb-3">No facts yet — add one below or let AI extract them from your event notes.</p>
+      <p class="text-muted small mb-3">
+        No facts yet — add one below<% if ENV["OPENROUTER_API_KEY"].present? %> or let AI extract them from your event notes<% end %>.
+      </p>
     <% end %>
 
     <%# Add fact inline form %>
