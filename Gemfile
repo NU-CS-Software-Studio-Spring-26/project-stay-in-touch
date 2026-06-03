@@ -49,6 +49,11 @@ end
 group :test do
   # Concise validation/association matchers for RSpec
   gem "shoulda-matchers", "~> 6.4"
+
+  # Cucumber BDD tests
+  gem "cucumber-rails", "~> 3.1", require: false
+  gem "capybara", "~> 3.40"
+  gem "database_cleaner-active_record", "~> 2.2"
 end
 
 group :production do
