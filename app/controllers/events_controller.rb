@@ -30,7 +30,9 @@ class EventsController < ApplicationController
         .distinct
     end
 
-    @events = events_scope.includes(:people).order(occurred_at: :asc)
+    ordered = events_scope.includes(:people).order(occurred_at: :asc)
+    @pagy, @paged_events = pagy(ordered, items: 25)
+    @events = ordered
     @events_by_day = @events.group_by { |e| e.occurred_at.to_date }
   end
 
