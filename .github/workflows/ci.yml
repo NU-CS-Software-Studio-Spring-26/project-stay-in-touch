@@ -26,6 +26,9 @@ jobs:
       - name: Run RSpec
         run: bundle exec rspec
 
+      - name: Run Cucumber
+        run: bundle exec cucumber
+
   scan_ruby:
     runs-on: ubuntu-latest
     steps:

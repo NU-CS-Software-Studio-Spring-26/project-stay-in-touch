@@ -88,6 +88,74 @@
     <% end %>
   </div>
 
+  <%# ── View toggle ─────────────────────────────────────────── %>
+  <% list_view = params[:view] == "list" %>
+  <div class="d-flex justify-content-end mb-3">
+    <%= link_to events_path(month: params[:month], q: params[:q], view: "calendar"),
+          class: "btn btn-sm #{ list_view ? 'btn-outline-secondary' : 'btn-secondary' } me-1" do %>
+      <i class="bi bi-calendar3"></i> Calendar
+    <% end %>
+    <%= link_to events_path(month: params[:month], q: params[:q], view: "list"),
+          class: "btn btn-sm #{ list_view ? 'btn-secondary' : 'btn-outline-secondary' }" do %>
+      <i class="bi bi-list-ul"></i> List
+    <% end %>
+  </div>
+
+  <%# ── List view (paginated) ───────────────────────────────── %>
+  <% if list_view %>
+    <% if @paged_events.none? %>
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-calendar-x fs-2 d-block mb-3"></i>
+        <p class="mb-3">No events in <%= @current_month.strftime("%B %Y") %>.</p>
+        <%= link_to "Log Event", new_event_path, class: "btn btn-primary btn-sm" %>
+      </div>
+    <% else %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Title</th>
+              <th>Medium</th>
+              <th>Participants</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @paged_events.each do |event| %>
+              <tr data-medium-filter-target="row" data-medium="<%= event.medium %>">
+                <td class="text-nowrap text-muted" style="font-size:0.85rem;">
+                  <%= event.occurred_at.strftime("%b %-d, %Y") %>
+                </td>
+                <td>
+                  <%= link_to event.display_title, event_path(event), class: "fw-semibold text-decoration-none" %>
+                </td>
+                <td>
+                  <span class="badge <%= medium_badge_class(event.medium) %>">
+                    <i class="bi <%= medium_icons[event.medium] %> me-1"></i><%= event.medium.titleize %>
+                  </span>
+                </td>
+                <td class="text-muted" style="font-size:0.875rem;">
+                  <%= event.people.map(&:name).join(", ") %>
+                </td>
+                <td class="text-end">
+                  <%= link_to "Edit", edit_event_path(event), class: "btn btn-sm btn-outline-secondary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <% if @pagy.pages > 1 %>
+        <div class="d-flex justify-content-center mt-3">
+          <%== pagy_bootstrap_nav(@pagy) %>
+        </div>
+      <% end %>
+    <% end %>
+
+  <%# ── Calendar grid ───────────────────────────────────────── %>
+  <% else %>
+
   <%# Calendar grid %>
   <% if @events.none? %>
     <div class="text-center py-5 text-muted">
@@ -178,6 +246,7 @@
     <% end %>
   </div>
   <% end %>
+  <% end %> <%# end list_view else %>
 </div>
 
 <script>

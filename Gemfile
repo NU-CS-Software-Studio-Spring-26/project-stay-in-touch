@@ -49,6 +49,11 @@ end
 group :test do
   # Concise validation/association matchers for RSpec
   gem "shoulda-matchers", "~> 6.4"
+
+  # Cucumber BDD tests
+  gem "cucumber-rails", "~> 3.1", require: false
+  gem "capybara", "~> 3.40"
+  gem "database_cleaner-active_record", "~> 2.2"
 end
 
 group :production do
@@ -85,6 +90,9 @@ gem "active_storage_validations"
 
 # Profanity filtering for user-generated content
 gem "obscenity"
+
+# HTTP-layer rate limiting (brute-force and signup protection)
+gem "rack-attack"
 
 # Gravatar avatars: replaced the gravatar_image_tag gem (v1.2.0, last release
 # ~2013) with a small inline helper in ApplicationHelper — the gem calls

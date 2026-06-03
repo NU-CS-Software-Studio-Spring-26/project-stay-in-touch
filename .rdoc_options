@@ -1,0 +1,11 @@
+---
+encoding: UTF-8
+rdoc_include:
+- app/models
+- app/controllers
+- app/helpers
+- app/mailers
+- app/services
+output_dir: doc
+title: "Serendipity — API Documentation"
+main_page: README.md
