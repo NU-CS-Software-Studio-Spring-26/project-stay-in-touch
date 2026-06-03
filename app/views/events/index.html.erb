@@ -182,4 +182,10 @@
   document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
     new bootstrap.Popover(el, { container: "body" });
   });
+
+  document.addEventListener("keydown", function(e) {
+    if (e.target.closest("input, textarea, select, [contenteditable]")) return;
+    if (e.key === "ArrowLeft")  location.href = "<%= events_path(month: (@current_month - 1.month).strftime('%Y-%m'), q: params[:q]) %>";
+    if (e.key === "ArrowRight") location.href = "<%= events_path(month: (@current_month + 1.month).strftime('%Y-%m'), q: params[:q]) %>";
+  });
 </script>
