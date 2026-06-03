@@ -35,6 +35,11 @@
     <div class="text-center">
       <div class="fw-bold"><%= @current_month.strftime("%B %Y") %></div>
       <div class="text-muted" style="font-size:0.75rem;"><%= pluralize(@events.size, "event") %></div>
+      <% if @current_month == Date.current.beginning_of_month %>
+        <button class="btn btn-sm btn-outline-secondary mt-1" disabled>Today</button>
+      <% else %>
+        <%= link_to "Today", events_path(q: params[:q]), class: "btn btn-sm btn-outline-primary mt-1" %>
+      <% end %>
     </div>
 
     <%= link_to events_path(month: (@current_month + 1.month).strftime("%Y-%m"), q: params[:q]),
@@ -84,6 +89,13 @@
   </div>
 
   <%# Calendar grid %>
+  <% if @events.none? %>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-calendar-x fs-2 d-block mb-3"></i>
+      <p class="mb-3">No events in <%= @current_month.strftime("%B %Y") %>. Try navigating to another month or log a new event.</p>
+      <%= link_to "Log Event", new_event_path, class: "btn btn-primary btn-sm" %>
+    </div>
+  <% else %>
   <% first_day   = @current_month.beginning_of_month %>
   <% last_day    = @current_month.end_of_month %>
   <% start_wday  = first_day.wday %>
@@ -165,16 +177,17 @@
       <div class="cal-day cal-day--empty"></div>
     <% end %>
   </div>
-
-  <% if @events.none? %>
-    <div class="text-center py-4 text-muted small mt-3">
-      <i class="bi bi-calendar-x me-1"></i>No events in <%= @current_month.strftime("%B %Y") %>.
-    </div>
   <% end %>
 </div>
 
 <script>
   document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
     new bootstrap.Popover(el, { container: "body" });
+  });
+
+  document.addEventListener("keydown", function(e) {
+    if (e.target.closest("input, textarea, select, [contenteditable]")) return;
+    if (e.key === "ArrowLeft")  location.href = "<%= events_path(month: (@current_month - 1.month).strftime('%Y-%m'), q: params[:q]) %>";
+    if (e.key === "ArrowRight") location.href = "<%= events_path(month: (@current_month + 1.month).strftime('%Y-%m'), q: params[:q]) %>";
   });
 </script>
