@@ -89,6 +89,13 @@
   </div>
 
   <%# Calendar grid %>
+  <% if @events.none? %>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-calendar-x fs-2 d-block mb-3"></i>
+      <p class="mb-3">No events in <%= @current_month.strftime("%B %Y") %>. Try navigating to another month or log a new event.</p>
+      <%= link_to "Log Event", new_event_path, class: "btn btn-primary btn-sm" %>
+    </div>
+  <% else %>
   <% first_day   = @current_month.beginning_of_month %>
   <% last_day    = @current_month.end_of_month %>
   <% start_wday  = first_day.wday %>
@@ -170,11 +177,6 @@
       <div class="cal-day cal-day--empty"></div>
     <% end %>
   </div>
-
-  <% if @events.none? %>
-    <div class="text-center py-4 text-muted small mt-3">
-      <i class="bi bi-calendar-x me-1"></i>No events in <%= @current_month.strftime("%B %Y") %>.
-    </div>
   <% end %>
 </div>
 
