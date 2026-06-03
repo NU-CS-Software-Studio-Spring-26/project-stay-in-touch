@@ -35,6 +35,11 @@
     <div class="text-center">
       <div class="fw-bold"><%= @current_month.strftime("%B %Y") %></div>
       <div class="text-muted" style="font-size:0.75rem;"><%= pluralize(@events.size, "event") %></div>
+      <% if @current_month == Date.current.beginning_of_month %>
+        <button class="btn btn-sm btn-outline-secondary mt-1" disabled>Today</button>
+      <% else %>
+        <%= link_to "Today", events_path(q: params[:q]), class: "btn btn-sm btn-outline-primary mt-1" %>
+      <% end %>
     </div>
 
     <%= link_to events_path(month: (@current_month + 1.month).strftime("%Y-%m"), q: params[:q]),
