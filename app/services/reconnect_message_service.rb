@@ -1,22 +1,13 @@
 class ReconnectMessageService
-  MODEL = "openai/gpt-4o-mini"
-
   def initialize(person, user)
     @person = person
     @user   = user
   end
 
   def call
-    client = OpenAI::Client.new(
-      access_token: ENV["OPENROUTER_API_KEY"],
-      uri_base:     "https://openrouter.ai/api/v1"
-    )
-    response = client.chat(
-      parameters: {
-        model:      MODEL,
-        messages:   [{ role: "user", content: prompt }],
-        max_tokens: 150
-      }
+    response = OpenRouterChat.completion(
+      messages:   [{ role: "user", content: prompt }],
+      max_tokens: 150
     )
     response.dig("choices", 0, "message", "content")&.strip
   rescue StandardError
