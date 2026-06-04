@@ -4,7 +4,7 @@ module Matchmaking
   # fail-safe: any error, blank, or unparseable response DECLINES, so we never
   # auto-schedule a meeting off ambiguous model output.
   class SecretaryReviewService
-    MODEL = "google/gemma-4-26b-a4b-it:free"
+    MODEL = "openai/gpt-4o-mini"
 
     FALLBACK_REASON = "Your secretary could not evaluate this request, so it was declined."
 

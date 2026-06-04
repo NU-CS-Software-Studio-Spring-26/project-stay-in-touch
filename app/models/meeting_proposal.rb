@@ -15,7 +15,9 @@
 #   calendar_created          :boolean not null  default false
 class MeetingProposal < ApplicationRecord
   # Don't pitch the same ordered pair again within this window (anti-spam).
-  RECENCY_WINDOW = 30.days
+  # DEV VALUE: shortened to 10 seconds so matchmaking can be re-run back-to-back
+  # while developing. Bump this back up (e.g. 30.days) before/when going to production.
+  RECENCY_WINDOW = 10.seconds
 
   belongs_to :requester, class_name: "User"
   belongs_to :recipient, class_name: "User", optional: true

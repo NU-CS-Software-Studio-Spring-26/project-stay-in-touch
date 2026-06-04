@@ -4,7 +4,7 @@ module Matchmaking
   # Returns a PitchResult, or nil when there's nothing usable (no candidates,
   # unparseable model output, out-of-range/self choice, or any API error).
   class SecretaryPitchService
-    MODEL             = "google/gemma-4-26b-a4b-it:free"
+    MODEL             = "openai/gpt-4o-mini"
     MAX_CANDIDATES    = 25
     INTEREST_TRUNCATE = 300
 
