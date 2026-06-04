@@ -76,6 +76,45 @@
     <hr class="my-4">
 
     <div>
+      <h2 class="h6 fw-semibold mb-1"><i class="bi bi-calendar-check me-1"></i>Google Calendar</h2>
+      <% if current_user.google_calendar_connected? %>
+        <p class="text-muted small mb-2">
+          New meetings are added to a dedicated <strong>Serendipity</strong> calendar in your Google
+          account — Serendipity never edits your other events.
+        </p>
+        <% chosen = current_user.google_credential.conflict_calendar_ids %>
+        <%= form_with url: google_calendar_choice_path, method: :patch, class: "vstack gap-2" do %>
+          <label class="form-label fw-semibold mb-1">Check these calendars for conflicts</label>
+          <% if @calendars.any? %>
+            <% @calendars.each do |summary, id| %>
+              <div class="form-check">
+                <%= check_box_tag "availability_calendar_ids[]", id, chosen.include?(id),
+                      id: "cal_#{id.parameterize}", class: "form-check-input" %>
+                <%= label_tag "cal_#{id.parameterize}", summary, class: "form-check-label" %>
+              </div>
+            <% end %>
+            <div class="form-text">
+              When you schedule, Serendipity avoids busy times on the calendars you tick.
+              Leave all unticked to use your primary calendar. Keep tentative or private events
+              on a separate (unticked) calendar to hide them.
+            </div>
+          <% else %>
+            <input type="hidden" name="availability_calendar_ids[]" value="">
+            <p class="text-muted small mb-0">Couldn't load your calendar list right now. Try again later.</p>
+          <% end %>
+          <div><%= submit_tag "Save calendars", class: "btn btn-outline-secondary btn-sm mt-1" %></div>
+        <% end %>
+      <% else %>
+        <p class="text-muted small mb-2">
+          Connect Google Calendar from the <%= link_to "People page", people_path %> to let
+          Serendipity schedule meetings around your availability.
+        </p>
+      <% end %>
+    </div>
+
+    <hr class="my-4">
+
+    <div>
       <h2 class="h6 fw-semibold mb-1"><i class="bi bi-key me-1"></i>Change Password</h2>
       <p class="text-muted small mb-2">Update your password. You'll need to enter your current password to confirm.</p>
 

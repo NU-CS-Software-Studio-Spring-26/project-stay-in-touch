@@ -6,7 +6,14 @@ module Google
     allow_unauthenticated_access only: [ :authorize, :callback ]
     before_action :require_google_credentials, only: [ :authorize, :callback ]
 
-    CALENDAR_SCOPES = %w[https://www.googleapis.com/auth/calendar.events].freeze
+    # Narrow, least-privilege calendar scopes (replaces the broad calendar.events,
+    # i.e. "edit events on all your calendars"):
+    #   freebusy              – read availability only, never event detail
+    #   app.created           – create + write events on a dedicated app-made calendar only
+    #   calendarlist.readonly – list calendar NAMES for the conflict-calendar picker
+    CALENDAR_SCOPES = %w[https://www.googleapis.com/auth/calendar.freebusy
+                         https://www.googleapis.com/auth/calendar.app.created
+                         https://www.googleapis.com/auth/calendar.calendarlist.readonly].freeze
     SIGNIN_SCOPES   = %w[openid
                          https://www.googleapis.com/auth/userinfo.email
                          https://www.googleapis.com/auth/userinfo.profile].freeze
@@ -43,6 +50,21 @@ module Google
     def destroy
       current_user.google_credential&.destroy
       redirect_to people_path, notice: "Google Calendar disconnected."
+    end
+
+    # PATCH /google/calendar_choice
+    # Stores which calendars Serendipity reads for availability ("check for conflicts
+    # with"). An empty selection clears it, restoring the primary-calendar default.
+    def update_calendar_choice
+      credential = current_user.google_credential
+      unless credential
+        redirect_to edit_settings_path, alert: "Connect Google Calendar first."
+        return
+      end
+
+      ids = Array(params[:availability_calendar_ids]).compact_blank
+      credential.update!(availability_calendar_ids: ids)
+      redirect_to edit_settings_path, notice: "Availability calendars updated."
     end
 
     private

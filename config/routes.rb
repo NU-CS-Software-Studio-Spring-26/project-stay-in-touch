@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     get  "oauth/authorize", to: "oauth#authorize", as: :oauth_authorize
     get  "oauth/callback",  to: "oauth#callback",  as: :oauth_callback
     delete "oauth",         to: "oauth#destroy",   as: :oauth_disconnect
+    patch "calendar_choice", to: "oauth#update_calendar_choice", as: :calendar_choice
   end
 
   get "privacy", to: "pages#privacy"
