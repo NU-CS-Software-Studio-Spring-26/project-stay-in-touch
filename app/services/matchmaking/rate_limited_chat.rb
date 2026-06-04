@@ -1,7 +1,7 @@
 module Matchmaking
-  # Patient retry wrapper for OpenRouter chat calls. The free Gemma model is
-  # rate-limited upstream, but matchmaking is an occasional batch over opted-in
-  # users, so we can afford to wait and retry rather than drop a round.
+  # Patient retry wrapper for OpenRouter chat calls. Upstream providers can
+  # rate-limit us, but matchmaking is an occasional batch over opted-in users,
+  # so we can afford to wait and retry rather than drop a round.
   #
   # Retries ONLY on HTTP 429: it backs off (honoring a Retry-After header when the
   # provider sends one, otherwise growing exponentially up to a cap), then

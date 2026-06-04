@@ -1,5 +1,5 @@
 class ReconnectMessageService
-  MODEL = "google/gemma-4-26b-a4b-it:free"
+  MODEL = "openai/gpt-4o-mini"
 
   def initialize(person, user)
     @person = person
