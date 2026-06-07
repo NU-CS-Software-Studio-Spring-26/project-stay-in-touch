@@ -50,6 +50,14 @@ module Matchmaking
 
       review = SecretaryReviewService.new(target, @requester.display_label, pitch.pitch_text).call
 
+      # An "unevaluable" review (AI unreachable/rate-limited/garbled) isn't a real
+      # decline — record it as a loud :error (keeping the target + pitch for
+      # context) so it's visually distinct from a secretary's genuine "no".
+      if review.error
+        Rails.logger.warn("RoundOrchestrator: requester=#{@requester.id} review unevaluable for target=#{target.id}")
+        return record_review_error(target, pitch.pitch_text, review.reason)
+      end
+
       proposal = MeetingProposal.create!(
         requester:                  @requester,
         recipient:                  target,
@@ -76,6 +84,21 @@ module Matchmaking
         status:                     :error,
         decision_reason:            reason,
         requester_profile_snapshot: @requester.meeting_interests
+      )
+    end
+
+    # Like record_error, but for a round that got far enough to pick a target and
+    # write a pitch before the recipient's secretary failed to evaluate it. Keeps
+    # the recipient + pitch so the Matches page can show what was attempted.
+    def record_review_error(target, pitch_text, reason)
+      MeetingProposal.create!(
+        requester:                  @requester,
+        recipient:                  target,
+        status:                     :error,
+        pitch:                      pitch_text,
+        decision_reason:            reason,
+        requester_profile_snapshot: @requester.meeting_interests,
+        recipient_profile_snapshot: target.meeting_interests
       )
     end
 

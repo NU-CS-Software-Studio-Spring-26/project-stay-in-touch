@@ -22,24 +22,31 @@ RSpec.describe Matchmaking::SecretaryReviewService, type: :service do
       result = service.call
       expect(result.accepted).to be(true)
       expect(result.reason).to eq("Good fit")
+      expect(result.error).to be(false)
     end
 
-    it "declines on a clean decline verdict" do
+    it "declines on a clean decline verdict (a genuine 'no', not an error)" do
       allow(client_double).to receive(:chat)
         .and_return(response_with('{"decision": "decline", "reason": "Not relevant"}'))
       result = service.call
       expect(result.accepted).to be(false)
       expect(result.reason).to eq("Not relevant")
+      expect(result.error).to be(false)
     end
 
-    it "declines (fail-safe) on unparseable output" do
+    it "flags an evaluation error (not a decline) on unparseable output" do
       allow(client_double).to receive(:chat).and_return(response_with("???"))
-      expect(service.call.accepted).to be(false)
+      result = service.call
+      expect(result.accepted).to be(false)
+      expect(result.error).to be(true)
+      expect(result.reason).to eq(described_class::FALLBACK_REASON)
     end
 
-    it "declines (fail-safe) when the API raises" do
+    it "flags an evaluation error (not a decline) when the API raises" do
       allow(client_double).to receive(:chat).and_raise(StandardError, "boom")
-      expect(service.call.accepted).to be(false)
+      result = service.call
+      expect(result.accepted).to be(false)
+      expect(result.error).to be(true)
     end
 
     it "passes the recipient interests and the incoming pitch into the prompt" do

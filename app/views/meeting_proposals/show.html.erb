@@ -36,6 +36,21 @@
         </div>
         <p class="mb-0"><%= @proposal.decision_reason.presence || "No reason recorded — see Heroku logs." %></p>
       </div>
+
+      <%# When the round got as far as pitching a target before failing, show what
+          was attempted so the error has context (not just a bare message). %>
+      <% if @proposal.recipient && @proposal.pitch.present? %>
+        <div class="card mb-3 border-danger-subtle">
+          <div class="card-header fw-semibold text-muted">
+            <i class="bi bi-robot me-1"></i><%= @proposal.requester.display_label %>'s secretary pitched
+            <%= @proposal.recipient.display_label %>, but their secretary never responded:
+          </div>
+          <div class="card-body">
+            <p class="mb-0 text-muted"><%= @proposal.pitch %></p>
+          </div>
+        </div>
+      <% end %>
+
       <p class="text-muted small">
         Try again. The message above is the actual reason this round failed; see the
         server logs for more detail if it persists.
