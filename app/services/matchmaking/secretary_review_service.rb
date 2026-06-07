@@ -4,8 +4,6 @@ module Matchmaking
   # fail-safe: any error, blank, or unparseable response DECLINES, so we never
   # auto-schedule a meeting off ambiguous model output.
   class SecretaryReviewService
-    MODEL = "google/gemma-4-26b-a4b-it:free"
-
     FALLBACK_REASON = "Your secretary could not evaluate this request, so it was declined."
 
     ReviewResult = Struct.new(:accepted, :reason, keyword_init: true)
@@ -17,22 +15,13 @@ module Matchmaking
     end
 
     def call
-      client = OpenAI::Client.new(
-        access_token: ENV["OPENROUTER_API_KEY"],
-        uri_base:     "https://openrouter.ai/api/v1"
+      response = OpenRouterChat.completion(
+        messages: [
+          { role: "system", content: system_prompt },
+          { role: "user",   content: user_prompt }
+        ],
+        max_tokens: 250
       )
-      response = RateLimitedChat.with_retry do
-        client.chat(
-          parameters: {
-            model:    MODEL,
-            messages: [
-              { role: "system", content: system_prompt },
-              { role: "user",   content: user_prompt }
-            ],
-            max_tokens: 250
-          }
-        )
-      end
       parse(response.dig("choices", 0, "message", "content"))
     rescue StandardError => e
       Rails.logger.error(

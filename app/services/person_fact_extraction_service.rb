@@ -1,6 +1,4 @@
 class PersonFactExtractionService
-  MODEL = "google/gemma-4-26b-a4b-it:free"
-
   def initialize(person)
     @person = person
   end
@@ -8,19 +6,12 @@ class PersonFactExtractionService
   def call
     return [] unless ENV["OPENROUTER_API_KEY"].present?
 
-    client = OpenAI::Client.new(
-      access_token: ENV["OPENROUTER_API_KEY"],
-      uri_base:     "https://openrouter.ai/api/v1"
-    )
-    response = client.chat(
-      parameters: {
-        model:    MODEL,
-        messages: [
-          { role: "system", content: system_prompt },
-          { role: "user",   content: user_prompt }
-        ],
-        max_tokens: 500
-      }
+    response = OpenRouterChat.completion(
+      messages: [
+        { role: "system", content: system_prompt },
+        { role: "user",   content: user_prompt }
+      ],
+      max_tokens: 500
     )
     parse(response.dig("choices", 0, "message", "content"))
   rescue StandardError => e

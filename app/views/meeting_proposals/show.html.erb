@@ -37,7 +37,8 @@
         <p class="mb-0"><%= @proposal.decision_reason.presence || "No reason recorded — see Heroku logs." %></p>
       </div>
       <p class="text-muted small">
-        Try again — the most common cause is the free Gemma model being temporarily rate-limited upstream.
+        Try again. The message above is the actual reason this round failed; see the
+        server logs for more detail if it persists.
       </p>
     <% else %>
       <%# Requester's pitch %>

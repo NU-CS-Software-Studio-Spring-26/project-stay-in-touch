@@ -5,7 +5,7 @@ class RunMatchmakingJob < ApplicationJob
   queue_as :default
 
   # Gap between rounds in the daily batch so opted-in users aren't all fired at
-  # the free model back-to-back. (Each round also retries on 429 internally.)
+  # the model back-to-back. (Each round also retries on 429 internally.)
   BATCH_PAUSE_SECONDS = 3
 
   def perform(user_id = nil)
@@ -18,7 +18,7 @@ class RunMatchmakingJob < ApplicationJob
     scope.find_each do |requester|
       next unless requester.matchmaking_ready?
 
-      Matchmaking::RateLimitedChat.pause(BATCH_PAUSE_SECONDS) if batch && processed_any
+      OpenRouterChat.pause(BATCH_PAUSE_SECONDS) if batch && processed_any
       processed_any = true
 
       begin
