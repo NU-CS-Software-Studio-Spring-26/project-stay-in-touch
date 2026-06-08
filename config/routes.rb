@@ -52,7 +52,8 @@ Rails.application.routes.draw do
   end
   resources :events
   resources :tags,   only: %i[index update destroy]
-  resources :blocks, only: %i[create destroy]
+  resources :blocks,              only: %i[create destroy]
+  resources :push_subscriptions,  only: %i[create destroy]
 
   resources :scheduling_negotiations, only: %i[show] do
     member { post :confirm }

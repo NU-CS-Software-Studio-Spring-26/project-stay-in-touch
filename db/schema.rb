@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_08_000002) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -142,6 +142,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
     t.index ["tag_id"], name: "index_person_tags_on_tag_id"
   end
 
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.string "auth_key", null: false
+    t.datetime "created_at", null: false
+    t.text "endpoint", null: false
+    t.string "p256dh_key", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "scheduling_negotiations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
@@ -222,6 +233,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
   add_foreign_key "person_facts", "people"
   add_foreign_key "person_tags", "people"
   add_foreign_key "person_tags", "tags"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "scheduling_negotiations", "meeting_proposals"
   add_foreign_key "scheduling_slots", "scheduling_negotiations"
   add_foreign_key "scheduling_slots", "users", column: "confirmed_by_id"
