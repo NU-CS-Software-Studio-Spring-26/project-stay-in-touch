@@ -75,7 +75,7 @@ group :development do
 end
 
 gem "bcrypt", "~> 3.1"
-gem "pagy", "~> 9.3"
+gem "pagy", "~> 43.5"
 
 # Google Calendar integration
 gem "google-apis-calendar_v3", "~> 0.17"
