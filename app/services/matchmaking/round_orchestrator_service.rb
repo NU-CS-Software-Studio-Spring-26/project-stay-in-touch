@@ -111,6 +111,5 @@ module Matchmaking
           .where.not(id: excluded_ids)
           .reject { |candidate| MeetingProposal.recently_proposed_between?(@requester, candidate) }
     end
-
   end
 end
