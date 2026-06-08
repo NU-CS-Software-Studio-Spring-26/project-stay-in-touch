@@ -42,3 +42,22 @@ Feature: Managing contacts (People)
     When I visit the people page
     Then I should see "4 people"
     And I should see "View all 4"
+
+  # Runs in a real headless-Chrome browser (the only @javascript scenario) so the
+  # Turbo-Frame search and the Stimulus auto-submit-on-clear are exercised in a
+  # real browser engine, not just via the server response. Searching narrows the
+  # #people-table frame in place; clearing the box fires the Stimulus controller
+  # which re-submits and restores the full list — neither does a full page reload.
+  # CI excludes @javascript (no browser); run it locally with
+  # `bundle exec cucumber --tags "@javascript"`.
+  # See docs/testing/cross-browser-evaluation.md.
+  @javascript
+  Scenario: Searching then clearing filters the contact list in place (no full reload)
+    Given a contact named "Alice Anderson" exists for the current user
+    And a contact named "Bob Brown" exists for the current user
+    When I visit the people page
+    And I search the people list for "Alice"
+    Then I should see "Alice Anderson"
+    And I should not see "Bob Brown"
+    When I clear the people search box
+    Then I should see "Bob Brown"

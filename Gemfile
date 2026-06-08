@@ -60,6 +60,8 @@ group :test do
   gem "cucumber-rails", "~> 3.1", require: false
   gem "capybara", "~> 3.40"
   gem "database_cleaner-active_record", "~> 2.2"
+  # Real-browser driver for @javascript Cucumber scenarios (headless Chrome)
+  gem "selenium-webdriver", "~> 4.27"
 end
 
 group :production do
