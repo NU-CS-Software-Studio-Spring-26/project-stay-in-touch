@@ -83,9 +83,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000004) do
 
   create_table "google_credentials", force: :cascade do |t|
     t.string "access_token", null: false
+    t.text "availability_calendar_ids"
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
     t.string "refresh_token", null: false
+    t.string "serendipity_calendar_id"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_google_credentials_on_user_id", unique: true
