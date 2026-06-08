@@ -634,6 +634,17 @@ turbo-frame#quick-log-modal.turbo-modal.is-open {
   padding: 1rem;
   border: none;
 }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  padding: 1rem;
+}
 .modal-card {
   background: #fff;
   border-radius: 0.75rem;
