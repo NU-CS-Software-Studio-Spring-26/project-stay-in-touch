@@ -78,54 +78,32 @@ RSpec.describe Matchmaking::RoundOrchestratorService, type: :service do
     end
 
     context "when the requester has Google connected" do
-      let(:calendar)   { instance_double(GoogleCalendarService) }
-      let(:gcal_event) { double("gcal_event", id: "evt-1", html_link: "https://cal/evt-1") }
-
       before do
         create(:google_credential, user: requester)
         stub_pitch(pitch_for(target))
         stub_review(accepted: true)
-        allow(GoogleCalendarService).to receive(:new).with(requester).and_return(calendar)
-        allow(calendar).to receive(:busy_intervals).and_return([])
-        allow(GoogleCalendarService).to receive(:earliest_free_slot).and_return(Time.utc(2026, 6, 1, 15, 0))
-        allow(calendar).to receive(:push_user_meeting).and_return(gcal_event)
       end
 
-      it "hosts on the requester, adds the recipient as attendee, and records the event" do
-        expect(calendar).to receive(:push_user_meeting)
-          .with(hash_including(attendee_emails: [target.email]))
-          .and_return(gcal_event)
-
-        service.call
-
+      it "enqueues CreateSchedulingNegotiationJob instead of booking synchronously" do
+        expect { service.call }
+          .to have_enqueued_job(CreateSchedulingNegotiationJob)
         proposal = MeetingProposal.last
-        expect(proposal.calendar_created).to be(true)
-        expect(proposal.calendar_event_id).to eq("evt-1")
-        expect(proposal.calendar_event_link).to eq("https://cal/evt-1")
+        expect(proposal).to be_accepted
+        expect(proposal.calendar_created).to be(false)
       end
     end
 
     context "when only the recipient has Google connected" do
-      let(:calendar)   { instance_double(GoogleCalendarService) }
-      let(:gcal_event) { double("gcal_event", id: "evt-2", html_link: "https://cal/evt-2") }
-
       before do
         create(:google_credential, user: target)
         stub_pitch(pitch_for(target))
         stub_review(accepted: true)
-        allow(GoogleCalendarService).to receive(:new).with(target).and_return(calendar)
-        allow(calendar).to receive(:busy_intervals).and_return([])
-        allow(GoogleCalendarService).to receive(:earliest_free_slot).and_return(nil) # falls back to default slot
-        allow(calendar).to receive(:push_user_meeting).and_return(gcal_event)
       end
 
-      it "hosts on the recipient and adds the requester as attendee" do
-        expect(calendar).to receive(:push_user_meeting)
-          .with(hash_including(attendee_emails: [requester.email]))
-          .and_return(gcal_event)
-
-        service.call
-        expect(MeetingProposal.last.calendar_created).to be(true)
+      it "enqueues CreateSchedulingNegotiationJob for the accepted proposal" do
+        expect { service.call }
+          .to have_enqueued_job(CreateSchedulingNegotiationJob)
+        expect(MeetingProposal.last).to be_accepted
       end
     end
 

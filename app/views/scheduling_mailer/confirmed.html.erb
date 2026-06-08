@@ -1,0 +1,19 @@
+<p>Hi <%= @recipient.display_label %>,</p>
+
+<p>
+  Your meeting with <strong><%= @other&.display_label %></strong> has been confirmed for
+  <strong><%= @slot&.starts_at&.strftime("%A, %B %-d at %-I:%M %p %Z") %></strong>
+  (30 minutes).
+</p>
+
+<% link_url = @proposal.calendar_event_link.to_s %>
+<% if link_url.start_with?("https://") %>
+  <p style="text-align: center; margin: 24px 0;">
+    <%= link_to "Open in Google Calendar", link_url,
+          style: "background: #198754; color: #fff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;" %>
+  </p>
+<% end %>
+
+<div class="footer">
+  <p>Enjoy your conversation!</p>
+</div>

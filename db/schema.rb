@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_07_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -142,6 +142,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_07_000002) do
     t.index ["tag_id"], name: "index_person_tags_on_tag_id"
   end
 
+  create_table "scheduling_negotiations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.integer "meeting_proposal_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["meeting_proposal_id"], name: "index_scheduling_negotiations_on_meeting_proposal_id", unique: true
+    t.index ["status", "expires_at"], name: "index_scheduling_negotiations_on_status_and_expires_at"
+  end
+
+  create_table "scheduling_slots", force: :cascade do |t|
+    t.integer "confirmed_by_id"
+    t.datetime "created_at", null: false
+    t.integer "scheduling_negotiation_id", null: false
+    t.datetime "starts_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["scheduling_negotiation_id"], name: "index_scheduling_slots_on_scheduling_negotiation_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at"
@@ -203,6 +222,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_07_000002) do
   add_foreign_key "person_facts", "people"
   add_foreign_key "person_tags", "people"
   add_foreign_key "person_tags", "tags"
+  add_foreign_key "scheduling_negotiations", "meeting_proposals"
+  add_foreign_key "scheduling_slots", "scheduling_negotiations"
+  add_foreign_key "scheduling_slots", "users", column: "confirmed_by_id"
   add_foreign_key "sessions", "users"
   add_foreign_key "tags", "users"
 end

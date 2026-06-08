@@ -1,0 +1,68 @@
+<% content_for :title, "Choose a meeting time" %>
+
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <%= link_to matches_path, class: "btn btn-link btn-sm px-0 mb-2" do %>
+      <i class="bi bi-arrow-left me-1"></i>Back to Matches
+    <% end %>
+
+    <h1 class="h5 fw-bold mb-1">
+      <i class="bi bi-calendar2-check me-1"></i>Schedule your intro meeting
+    </h1>
+    <p class="text-muted small mb-4">
+      <%= @negotiation.requester.display_label %> &amp; <%= @negotiation.recipient.display_label %>
+    </p>
+
+    <% if @negotiation.confirmed? %>
+      <% slot = @negotiation.confirmed_slot %>
+      <div class="alert alert-success">
+        <i class="bi bi-calendar-check me-1"></i>
+        <strong>Meeting confirmed</strong> for
+        <%= slot&.starts_at&.in_time_zone(current_user.timezone)
+              &.strftime("%A, %B %-d at %-I:%M %p %Z") %>.
+        <% link_url = @negotiation.meeting_proposal.calendar_event_link.to_s %>
+        <% if link_url.start_with?("https://") %>
+          <%= link_to "Open in Google Calendar", link_url,
+                class: "alert-link ms-1", target: "_blank", rel: "noopener noreferrer" %>
+        <% end %>
+      </div>
+
+    <% elsif @negotiation.expired? %>
+      <div class="alert alert-secondary">
+        <i class="bi bi-clock-history me-1"></i>
+        The scheduling window expired. Run matchmaking again to get a new match.
+      </div>
+
+    <% else %>
+      <div class="alert alert-info d-flex align-items-center gap-2 py-2">
+        <i class="bi bi-info-circle"></i>
+        <span>
+          Pick any slot below. Either party can confirm — first click wins.
+          This window closes <strong><%= @negotiation.expires_at.in_time_zone(current_user.timezone)
+                                           .strftime("%A, %B %-d at %-I:%M %p %Z") %></strong>.
+        </span>
+      </div>
+
+      <div class="list-group mb-4">
+        <% @negotiation.scheduling_slots.order(:starts_at).each do |slot| %>
+          <% local = slot.starts_at.in_time_zone(current_user.timezone) %>
+          <%= button_to confirm_scheduling_negotiation_path(@negotiation, slot_id: slot.id),
+                method: :post,
+                class: "list-group-item list-group-item-action d-flex align-items-center justify-content-between py-3" do %>
+            <span>
+              <i class="bi bi-calendar-event me-2 text-primary"></i>
+              <span class="fw-semibold"><%= local.strftime("%A, %B %-d") %></span>
+              <span class="text-muted ms-2"><%= local.strftime("%-I:%M %p %Z") %></span>
+            </span>
+            <span class="badge bg-primary">Confirm this slot</span>
+          <% end %>
+        <% end %>
+      </div>
+
+      <p class="text-muted small text-center">
+        Times shown in your timezone (<%= current_user.timezone %>).
+        Both parties receive an email confirmation once a slot is chosen.
+      </p>
+    <% end %>
+  </div>
+</div>
