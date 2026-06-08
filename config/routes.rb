@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     get  "oauth/authorize", to: "oauth#authorize", as: :oauth_authorize
     get  "oauth/callback",  to: "oauth#callback",  as: :oauth_callback
     delete "oauth",         to: "oauth#destroy",   as: :oauth_disconnect
+    patch "calendar_choice", to: "oauth#update_calendar_choice", as: :calendar_choice
   end
 
   get "privacy", to: "pages#privacy"
@@ -32,7 +33,12 @@ Rails.application.routes.draw do
   delete "/account", to: "registrations#destroy", as: :delete_account
 
   # AI-negotiated meeting matchmaking
-  resources :matches, only: %i[index show], controller: "meeting_proposals"
+  resources :matches, only: %i[index show], controller: "meeting_proposals" do
+    member do
+      patch :dismiss          # hide a match from the current user's screen
+      post  :add_to_people    # one-click add the other party to People
+    end
+  end
   post "matchmaking/run", to: "matchmaking#create", as: :run_matchmaking
 
   resources :people do
@@ -50,9 +56,14 @@ Rails.application.routes.draw do
       get :notes_edit
     end
   end
-  resources :events
+  resources :events do
+    member { post :sync_calendar }
+  end
   resources :tags,   only: %i[index update destroy]
-  resources :blocks, only: %i[create destroy]
+  resources :blocks,              only: %i[create destroy]
+  resources :push_subscriptions,  only: %i[create destroy]
+
+  resources :contact_links, only: %i[create update destroy]
 
   resources :scheduling_negotiations, only: %i[show] do
     member { post :confirm }

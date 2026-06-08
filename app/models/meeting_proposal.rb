@@ -18,9 +18,10 @@
 #   calendar_created          :boolean not null  default false
 class MeetingProposal < ApplicationRecord
   # Don't pitch the same ordered pair again within this window (anti-spam).
-  # DEV VALUE: shortened to 10 seconds so matchmaking can be re-run back-to-back
-  # while developing. Bump this back up (e.g. 30.days) before/when going to production.
-  RECENCY_WINDOW = 10.seconds
+  # Tunable via the MATCHMAKING_RECENCY_WINDOW_SECONDS env var so the window can be
+  # widened in production or kept short for live demos (the default lets matchmaking
+  # be re-run back-to-back).
+  RECENCY_WINDOW = ENV.fetch("MATCHMAKING_RECENCY_WINDOW_SECONDS", 10).to_i.seconds
 
   belongs_to :requester, class_name: "User"
   belongs_to :recipient, class_name: "User", optional: true
@@ -36,6 +37,17 @@ class MeetingProposal < ApplicationRecord
   # Proposals the user is party to, on either side. Also the authorization boundary.
   scope :for_user, ->(user) {
     where("requester_id = :id OR recipient_id = :id", id: user.id)
+  }
+
+  # Proposals to show on a user's Matches screen: ones they're party to AND haven't
+  # dismissed from their OWN view. Dismissal is per-viewer — hiding a match only
+  # removes it from the dismisser's screen, not the other party's.
+  scope :visible_to, ->(user) {
+    where(
+      "(requester_id = :id AND requester_dismissed_at IS NULL) OR " \
+      "(recipient_id = :id AND recipient_dismissed_at IS NULL)",
+      id: user.id
+    )
   }
   scope :recent, -> { order(created_at: :desc) }
 
@@ -58,6 +70,16 @@ class MeetingProposal < ApplicationRecord
   def other_party(user)
     return recipient if user.id == requester_id
     requester
+  end
+
+  # Hide this proposal from the given user's Matches screen (per-viewer; the other
+  # party still sees it). No-op if the user isn't party to the proposal.
+  def dismiss_for(user)
+    if requester_id == user.id
+      update!(requester_dismissed_at: Time.current)
+    elsif recipient_id == user.id
+      update!(recipient_dismissed_at: Time.current)
+    end
   end
 
   private

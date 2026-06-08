@@ -22,7 +22,10 @@ class Person < ApplicationRecord
   has_many :events, through: :event_participants
   has_many :person_tags, dependent: :destroy
   has_many :tags, through: :person_tags
-  has_many :person_facts, dependent: :destroy
+  has_many :person_facts,   dependent: :destroy
+  has_many :outreach_drafts, dependent: :destroy
+  has_one :sent_link,     class_name: "ContactLink", foreign_key: :requester_person_id, dependent: :destroy, inverse_of: :requester_person
+  has_one :received_link, class_name: "ContactLink", foreign_key: :recipient_person_id, dependent: :destroy, inverse_of: :recipient_person
 
   scope :favorites, -> { where(favorite: true) }
 
@@ -108,6 +111,16 @@ class Person < ApplicationRecord
       count += 1
     end
     count
+  end
+
+  def contact_link
+    sent_link || received_link
+  end
+
+  def linked_person
+    link = contact_link
+    return nil unless link&.accepted?
+    link.other_person(self)
   end
 
   # The registered User account (if any) that shares this contact's email.

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_08_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -48,6 +48,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
     t.index ["blocker_id", "blocked_id"], name: "index_blocks_on_blocker_id_and_blocked_id", unique: true
   end
 
+  create_table "contact_links", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "recipient_person_id", null: false
+    t.integer "requester_person_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["recipient_person_id"], name: "index_contact_links_on_recipient_person_id", unique: true
+    t.index ["requester_person_id"], name: "index_contact_links_on_requester_person_id", unique: true
+  end
+
   create_table "event_participants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "event_id", null: false
@@ -59,6 +69,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
   end
 
   create_table "events", force: :cascade do |t|
+    t.string "calendar_event_id"
+    t.string "calendar_event_link"
     t.datetime "created_at", null: false
     t.integer "duration_minutes", default: 60, null: false
     t.string "medium", null: false
@@ -73,9 +85,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
 
   create_table "google_credentials", force: :cascade do |t|
     t.string "access_token", null: false
+    t.text "availability_calendar_ids"
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
     t.string "refresh_token", null: false
+    t.string "serendipity_calendar_id"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_google_credentials_on_user_id", unique: true
@@ -89,8 +103,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
     t.text "decision_reason"
     t.datetime "meeting_at"
     t.text "pitch"
+    t.datetime "recipient_dismissed_at"
     t.integer "recipient_id"
     t.text "recipient_profile_snapshot"
+    t.datetime "requester_dismissed_at"
     t.integer "requester_id", null: false
     t.text "requester_profile_snapshot"
     t.integer "status", default: 0, null: false
@@ -100,6 +116,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
     t.index ["requester_id", "created_at"], name: "index_meeting_proposals_on_requester_id_and_created_at"
     t.index ["requester_id", "recipient_id", "created_at"], name: "idx_on_requester_id_recipient_id_created_at_18774dba88"
     t.index ["requester_id"], name: "index_meeting_proposals_on_requester_id"
+  end
+
+  create_table "outreach_drafts", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "person_id", "created_at"], name: "index_outreach_drafts_on_user_id_and_person_id_and_created_at"
   end
 
   create_table "people", force: :cascade do |t|
@@ -140,6 +165,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
     t.index ["person_id", "tag_id"], name: "index_person_tags_on_person_id_and_tag_id", unique: true
     t.index ["person_id"], name: "index_person_tags_on_person_id"
     t.index ["tag_id"], name: "index_person_tags_on_tag_id"
+  end
+
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.string "auth_key", null: false
+    t.datetime "created_at", null: false
+    t.text "endpoint", null: false
+    t.string "p256dh_key", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
   end
 
   create_table "scheduling_negotiations", force: :cascade do |t|
@@ -212,16 +248,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000001) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "blocks", "users", column: "blocked_id"
   add_foreign_key "blocks", "users", column: "blocker_id"
+  add_foreign_key "contact_links", "people", column: "recipient_person_id"
+  add_foreign_key "contact_links", "people", column: "requester_person_id"
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "people"
   add_foreign_key "events", "users"
   add_foreign_key "google_credentials", "users"
   add_foreign_key "meeting_proposals", "users", column: "recipient_id"
   add_foreign_key "meeting_proposals", "users", column: "requester_id"
+  add_foreign_key "outreach_drafts", "people"
+  add_foreign_key "outreach_drafts", "users"
   add_foreign_key "people", "users"
   add_foreign_key "person_facts", "people"
   add_foreign_key "person_tags", "people"
   add_foreign_key "person_tags", "tags"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "scheduling_negotiations", "meeting_proposals"
   add_foreign_key "scheduling_slots", "scheduling_negotiations"
   add_foreign_key "scheduling_slots", "users", column: "confirmed_by_id"

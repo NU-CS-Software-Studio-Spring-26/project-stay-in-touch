@@ -8,16 +8,16 @@ class GoogleCalendarService
     raise CredentialError, "No Google credential for user #{user.id}" unless @credential
   end
 
-  # Pushes a catch-up Event to the user's primary Google Calendar.
+  # Pushes a catch-up Event to the user's dedicated "Serendipity" Google Calendar.
   # Returns the created Google::Apis::CalendarV3::Event on success.
   def push_event(event, people)
     service = build_service
     calendar_event = build_calendar_event(event, people)
-    service.insert_event("primary", calendar_event)
+    insert_into_serendipity(service, calendar_event)
   end
 
-  # Pushes a User<->User meeting to this user's primary Google Calendar, adding the
-  # other party as an attendee by email (they need no account or connected calendar).
+  # Pushes a User<->User meeting to this user's dedicated "Serendipity" calendar, adding
+  # the other party as an attendee by email (they need no account or connected calendar).
   # Built from primitives so it stays decoupled from the Event/Person models, which
   # the matchmaking feature does not use. Returns the created Google event.
   def push_user_meeting(summary:, start_time:, description: nil, attendee_emails: [],
@@ -44,36 +44,13 @@ class GoogleCalendarService
       attendees:   attendees.presence
     )
 
-    service.insert_event("primary", calendar_event)
+    insert_into_serendipity(service, calendar_event)
   end
 
-  # Returns busy [start, end] Time pairs for the user's primary calendar on a given date.
-  def busy_for_day(date, tz)
-    service  = build_service
-    time_min = tz.local(date.year, date.month, date.day, 0, 0).iso8601
-    time_max = tz.local(date.year, date.month, date.day, 23, 59, 59).iso8601
-
-    result = service.list_events(
-      "primary",
-      time_min:      time_min,
-      time_max:      time_max,
-      single_events: true,
-      order_by:      "startTime"
-    )
-
-    (result.items || []).filter_map do |ev|
-      next if ev.start.nil? || ev.end.nil?
-      s = ev.start.date_time || Time.parse(ev.start.date.to_s)
-      e = ev.end.date_time   || Time.parse(ev.end.date.to_s)
-      [s, e]
-    end
-  rescue StandardError
-    []
-  end
-
-  # Returns busy [start, end] Time pairs for the user's primary calendar over
-  # the next window_days days. Returns [] if the free/busy query fails, so a
-  # caller merging several users' calendars degrades gracefully per-user.
+  # Returns busy [start, end] Time pairs over the next window_days days, read from the
+  # user's chosen "check for conflicts with" calendars (defaulting to primary). Busy
+  # blocks from all selected calendars are pooled. Returns [] if the free/busy query
+  # fails, so a caller merging several users' calendars degrades gracefully per-user.
   def busy_intervals(window_days:)
     service    = build_service
     now        = Time.current
@@ -82,11 +59,13 @@ class GoogleCalendarService
     request = Google::Apis::CalendarV3::FreeBusyRequest.new(
       time_min: now.iso8601,
       time_max: window_end.iso8601,
-      items:    [{ id: "primary" }]
+      items:    @credential.conflict_calendar_ids.map { |id| { id: id } }
     )
     response = service.query_freebusy(request)
-    cal = response.calendars["primary"] || response.calendars.values.first
-    (cal && !cal.errors&.any?) ? cal.busy.map { |s| [s.start, s.end] } : []
+    response.calendars.each_value.flat_map do |cal|
+      next [] if cal.errors&.any?
+      cal.busy.map { |s| [ s.start, s.end ] }
+    end
   rescue StandardError => e
     Rails.logger.warn("busy_intervals failed: #{e.message}")
     []
@@ -124,10 +103,11 @@ class GoogleCalendarService
     now       = Time.now.utc
     window_end = (now + days_ahead.days)
 
+    items = @credential.conflict_calendar_ids.map { |id| { id: id } } + [ { id: person.email } ]
     request = Google::Apis::CalendarV3::FreeBusyRequest.new(
       time_min: now.iso8601,
       time_max: window_end.iso8601,
-      items:    [ { id: "primary" }, { id: person.email } ]
+      items:    items
     )
     response = service.query_freebusy(request)
 
@@ -170,7 +150,44 @@ class GoogleCalendarService
     []
   end
 
+  # Returns [summary, id] pairs for the user's calendars, for the availability picker.
+  # Authorized by the calendar.calendarlist.readonly scope (names only, never events).
+  def list_calendars
+    service = build_service
+    (service.list_calendar_lists.items || []).map { |c| [ c.summary, c.id ] }
+  rescue StandardError => e
+    Rails.logger.warn("list_calendars failed: #{e.message}")
+    []
+  end
+
   private
+
+  # Inserts an event into the user's dedicated "Serendipity" calendar (app.created
+  # scope). If the stored calendar id no longer exists (user deleted it in Google),
+  # recreates it and retries once.
+  def insert_into_serendipity(service, calendar_event)
+    service.insert_event(write_calendar_id(service), calendar_event)
+  rescue Google::Apis::ClientError => e
+    raise unless e.status_code == 404
+
+    @credential.update!(serendipity_calendar_id: nil)
+    service.insert_event(write_calendar_id(service), calendar_event)
+  end
+
+  # The id of the app-created write calendar, creating it on first use.
+  def write_calendar_id(service)
+    @credential.serendipity_calendar_id.presence || create_serendipity_calendar!(service)
+  end
+
+  def create_serendipity_calendar!(service)
+    calendar = Google::Apis::CalendarV3::Calendar.new(
+      summary:   "Serendipity",
+      time_zone: @user.timezone.presence || "UTC"
+    )
+    created = service.insert_calendar(calendar)
+    @credential.update!(serendipity_calendar_id: created.id)
+    created.id
+  end
 
   def build_service
     auth = Signet::OAuth2::Client.new(
