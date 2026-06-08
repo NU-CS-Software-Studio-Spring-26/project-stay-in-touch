@@ -69,6 +69,58 @@ RSpec.describe "Events", type: :request do
     end
   end
 
+  describe "POST /events validation feedback (#190)" do
+    it "re-renders the form with a visible error when medium is missing" do
+      post events_path, params: { event: valid_attrs.merge(medium: "") }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("prevented this event from being saved")
+    end
+
+    it "re-renders with a visible error when no participants are selected" do
+      post events_path, params: { event: valid_attrs.merge(person_ids: []) }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("prevented this event from being saved")
+    end
+  end
+
+  describe "POST /events quick-log failure surfaces in the modal (R1, #190)" do
+    it "responds with a Turbo Stream that re-renders the modal and its error" do
+      post events_path, params: {
+        event: { occurred_at: 1.day.ago, person_ids: [person_a.id] }, # no medium
+        quick_log: "1"
+      }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+      expect(response.body).to include("quick-log-modal")
+      expect(response.body).to include("prevented this event from being saved")
+    end
+  end
+
+  describe "timezone-aware event times (#188/#189/#96)" do
+    before { user.update!(timezone: "America/Chicago") }
+
+    it "stores a naive quick-log time as an instant in the user's zone" do
+      post events_path, params: {
+        event: { medium: "call", occurred_at: "2026-06-05T09:07", person_ids: [person_a.id] },
+        quick_log: "1"
+      }
+      # 09:07 America/Chicago (CDT, UTC-5) == 14:07 UTC
+      expect(Event.last.occurred_at).to eq(Time.utc(2026, 6, 5, 14, 7))
+    end
+
+    it "renders the stored instant back in the user's zone on the show page" do
+      event = create(:event, user: user, people: [person_a],
+                             occurred_at: Time.utc(2026, 6, 5, 14, 7))
+      get event_path(event)
+      expect(response.body).to include("09:07")
+    end
+
+    it "defaults the quick-log time to the top of the hour (no stray minutes, #188)" do
+      get new_event_path(person_id: person_a.id), headers: { "Turbo-Frame" => "quick-log-modal" }
+      expect(response.body).to match(/value="\d{4}-\d{2}-\d{2}T\d{2}:00"/)
+    end
+  end
+
   describe "POST /events scheduling against both calendars (#90)" do
     let(:invitee) { create(:user, email: "inv@example.com") }
     let(:invited_person) { create(:person, user: user, email: "inv@example.com") }

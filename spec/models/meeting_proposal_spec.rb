@@ -47,24 +47,29 @@ RSpec.describe MeetingProposal, type: :model do
     let(:alice) { create(:user) }
     let(:bob)   { create(:user) }
 
+    # Anchor times to the constant so these stay correct whatever RECENCY_WINDOW is
+    # set to (10 seconds in dev, longer in prod).
+    let(:within_window)  { (described_class::RECENCY_WINDOW / 2).ago }
+    let(:outside_window) { (described_class::RECENCY_WINDOW * 2 + 1.hour).ago }
+
     it "is true within the recency window" do
-      create(:meeting_proposal, requester: alice, recipient: bob, created_at: 1.day.ago)
+      create(:meeting_proposal, requester: alice, recipient: bob, created_at: within_window)
       expect(described_class.recently_proposed_between?(alice, bob)).to be(true)
     end
 
     it "is false outside the recency window" do
-      create(:meeting_proposal, requester: alice, recipient: bob, created_at: 40.days.ago)
+      create(:meeting_proposal, requester: alice, recipient: bob, created_at: outside_window)
       expect(described_class.recently_proposed_between?(alice, bob)).to be(false)
     end
 
     it "is direction-specific" do
-      create(:meeting_proposal, requester: bob, recipient: alice, created_at: 1.day.ago)
+      create(:meeting_proposal, requester: bob, recipient: alice, created_at: within_window)
       expect(described_class.recently_proposed_between?(alice, bob)).to be(false)
     end
 
     it "ignores :error rows (a failed round shouldn't block a real retry)" do
       create(:meeting_proposal, requester: alice, recipient: bob,
-                                status: :error, created_at: 1.day.ago)
+                                status: :error, created_at: within_window)
       expect(described_class.recently_proposed_between?(alice, bob)).to be(false)
     end
   end

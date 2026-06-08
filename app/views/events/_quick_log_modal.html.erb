@@ -7,7 +7,7 @@
   "other" => "bi-three-dots"
 } %>
 
-<style>turbo-frame#quick-log-modal.turbo-modal { display: flex !important; }</style>
+<style>turbo-frame#quick-log-modal.turbo-modal { display: block !important; }</style>
 <div class="modal-overlay">
   <div class="modal-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -31,7 +31,10 @@
         <div class="d-flex flex-wrap gap-2">
           <% Event::MEDIA.each do |m| %>
             <label class="medium-pill">
-              <%= f.radio_button :medium, m, class: "medium-pill-radio", required: (m == Event::MEDIA.first) %>
+              <%# No HTML5 `required`: .medium-pill-radio is display:none, so a hidden
+                  required control would silently block submit (#190). Server-side
+                  Event validation surfaces the error in the alert above. %>
+              <%= f.radio_button :medium, m, class: "medium-pill-radio" %>
               <i class="bi <%= medium_icons[m] %>"></i><%= m.titleize %>
             </label>
           <% end %>
@@ -40,8 +43,12 @@
 
       <div class="mb-3">
         <%= f.label :occurred_at, class: "form-label fw-semibold" do %><i class="bi bi-calendar me-1"></i>When<% end %>
+        <%# Default to the top of the current hour, not the exact wall-clock time —
+            otherwise the field inherits the current minutes (e.g. 9:07) the user
+            never chose (#188). Time.current is in the user's zone (see
+            ApplicationController#use_user_time_zone). %>
         <%= f.datetime_local_field :occurred_at,
-              value: (@event.occurred_at || Time.current).strftime("%Y-%m-%dT%H:%M"),
+              value: (@event.occurred_at || Time.current.change(min: 0, sec: 0)).strftime("%Y-%m-%dT%H:%M"),
               class: "form-control",
               required: true %>
       </div>

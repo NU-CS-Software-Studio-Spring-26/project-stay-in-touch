@@ -1,0 +1,12 @@
+<p>Hi <%= @recipient.display_label %>,</p>
+
+<p>
+  The 48-hour scheduling window for your intro meeting with
+  <strong><%= @other&.display_label %></strong> has expired without a slot being confirmed.
+</p>
+
+<p>You can run matchmaking again any time to get a new match.</p>
+
+<div class="footer">
+  <p>No action needed — this is just a notification.</p>
+</div>

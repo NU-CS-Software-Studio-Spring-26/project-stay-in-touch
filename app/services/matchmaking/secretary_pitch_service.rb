@@ -4,7 +4,6 @@ module Matchmaking
   # Returns a PitchResult, or nil when there's nothing usable (no candidates,
   # unparseable model output, out-of-range/self choice, or any API error).
   class SecretaryPitchService
-    MODEL             = "google/gemma-4-26b-a4b-it:free"
     MAX_CANDIDATES    = 25
     INTEREST_TRUNCATE = 300
 
@@ -18,22 +17,13 @@ module Matchmaking
     def call
       return nil if @candidates.empty?
 
-      client = OpenAI::Client.new(
-        access_token: ENV["OPENROUTER_API_KEY"],
-        uri_base:     "https://openrouter.ai/api/v1"
+      response = OpenRouterChat.completion(
+        messages: [
+          { role: "system", content: system_prompt },
+          { role: "user",   content: user_prompt }
+        ],
+        max_tokens: 400
       )
-      response = RateLimitedChat.with_retry do
-        client.chat(
-          parameters: {
-            model:    MODEL,
-            messages: [
-              { role: "system", content: system_prompt },
-              { role: "user",   content: user_prompt }
-            ],
-            max_tokens: 400
-          }
-        )
-      end
       parse(response.dig("choices", 0, "message", "content"))
     rescue StandardError => e
       Rails.logger.error(

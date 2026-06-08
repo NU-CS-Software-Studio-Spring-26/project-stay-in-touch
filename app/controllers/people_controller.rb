@@ -27,10 +27,14 @@ class PeopleController < ApplicationController
       @people_pagy, @people = pagy(people_scope.order(favorite: :desc, name: @direction))
     end
 
-    @overdue_people = current_user.people.includes(:events)
-                                  .select { |p| !p.snoozed? && p.days_until_due&.negative? }
-                                  .sort_by { |p| p.days_until_due }
-                                  .first(3)
+    # "Time to reach out" — summarise rather than list everyone (#184). We keep the
+    # full count for the headline and show only the most-overdue few, with a
+    # "View all" link to the status-sorted table for the rest.
+    overdue = current_user.people.includes(:events)
+                          .select { |p| !p.snoozed? && p.days_until_due&.negative? }
+                          .sort_by { |p| p.days_until_due }
+    @overdue_count  = overdue.size
+    @overdue_people = overdue.first(3)
 
     @upcoming_birthday_ids = current_user.people.where.not(birthday: nil).select { |p|
       bday = p.birthday.change(year: Date.current.year)

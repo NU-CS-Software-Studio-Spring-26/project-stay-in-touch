@@ -36,3 +36,9 @@ Feature: Managing contacts (People)
     Given another user has a contact named "Private Contact"
     When I visit the people page
     Then I should not see "Private Contact"
+
+  Scenario: The reach-out panel summarises many overdue contacts (#184)
+    Given 4 contacts are overdue for the current user
+    When I visit the people page
+    Then I should see "4 people"
+    And I should see "View all 4"

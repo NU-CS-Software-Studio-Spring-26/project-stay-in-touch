@@ -83,6 +83,8 @@ body {
 .btn {
   font-weight: 500;
   font-size: 0.875rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 /* ── Cards ───────────────────────────────────────────────── */
@@ -633,6 +635,17 @@ turbo-frame#quick-log-modal.turbo-modal.is-open {
   backdrop-filter: blur(2px);
   padding: 1rem;
   border: none;
+}
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  padding: 1rem;
 }
 .modal-card {
   background: #fff;

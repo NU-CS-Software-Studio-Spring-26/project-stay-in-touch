@@ -69,7 +69,16 @@ class EventsController < ApplicationController
     else
       @people = current_user.people.order(:name)
       @person = current_user.people.find_by(id: params.dig(:event, :person_ids)&.first)
-      render :new, status: :unprocessable_content
+      if params[:quick_log] == "1"
+        # The quick-log modal posts with turbo_frame "_top", so a plain `render :new`
+        # would replace the whole page with a bare frame fragment and the error would
+        # never be seen (R1, rhymes with #190). Re-render the modal — which includes
+        # its own error alert — in place via a Turbo Stream instead.
+        render turbo_stream: turbo_stream.update("quick-log-modal", partial: "events/quick_log_modal"),
+               status: :unprocessable_content
+      else
+        render :new, status: :unprocessable_content
+      end
     end
   end
 

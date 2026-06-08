@@ -1,12 +1,53 @@
 require "rails_helper"
 
-RSpec.describe Matchmaking::RateLimitedChat, type: :service do
+RSpec.describe OpenRouterChat, type: :service do
   # Never really sleep in specs.
   before { allow(described_class).to receive(:pause) }
 
   def too_many_requests(headers: nil)
     response = headers ? { status: 429, headers: headers } : nil
     Faraday::TooManyRequestsError.new("rate limited", response)
+  end
+
+  def payment_required
+    Faraday::ClientError.new("payment required", { status: 402 })
+  end
+
+  describe ".completion" do
+    let(:client_double) { instance_double(OpenAI::Client) }
+    let(:response)      { { "choices" => [{ "message" => { "content" => "hi" } }] } }
+
+    before { allow(OpenAI::Client).to receive(:new).and_return(client_double) }
+
+    it "uses the primary (paid) model on the happy path" do
+      expect(client_double).to receive(:chat) do |args|
+        expect(args[:parameters][:model]).to eq(described_class::PRIMARY_MODEL)
+        response
+      end
+      result = described_class.completion(messages: [{ role: "user", content: "x" }], max_tokens: 10)
+      expect(result).to eq(response)
+    end
+
+    it "falls back to the free model when the account is out of credit (402)" do
+      models = []
+      allow(client_double).to receive(:chat) do |args|
+        models << args[:parameters][:model]
+        raise payment_required if models.size == 1
+
+        response
+      end
+
+      result = described_class.completion(messages: [{ role: "user", content: "x" }], max_tokens: 10)
+      expect(result).to eq(response)
+      expect(models).to eq([ described_class::PRIMARY_MODEL, described_class::FALLBACK_MODEL ])
+    end
+
+    it "does not fall back on non-402 errors" do
+      allow(client_double).to receive(:chat).and_raise(Faraday::ServerError.new("boom", { status: 500 }))
+      expect do
+        described_class.completion(messages: [{ role: "user", content: "x" }], max_tokens: 10)
+      end.to raise_error(Faraday::ServerError)
+    end
   end
 
   describe ".with_retry" do
@@ -67,6 +108,20 @@ RSpec.describe Matchmaking::RateLimitedChat, type: :service do
     it "clamps an oversized Retry-After to the max" do
       error = too_many_requests(headers: { "retry-after" => "9999" })
       expect(described_class.retry_after(error)).to eq(described_class::MAX_DELAY)
+    end
+  end
+
+  describe ".out_of_credit?" do
+    it "is true for a 402 response" do
+      expect(described_class.out_of_credit?(payment_required)).to be(true)
+    end
+
+    it "is false for a 429 response" do
+      expect(described_class.out_of_credit?(too_many_requests(headers: {}))).to be(false)
+    end
+
+    it "is false when there is no response" do
+      expect(described_class.out_of_credit?(too_many_requests)).to be(false)
     end
   end
 end

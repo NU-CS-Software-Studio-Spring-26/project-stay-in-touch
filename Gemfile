@@ -12,6 +12,8 @@ gem "puma", ">= 5.0"
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
 gem "turbo-rails"
+# Database-backed Action Cable adapter (Rails 8 default, replaces Redis in dev)
+gem "solid_cable"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
 
@@ -72,6 +74,9 @@ gem "pagy", "~> 9.3"
 # Google Calendar integration
 gem "google-apis-calendar_v3", "~> 0.17"
 gem "googleauth", "~> 1.11"
+
+# Web Push notifications (VAPID signing)
+gem "webpush", "~> 1.1"
 
 gem "dotenv-rails", "~> 3.2", groups: [:development, :test]
 

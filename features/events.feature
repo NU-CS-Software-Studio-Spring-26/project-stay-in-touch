@@ -30,3 +30,9 @@ Feature: Logging catch-up events
     Given another user has an event titled "Secret Meetup"
     When I visit the events page for the current month
     Then I should not see "Secret Meetup"
+
+  Scenario: Event times are shown in my timezone (#189)
+    Given my timezone is "America/Chicago"
+    And an event occurring at "2026-06-05T14:07:00Z" exists for the current user
+    When I view that event
+    Then I should see "09:07"
