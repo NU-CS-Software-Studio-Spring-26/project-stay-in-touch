@@ -20,7 +20,7 @@
 
 <% if @proposals.any? %>
   <div class="list-group" id="proposals-list">
-    <%= render @proposals %>
+    <%= render partial: "proposal", collection: @proposals, as: :proposal %>
   </div>
 <% else %>
   <div class="text-center text-muted py-5" id="proposals-list">
