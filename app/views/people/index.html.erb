@@ -118,10 +118,10 @@ end %>
       <table class="table table-row-cards mb-0 align-middle">
         <thead>
           <tr>
-            <th><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
-            <th class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
-            <th><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
-            <th style="width: 1%;"></th>
+            <th scope="col"><%= sort_link.call("name", "Name", icon: "bi-person") %></th>
+            <th scope="col" class="text-end"><%= sort_link.call("frequency", "Catch up every", icon: "bi-arrow-repeat") %></th>
+            <th scope="col"><%= sort_link.call("status", "Due", icon: "bi-clock-history") %></th>
+            <th scope="col" style="width: 1%;"><span class="visually-hidden">Actions</span></th>
           </tr>
         </thead>
         <tbody>

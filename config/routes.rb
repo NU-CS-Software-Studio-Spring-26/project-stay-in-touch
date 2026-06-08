@@ -56,6 +56,8 @@ Rails.application.routes.draw do
   resources :blocks,              only: %i[create destroy]
   resources :push_subscriptions,  only: %i[create destroy]
 
+  resources :contact_links, only: %i[create update destroy]
+
   resources :scheduling_negotiations, only: %i[show] do
     member { post :confirm }
   end

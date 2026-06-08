@@ -15,7 +15,7 @@
         <label class="form-label fw-semibold">Profile photo</label>
         <div class="d-flex align-items-center gap-3 mb-2">
           <% if current_user.avatar.attached? %>
-            <%= image_tag current_user.avatar, class: "avatar avatar-xl rounded-circle", style: "object-fit:cover;" %>
+            <%= image_tag current_user.avatar, class: "avatar avatar-xl rounded-circle", style: "object-fit:cover;", alt: "#{current_user.display_label}'s profile photo" %>
           <% else %>
             <% initials = current_user.display_label.split.first(2).map { |w| w[0].upcase }.join %>
             <span class="avatar avatar-xl" style="background:#4F46E5;color:#fff;"><%= initials %></span>
