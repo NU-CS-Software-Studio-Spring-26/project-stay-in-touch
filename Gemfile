@@ -42,6 +42,10 @@ group :development, :test do
   # ERB template linting [https://github.com/Shopify/erb-lint]
   gem "erb_lint", require: false
 
+  # Generates HTML API docs from the RDoc-style comments in app/ and lib/.
+  # Run with `rails rdoc` (task defined in lib/tasks/rdoc.rake).
+  gem "rdoc", require: false
+
   # RSpec-based testing harness (matches class hw2 convention)
   gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.4"

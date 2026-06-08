@@ -42,6 +42,16 @@ bundle exec rspec
 
 Tests cover model validations, associations, helper methods, and the full CRUD request flow for both resources. The same command runs in CI on every push and pull request.
 
+## Generating documentation
+
+The models, controllers, and services are documented with RDoc-style comments. Generate browsable HTML API docs with:
+
+```bash
+rails rdoc
+```
+
+Output is written to `doc/` (gitignored). Open `doc/index.html` to browse. Run `rails clobber_rdoc` to remove it.
+
 ## Google Calendar integration
 
 Users can optionally connect their Google Calendar so that every new catch-up Event is automatically pushed as a calendar event. The feature is fully optional — if a user hasn't connected, the app works exactly as before.

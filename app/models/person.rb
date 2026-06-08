@@ -69,6 +69,32 @@ class Person < ApplicationRecord
     ((deadline - Time.current) / 1.day).round
   end
 
+  # True when this person is past due for a reach-out and not currently snoozed.
+  # Drives the "time to reach out" lists on the dashboard and people index.
+  def overdue?
+    return false if snoozed?
+
+    days = days_until_due
+    days.present? && days.negative?
+  end
+
+  # Days until this person's next birthday (today = 0), or nil when unset. Only
+  # the month/day matter, so the stored date is rolled to this year — or next,
+  # if it has already passed.
+  def days_until_birthday
+    return nil if birthday.nil?
+
+    next_birthday = birthday.change(year: Date.current.year)
+    next_birthday = next_birthday.next_year if next_birthday < Date.current
+    (next_birthday - Date.current).to_i
+  end
+
+  # True when the next birthday falls within `days` days (default 30).
+  def birthday_within?(days = 30)
+    upcoming = days_until_birthday
+    upcoming.present? && upcoming <= days
+  end
+
   # Consecutive on-time check-ins (each gap <= frequency_weeks window), counted
   # from the most recent event pair backwards.
   def streak
