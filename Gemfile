@@ -79,7 +79,7 @@ gem "pagy", "~> 9.3"
 
 # Google Calendar integration
 gem "google-apis-calendar_v3", "~> 0.17"
-gem "googleauth", "~> 1.11"
+gem "googleauth", "~> 1.17"
 
 # Web Push notifications (VAPID signing)
 gem "webpush", "~> 1.1"
