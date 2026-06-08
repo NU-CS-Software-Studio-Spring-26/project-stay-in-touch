@@ -17,8 +17,10 @@ RSpec.describe Matchmaking::RoundOrchestratorService, type: :service do
     allow(Matchmaking::SecretaryPitchService).to receive(:new).and_return(pitch_service)
   end
 
-  def stub_review(accepted:, reason: "because")
-    review = Matchmaking::SecretaryReviewService::ReviewResult.new(accepted: accepted, reason: reason)
+  def stub_review(accepted:, reason: "because", error: false)
+    review = Matchmaking::SecretaryReviewService::ReviewResult.new(
+      accepted: accepted, reason: reason, error: error
+    )
     review_service = instance_double(Matchmaking::SecretaryReviewService, call: review)
     allow(Matchmaking::SecretaryReviewService).to receive(:new).and_return(review_service)
   end
@@ -59,6 +61,19 @@ RSpec.describe Matchmaking::RoundOrchestratorService, type: :service do
 
         service.call
         expect(MeetingProposal.last).to be_declined
+      end
+
+      it "records an :error proposal (not a decline) when the review can't be evaluated" do
+        stub_pitch(pitch_for(target))
+        stub_review(accepted: false, reason: "AI was unreachable", error: true)
+        expect(GoogleCalendarService).not_to receive(:new)
+
+        result = service.call
+        expect(result).to be_error
+        # The target + pitch are retained so the Matches page can show context.
+        expect(result.recipient).to eq(target)
+        expect(result.pitch).to eq("Let's meet")
+        expect(result.decision_reason).to eq("AI was unreachable")
       end
     end
 

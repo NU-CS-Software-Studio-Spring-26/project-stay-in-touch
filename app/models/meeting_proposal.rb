@@ -5,8 +5,11 @@
 #
 # Schema (see db/schema.rb for the authoritative version):
 #   requester_id  :integer not null  (FK -> users)
-#   recipient_id  :integer nullable  (FK -> users; nil only on :error proposals
-#                                     where the round died before a target was picked)
+#   recipient_id  :integer nullable  (FK -> users; nil on :error proposals where
+#                                     the round died before a target was picked.
+#                                     An :error row CAN have a recipient when the
+#                                     target was chosen but their secretary failed
+#                                     to evaluate the pitch.)
 #   status        :integer not null  (enum below)
 #   pitch / decision_reason   :text    nullable
 #   *_profile_snapshot        :text    nullable
