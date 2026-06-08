@@ -1,0 +1,8 @@
+Hi <%= @recipient.display_label %>,
+
+Your AI secretary has matched you with <%= @other&.display_label %>.
+Please pick a 30-minute time slot before <%= @expires_at.strftime("%A, %B %-d at %-I:%M %p %Z") %>.
+
+<%= @url %>
+
+If you don't pick a slot before the deadline, the scheduling window will expire and you can run matchmaking again.

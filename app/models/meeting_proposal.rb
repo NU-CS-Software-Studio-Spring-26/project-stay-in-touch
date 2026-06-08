@@ -24,6 +24,7 @@ class MeetingProposal < ApplicationRecord
 
   belongs_to :requester, class_name: "User"
   belongs_to :recipient, class_name: "User", optional: true
+  has_one    :scheduling_negotiation, dependent: :destroy
 
   # :error rows record a round that couldn't complete (model rate-limited,
   # unparseable AI output, no candidates, etc.) so the failure shows up on the
@@ -45,6 +46,11 @@ class MeetingProposal < ApplicationRecord
       .where.not(status: :error)
       .where(created_at: RECENCY_WINDOW.ago..)
       .exists?
+  end
+
+  # Both parties on this proposal; nil recipient (error rows) are excluded.
+  def parties
+    [ requester, recipient ].compact
   end
 
   # The party who is not the given user. Nil if this is an error row that never
