@@ -3,7 +3,7 @@ class ReconnectMessageService
   SEASONS = {
     (3..5)  => "spring",
     (6..8)  => "summer",
-    (9..11) => "autumn",
+    (9..11) => "autumn"
   }.freeze
 
   # Fixed-date holidays checked within a 14-day look-ahead.
@@ -15,7 +15,7 @@ class ReconnectMessageService
     [10, 31, "Halloween"],
     [12, 24, "Christmas Eve"],
     [12, 25, "Christmas"],
-    [12, 31, "New Year's Eve"],
+    [12, 31, "New Year's Eve"]
   ].freeze
 
   def initialize(person, user)
