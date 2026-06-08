@@ -34,6 +34,15 @@ class EventsController < ApplicationController
     @pagy, @paged_events = pagy(ordered, items: 25)
     @events = ordered
     @events_by_day = @events.group_by { |e| e.occurred_at.to_date }
+
+    # Serendipity's AI matchmaking books accepted matches straight onto Google
+    # Calendar (it creates no local Event record), so surface this month's
+    # AI-scheduled meetings here with a link to the calendar event it created.
+    @serendipity_meetings = MeetingProposal.for_user(current_user)
+                                           .accepted
+                                           .where(calendar_created: true)
+                                           .where(meeting_at: @current_month.beginning_of_month.beginning_of_day..@current_month.end_of_month.end_of_day)
+                                           .order(:meeting_at)
   end
 
   def show; end

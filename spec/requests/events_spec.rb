@@ -208,6 +208,59 @@ RSpec.describe "Events", type: :request do
     end
   end
 
+  describe "GET /events with Serendipity-scheduled meetings" do
+    let(:match_user)   { create(:user, display_name: "Dana Match") }
+    let(:meeting_time) { Date.current.beginning_of_month.to_time + 9.days + 14.hours }
+
+    def serendipity_proposal(**overrides)
+      create(:meeting_proposal,
+             { requester:           user,
+               recipient:           match_user,
+               status:              :accepted,
+               calendar_created:    true,
+               meeting_at:          meeting_time,
+               calendar_event_link: "https://calendar.google.com/event?eid=abc123" }.merge(overrides))
+    end
+
+    it "links to the Google Calendar event Serendipity booked" do
+      serendipity_proposal
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+
+      expect(response.body).to include("Scheduled by Serendipity")
+      expect(response.body).to include("Dana Match")
+      expect(response.body).to include("https://calendar.google.com/event?eid=abc123")
+    end
+
+    it "shows meetings the user receives, not just ones they requested" do
+      serendipity_proposal(requester: match_user, recipient: user)
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+
+      expect(response.body).to include("Scheduled by Serendipity")
+      expect(response.body).to include("Dana Match")
+    end
+
+    it "falls back to the match page when no calendar link was stored" do
+      proposal = serendipity_proposal(calendar_event_link: nil)
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+
+      expect(response.body).to include("Scheduled by Serendipity")
+      expect(response.body).to include(match_path(proposal))
+    end
+
+    it "ignores declined and record-only proposals" do
+      serendipity_proposal(status: :declined)
+      serendipity_proposal(calendar_created: false, calendar_event_link: nil)
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+
+      expect(response.body).not_to include("Scheduled by Serendipity")
+    end
+
+    it "omits the callout when the user has no scheduled matches" do
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+      expect(response.body).not_to include("Scheduled by Serendipity")
+    end
+  end
+
   describe "unauthenticated access" do
     before { delete logout_path }
 
