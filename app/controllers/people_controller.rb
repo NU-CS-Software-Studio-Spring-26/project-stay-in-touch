@@ -1,5 +1,6 @@
 class PeopleController < ApplicationController
   before_action :set_person, only: %i[show edit update destroy snooze toggle_favorite toggle_tag notes_edit]
+  before_action :load_all_tags, only: %i[index new edit]
 
   SORTABLE_COLUMNS = %w[name frequency status].freeze
 
@@ -8,7 +9,6 @@ class PeopleController < ApplicationController
     @direction = params[:direction] == "desc" ? "desc" : "asc"
     @favorites_filter = params[:favorites] == "1"
     @tag_filter = params[:tag_id].present? ? current_user.tags.find_by(id: params[:tag_id]) : nil
-    @all_tags = current_user.tags.order(:name)
 
     people_scope = current_user.people.preload(:tags)
     people_scope = people_scope.where("LOWER(name) LIKE ?", "%#{params[:q].downcase}%") if params[:q].present?
@@ -31,16 +31,14 @@ class PeopleController < ApplicationController
     # full count for the headline and show only the most-overdue few, with a
     # "View all" link to the status-sorted table for the rest.
     overdue = current_user.people.includes(:events)
-                          .select { |p| !p.snoozed? && p.days_until_due&.negative? }
-                          .sort_by { |p| p.days_until_due }
+                          .select(&:overdue?)
+                          .sort_by(&:days_until_due)
     @overdue_count  = overdue.size
     @overdue_people = overdue.first(3)
 
-    @upcoming_birthday_ids = current_user.people.where.not(birthday: nil).select { |p|
-      bday = p.birthday.change(year: Date.current.year)
-      bday = bday.next_year if bday < Date.current
-      (bday - Date.current).to_i <= 30
-    }.map(&:id).to_set
+    @upcoming_birthday_ids = current_user.people.where.not(birthday: nil)
+      .select(&:birthday_within?)
+      .map(&:id).to_set
   end
 
   def show
@@ -109,11 +107,9 @@ class PeopleController < ApplicationController
 
   def new
     @person = current_user.people.build
-    @all_tags = current_user.tags.order(:name)
   end
 
   def edit
-    @all_tags = current_user.tags.order(:name)
   end
 
   def create
@@ -122,7 +118,7 @@ class PeopleController < ApplicationController
       assign_new_tag_name
       redirect_to @person, notice: "Person was successfully created."
     else
-      @all_tags = current_user.tags.order(:name)
+      load_all_tags
       render :new, status: :unprocessable_content
     end
   end
@@ -139,7 +135,7 @@ class PeopleController < ApplicationController
       if params[:inline_notes]
         render "notes_edit"
       else
-        @all_tags = current_user.tags.order(:name)
+        load_all_tags
         render :edit, status: :unprocessable_content
       end
     end
@@ -178,6 +174,10 @@ class PeopleController < ApplicationController
 
   def set_person
     @person = current_user.people.find(params[:id])
+  end
+
+  def load_all_tags
+    @all_tags = current_user.tags.order(:name)
   end
 
   def person_params

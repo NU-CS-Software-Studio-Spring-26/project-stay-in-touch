@@ -12,8 +12,7 @@ class DashboardController < ApplicationController
 
     all_people = current_user.people.includes(:events)
 
-    @overdue_people  = all_people.select { |p| !p.snoozed? && p.days_until_due&.negative? }
-                                 .sort_by { |p| p.days_until_due }
+    @overdue_people  = all_people.select(&:overdue?).sort_by(&:days_until_due)
     @slipping_people = all_people.select { |p| (d = p.days_until_due) && d >= 0 && d <= 7 }
                                  .sort_by { |p| p.days_until_due }
     @on_track_people = all_people.select { |p| (d = p.days_until_due) && d > 7 }
@@ -34,15 +33,9 @@ class DashboardController < ApplicationController
     @total_catchups = current_user.events.count
     @total_people   = current_user.people.count
 
-    @upcoming_birthdays = current_user.people.where.not(birthday: nil).select { |p|
-      bday = p.birthday.change(year: Date.current.year)
-      bday = bday.next_year if bday < Date.current
-      (bday - Date.current).to_i <= 30
-    }.sort_by { |p|
-      bday = p.birthday.change(year: Date.current.year)
-      bday = bday.next_year if bday < Date.current
-      (bday - Date.current).to_i
-    }
+    @upcoming_birthdays = current_user.people.where.not(birthday: nil)
+      .select(&:birthday_within?)
+      .sort_by(&:days_until_birthday)
 
     @catchups_by_month = current_user.events
       .group_by_month(:occurred_at, last: 6)

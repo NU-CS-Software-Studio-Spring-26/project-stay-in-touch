@@ -1,0 +1,18 @@
+<%# Primary navigation links, shared by the mobile offcanvas and the desktop %>
+<%# sidebar in shared/_navbar so the two stay in sync. Active state is derived %>
+<%# from request.path. The desktop-only Settings/Tags section lives in _navbar. %>
+<%= link_to dashboard_path, class: "sidebar-link #{request.path == root_path || request.path == dashboard_path ? 'active' : ''}" do %>
+  <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+<% end %>
+<%= link_to people_path, class: "sidebar-link #{request.path.start_with?(people_path) ? 'active' : ''}" do %>
+  <i class="bi bi-people-fill"></i><span>People</span>
+<% end %>
+<%= link_to events_path, class: "sidebar-link #{request.path.start_with?(events_path) ? 'active' : ''}" do %>
+  <i class="bi bi-calendar3"></i><span>Events</span>
+<% end %>
+<%= link_to timeline_path, class: "sidebar-link #{request.path == timeline_path ? 'active' : ''}" do %>
+  <i class="bi bi-activity"></i><span>Timeline</span>
+<% end %>
+<%= link_to matches_path, class: "sidebar-link #{request.path.start_with?(matches_path) ? 'active' : ''}" do %>
+  <i class="bi bi-chat-heart"></i><span>Matches</span>
+<% end %>
