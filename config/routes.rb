@@ -51,7 +51,9 @@ Rails.application.routes.draw do
       get :notes_edit
     end
   end
-  resources :events
+  resources :events do
+    member { post :sync_calendar }
+  end
   resources :tags,   only: %i[index update destroy]
   resources :blocks,              only: %i[create destroy]
   resources :push_subscriptions,  only: %i[create destroy]

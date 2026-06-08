@@ -208,6 +208,126 @@ RSpec.describe "Events", type: :request do
     end
   end
 
+  describe "GET /events with Serendipity-scheduled meetings" do
+    let(:match_user)   { create(:user, display_name: "Dana Match") }
+    let(:meeting_time) { Date.current.beginning_of_month.to_time + 9.days + 14.hours }
+
+    def serendipity_proposal(**overrides)
+      create(:meeting_proposal,
+             { requester:           user,
+               recipient:           match_user,
+               status:              :accepted,
+               calendar_created:    true,
+               meeting_at:          meeting_time,
+               calendar_event_link: "https://calendar.google.com/event?eid=abc123" }.merge(overrides))
+    end
+
+    it "links to the Google Calendar event Serendipity booked" do
+      serendipity_proposal
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+
+      expect(response.body).to include("Scheduled by Serendipity")
+      expect(response.body).to include("Dana Match")
+      expect(response.body).to include("https://calendar.google.com/event?eid=abc123")
+    end
+
+    it "shows meetings the user receives, not just ones they requested" do
+      serendipity_proposal(requester: match_user, recipient: user)
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+
+      expect(response.body).to include("Scheduled by Serendipity")
+      expect(response.body).to include("Dana Match")
+    end
+
+    it "falls back to the match page when no calendar link was stored" do
+      proposal = serendipity_proposal(calendar_event_link: nil)
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+
+      expect(response.body).to include("Scheduled by Serendipity")
+      expect(response.body).to include(match_path(proposal))
+    end
+
+    it "ignores declined and record-only proposals" do
+      serendipity_proposal(status: :declined)
+      serendipity_proposal(calendar_created: false, calendar_event_link: nil)
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+
+      expect(response.body).not_to include("Scheduled by Serendipity")
+    end
+
+    it "omits the callout when the user has no scheduled matches" do
+      get events_path(month: meeting_time.strftime("%Y-%m"))
+      expect(response.body).not_to include("Scheduled by Serendipity")
+    end
+  end
+
+  describe "GET /events/:id Google Calendar link" do
+    it "links to the calendar event when one is stored" do
+      event = create(:event, user: user, people: [person_a],
+                             calendar_event_link: "https://calendar.google.com/event?eid=abc")
+      get event_path(event)
+
+      expect(response.body).to include("Open in Google Calendar")
+      expect(response.body).to include("https://calendar.google.com/event?eid=abc")
+    end
+
+    it "offers to add to Google Calendar when connected but not yet synced" do
+      create(:google_credential, user: user)
+      event = create(:event, user: user, people: [person_a])
+      get event_path(event)
+
+      expect(response.body).to include("Add to Google Calendar")
+    end
+
+    it "shows no calendar action when not connected and not synced" do
+      event = create(:event, user: user, people: [person_a])
+      get event_path(event)
+
+      expect(response.body).not_to include("Open in Google Calendar")
+      expect(response.body).not_to include("Add to Google Calendar")
+    end
+  end
+
+  describe "POST /events/:id/sync_calendar" do
+    let(:event) { create(:event, user: user, people: [person_a]) }
+
+    it "pushes to Google Calendar and stores the event link" do
+      create(:google_credential, user: user)
+      gcal_event   = double("GoogleEvent", id: "evt_1",
+                            html_link: "https://calendar.google.com/event?eid=xyz")
+      gcal_service = instance_double(GoogleCalendarService, push_event: gcal_event)
+      allow(GoogleCalendarService).to receive(:new).with(user).and_return(gcal_service)
+
+      post sync_calendar_event_path(event)
+
+      expect(event.reload.calendar_event_link).to eq("https://calendar.google.com/event?eid=xyz")
+      expect(event.calendar_event_id).to eq("evt_1")
+      expect(response).to redirect_to(event_path(event))
+    end
+
+    it "redirects with an alert when Google Calendar is not connected" do
+      post sync_calendar_event_path(event)
+
+      expect(event.reload.calendar_event_link).to be_nil
+      follow_redirect!
+      expect(response.body).to include("Connect Google Calendar")
+    end
+  end
+
+  describe "POST /events stores the calendar link" do
+    it "stamps the Google Calendar link on the created event" do
+      create(:google_credential, user: user)
+      gcal_event   = double("GoogleEvent", id: "evt_9",
+                            html_link: "https://calendar.google.com/event?eid=created")
+      gcal_service = instance_double(GoogleCalendarService, busy_intervals: [], push_event: gcal_event)
+      allow(GoogleCalendarService).to receive(:new).with(user).and_return(gcal_service)
+
+      post events_path, params: { event: valid_attrs }
+
+      expect(Event.last.calendar_event_link).to eq("https://calendar.google.com/event?eid=created")
+    end
+  end
+
   describe "unauthenticated access" do
     before { delete logout_path }
 

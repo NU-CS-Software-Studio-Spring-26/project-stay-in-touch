@@ -55,6 +55,20 @@
       </div>
 
       <div class="d-flex gap-2 flex-shrink-0">
+        <%# Link to the Google Calendar event Serendipity created for this event.
+            Guard the model-derived href to a real https URL (Brakeman flags
+            untrusted hrefs that could be "javascript:"); it's Google's html_link. %>
+        <% if @event.calendar_event_link.to_s.start_with?("https://") %>
+          <%= link_to @event.calendar_event_link, class: "btn btn-outline-success btn-sm",
+                target: "_blank", rel: "noopener noreferrer" do %>
+            <i class="bi bi-calendar-check me-1"></i>Open in Google Calendar
+          <% end %>
+        <% elsif current_user.google_calendar_connected? %>
+          <%= button_to sync_calendar_event_path(@event), method: :post,
+                class: "btn btn-outline-success btn-sm d-inline" do %>
+            <i class="bi bi-calendar-plus me-1"></i>Add to Google Calendar
+          <% end %>
+        <% end %>
         <%= link_to "Edit", edit_event_path(@event), class: "btn btn-outline-primary btn-sm" %>
         <%= button_to "Delete", event_path(@event),
               method: :delete,
