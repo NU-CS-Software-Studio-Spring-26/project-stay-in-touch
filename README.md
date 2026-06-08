@@ -56,18 +56,22 @@ Users can optionally connect their Google Calendar so that every new catch-up Ev
 ### Local setup
 
 1. In [Google Cloud Console](https://console.cloud.google.com/apis/dashboard), enable the **Google Calendar API** for your project.
-2. Go to **APIs & Services → OAuth consent screen**. Under "Scopes", add:
-   - `https://www.googleapis.com/auth/calendar.events` (create and read events — **do not** request the broader `calendar` scope)
+2. Go to **APIs & Services → OAuth consent screen**.
+   - Set publishing status to **Testing** and add your Google account as a test user (required before a localhost app can complete OAuth).
+   - Under "Scopes", add `https://www.googleapis.com/auth/calendar.events` (**do not** use the broader `calendar` scope).
 3. Go to **APIs & Services → Credentials** → Create credentials → OAuth 2.0 Client ID → Web application.
 4. Under **Authorized redirect URIs**, add `http://localhost:3000/google/oauth/callback`.
-5. Copy the credentials and set them in your environment:
+5. Copy `.env.example` to `.env` and fill in your credentials — `dotenv-rails` (already in the Gemfile) loads `.env` automatically in development:
 
 ```bash
 cp .env.example .env
-# then fill in GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
+# edit .env: set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+# GOOGLE_REDIRECT_URI is pre-filled to http://localhost:3000/google/oauth/callback
 ```
 
-6. Load them before starting the server (e.g. via `dotenv-rails`, `direnv`, or your shell profile).
+6. Start the server (`bin/rails server`) — Google OAuth will now work at `http://localhost:3000`.
+
+> **Tip:** If you see "Google OAuth not configured" when clicking Connect, it means one or more env vars are missing. The error message names the specific variables.
 
 ### Heroku setup
 

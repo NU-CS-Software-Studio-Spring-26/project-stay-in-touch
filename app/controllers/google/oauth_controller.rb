@@ -122,7 +122,12 @@ module Google
       return if missing.empty?
 
       Rails.logger.error("Google OAuth missing env vars: #{missing.join(', ')}")
-      redirect_to login_path, alert: "Google sign-in is not configured. Please contact support."
+      alert = if Rails.env.development?
+        "Google OAuth not configured. Copy .env.example to .env and set: #{missing.join(', ')}."
+      else
+        "Google sign-in is not configured. Please contact support."
+      end
+      redirect_to login_path, alert: alert
     end
 
     def build_client(scopes)
