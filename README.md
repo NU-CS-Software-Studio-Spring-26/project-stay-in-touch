@@ -55,16 +55,19 @@ Users can optionally connect their Google Calendar so that every new catch-up Ev
 
 ### Local setup
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → Create credentials → OAuth 2.0 Client ID → Web application.
-2. Add `http://localhost:3000/google/oauth/callback` as an **Authorized redirect URI**.
-3. Copy the credentials and set them in your environment:
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/dashboard), enable the **Google Calendar API** for your project.
+2. Go to **APIs & Services → OAuth consent screen**. Under "Scopes", add:
+   - `https://www.googleapis.com/auth/calendar.events` (create and read events — **do not** request the broader `calendar` scope)
+3. Go to **APIs & Services → Credentials** → Create credentials → OAuth 2.0 Client ID → Web application.
+4. Under **Authorized redirect URIs**, add `http://localhost:3000/google/oauth/callback`.
+5. Copy the credentials and set them in your environment:
 
 ```bash
 cp .env.example .env
 # then fill in GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
 ```
 
-4. Load them before starting the server (e.g. via `dotenv-rails`, `direnv`, or your shell profile).
+6. Load them before starting the server (e.g. via `dotenv-rails`, `direnv`, or your shell profile).
 
 ### Heroku setup
 
@@ -74,7 +77,7 @@ heroku config:set GOOGLE_CLIENT_SECRET=...
 heroku config:set GOOGLE_REDIRECT_URI=https://<your-app>.herokuapp.com/google/oauth/callback
 ```
 
-Add the production redirect URI in the Google Cloud Console as well.
+Also add the production redirect URI in the Google Cloud Console OAuth credential, and ensure the `calendar.events` scope is listed on the OAuth consent screen.
 
 ## AI meeting matchmaking ("your AI talks to my AI")
 

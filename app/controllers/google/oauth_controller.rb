@@ -6,6 +6,8 @@ module Google
     allow_unauthenticated_access only: [ :authorize, :callback ]
     before_action :require_google_credentials, only: [ :authorize, :callback ]
 
+    # calendar.events is the least-privilege scope that covers insert_event,
+    # list_events, and freebusy queries. Do not escalate to calendar (full access).
     CALENDAR_SCOPES = %w[https://www.googleapis.com/auth/calendar.events].freeze
     SIGNIN_SCOPES   = %w[openid
                          https://www.googleapis.com/auth/userinfo.email
