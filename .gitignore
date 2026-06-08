@@ -34,6 +34,10 @@
 # Ignore test coverage reports.
 /coverage/
 
+# Ignore generated RDoc API documentation (regenerate with `rails rdoc`).
+# This is the singular doc/ output dir; the committed docs/ markdown is separate.
+/doc/
+
 # Ignore environment files and local overrides.
 .env
 .env.*

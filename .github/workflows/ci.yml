@@ -27,7 +27,11 @@ jobs:
         run: bundle exec rspec
 
       - name: Run Cucumber
-        run: bundle exec cucumber
+        # Exclude @javascript (headless-browser) scenarios so CI needs no browser
+        # binary and stays deterministic. Run them locally with
+        # `bundle exec cucumber --tags '@javascript'`
+        # (see docs/testing/cross-browser-evaluation.md).
+        run: bundle exec cucumber --tags "not @javascript"
 
   scan_ruby:
     runs-on: ubuntu-latest

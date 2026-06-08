@@ -43,6 +43,37 @@ RSpec.describe MeetingProposal, type: :model do
     end
   end
 
+  describe ".visible_to and #dismiss_for" do
+    let(:alice) { create(:user) }
+    let(:bob)   { create(:user) }
+
+    it "hides a match from the dismisser but keeps it for the other party" do
+      proposal = create(:meeting_proposal, requester: alice, recipient: bob)
+
+      proposal.dismiss_for(alice)
+
+      expect(described_class.visible_to(alice)).not_to include(proposal)
+      expect(described_class.visible_to(bob)).to include(proposal)
+    end
+
+    it "is per-side: the requester dismissing doesn't touch the recipient's flag" do
+      proposal = create(:meeting_proposal, requester: alice, recipient: bob)
+
+      proposal.dismiss_for(alice)
+
+      expect(proposal.requester_dismissed_at).to be_present
+      expect(proposal.recipient_dismissed_at).to be_nil
+    end
+
+    it "still authorizes — only returns proposals the user is party to" do
+      mine      = create(:meeting_proposal, requester: alice, recipient: bob)
+      unrelated = create(:meeting_proposal, requester: bob, recipient: create(:user))
+
+      expect(described_class.visible_to(alice)).to include(mine)
+      expect(described_class.visible_to(alice)).not_to include(unrelated)
+    end
+  end
+
   describe ".recently_proposed_between?" do
     let(:alice) { create(:user) }
     let(:bob)   { create(:user) }

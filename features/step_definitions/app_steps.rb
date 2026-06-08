@@ -51,6 +51,20 @@ When("I click {string}") do |button|
   click_button button
 end
 
+# Search the People index: type a query and submit. The form's data-turbo-frame
+# makes Turbo swap only the #people-table frame (no full page reload). Used by the
+# @javascript scenario; Capybara's retry behaviour waits for the frame to update.
+When("I search the people list for {string}") do |query|
+  fill_in "people-search-input", with: query
+  find("#people-search-input").send_keys(:return)
+end
+
+# Clearing the box fires the Stimulus auto-submit controller (requestSubmit on an
+# empty value), which re-runs the unfiltered query through Turbo.
+When("I clear the people search box") do
+  fill_in "people-search-input", with: ""
+end
+
 When("I log out") do
   # DELETE /logout — submit via the logout button in the navbar
   find("form[action='#{logout_path}']").click_on("Log Out")
