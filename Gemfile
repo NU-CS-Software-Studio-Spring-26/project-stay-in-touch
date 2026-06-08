@@ -12,6 +12,8 @@ gem "puma", ">= 5.0"
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
 gem "turbo-rails"
+# Database-backed Action Cable adapter (Rails 8 default, replaces Redis in dev)
+gem "solid_cable"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
 

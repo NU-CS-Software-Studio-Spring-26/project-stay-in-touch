@@ -88,6 +88,29 @@
       </div>
     <% end %>
 
+    <%# Block / Unblock action %>
+    <% other = @proposal.other_party(current_user) %>
+    <% if other %>
+      <% existing_block = current_user.blocks.find_by(blocked: other) %>
+      <div class="d-flex justify-content-end mb-3">
+        <% if existing_block %>
+          <%= button_to block_path(existing_block), method: :delete,
+                class: "btn btn-sm btn-outline-secondary",
+                form: { data: { turbo_confirm: "Unblock #{other.display_label}?" } } do %>
+            <i class="bi bi-person-check me-1"></i>Unblock <%= other.display_label %>
+          <% end %>
+        <% else %>
+          <%= button_to blocks_path,
+                method: :post,
+                params: { blocked_id: other.id },
+                class: "btn btn-sm btn-outline-danger",
+                form: { data: { turbo_confirm: "Block #{other.display_label}? They won't appear in future matchmaking rounds." } } do %>
+            <i class="bi bi-person-dash me-1"></i>Block <%= other.display_label %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
     <%# Outcome %>
     <% if @proposal.accepted? %>
       <% if @proposal.calendar_created? %>
