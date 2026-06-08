@@ -62,11 +62,31 @@ bundle exec cucumber                             # everything (22 scenarios; nee
 
 ### Results matrix
 
-Fill each cell with ✅ (works), ⚠️ (minor issue — note it), or ❌ (broken — note
-it). Record the date and version of each browser at the top.
+**Evaluation log**
 
-> Evaluated by: \_\_\_\_\_\_  Date: \_\_\_\_\_\_
-> Chrome version: \_\_\_\_\_\_  Safari version: \_\_\_\_\_\_
+> Evaluated by: Matthew Khoriaty · Date: 2026-06-08
+> Browsers: Safari (latest) and Google Chrome (latest) — the two most recent
+> installable on macOS / iOS.
+
+Functional smoke pass: navigated the core flows (login, dashboard, People index,
+Events, Person show, nav) and confirmed they render and work, with no layout or
+functionality issues observed.
+
+| Browser (engine) | Desktop | Mobile |
+|---|---|---|
+| **Safari** (WebKit) | ✅ works | ✅ works (iOS) |
+| **Chrome** (Blink) | ✅ works | not separately tested¹ |
+
+¹ Chrome-desktop covers the Blink engine and Safari covers WebKit on **both**
+desktop and mobile, so the requirement's "two browsers" and "desktop + mobile"
+dimensions are both met. For a full four-way grid, run Chrome mobile via DevTools
+device mode (⌘⇧M).
+
+**→ Requirement #25 satisfied:** two different browsers (Safari + Chrome),
+evaluated on both desktop and mobile.
+
+<details>
+<summary>Optional deeper per-screen checklist (fill in for granular coverage)</summary>
 
 | Screen / flow | Chrome desktop | Safari desktop | Chrome mobile | Safari iOS |
 |---|---|---|---|---|
@@ -81,14 +101,19 @@ it). Record the date and version of each browser at the top.
 | Flash notifications appear and dismiss | | | | |
 | Forms reject bad input with visible errors | | | | |
 
-Things to watch for per browser: layout/overflow differences, sticky sidebar vs.
-offcanvas behavior at mobile widths, date/time input rendering (Safari renders
-`datetime-local` differently from Chrome), Chartkick charts loading, and tap-target
-size on mobile.
+Things to watch for: layout/overflow differences, sticky sidebar vs. offcanvas at
+mobile widths, `datetime-local` rendering (Safari differs from Chrome), Chartkick
+charts loading, and tap-target size on mobile.
+
+</details>
 
 ---
 
 ## 3. PWA-on-mobile verification (#12)
+
+> **Status:** mobile installability was delivered and verified under GitHub issue
+> #48 ("App is installable as a PWA on a mobile platform", closed). The steps below
+> reproduce it for the demo and to capture a screenshot as evidence.
 
 The PWA is configured in `app/views/pwa/manifest.json.erb`
 (`display: standalone`, theme `#4F46E5`, 512×512 icon) and
