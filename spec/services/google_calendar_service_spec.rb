@@ -42,6 +42,9 @@ RSpec.describe GoogleCalendarService, type: :service do
       allow(Google::Apis::CalendarV3::CalendarService).to receive(:new).and_return(calendar_service_double)
       allow(calendar_service_double).to receive(:authorization=)
       allow(calendar_service_double).to receive(:insert_event).and_return(double("gcal_event", id: "google-event-123"))
+      # Existing Serendipity calendar, so the structural specs below assert the write target
+      # without exercising the lazy-create path (covered by its own context).
+      credential.update!(serendipity_calendar_id: "serendipity-cal-1")
     end
 
     context "when the credential is still valid (not expired)" do
@@ -52,8 +55,8 @@ RSpec.describe GoogleCalendarService, type: :service do
         service.push_event(event, people)
       end
 
-      it "calls insert_event on the calendar service" do
-        expect(calendar_service_double).to receive(:insert_event).with("primary", anything)
+      it "writes the event to the Serendipity calendar" do
+        expect(calendar_service_double).to receive(:insert_event).with("serendipity-cal-1", anything)
         service.push_event(event, people)
       end
 
@@ -115,6 +118,50 @@ RSpec.describe GoogleCalendarService, type: :service do
         service.push_event(event, [])
       end
     end
+
+    context "when no Serendipity calendar exists yet" do
+      before do
+        credential.update!(expires_at: 1.hour.from_now, serendipity_calendar_id: nil)
+        allow(calendar_service_double).to receive(:insert_calendar)
+          .and_return(double("gcal", id: "serendipity-new"))
+      end
+
+      it "creates the Serendipity calendar and writes the event to it" do
+        expect(calendar_service_double).to receive(:insert_calendar)
+          .and_return(double("gcal", id: "serendipity-new"))
+        expect(calendar_service_double).to receive(:insert_event).with("serendipity-new", anything)
+        service.push_event(event, people)
+      end
+
+      it "persists the created calendar id on the credential" do
+        service.push_event(event, people)
+        expect(credential.reload.serendipity_calendar_id).to eq("serendipity-new")
+      end
+    end
+
+    context "when the stored Serendipity calendar was deleted (404)" do
+      before do
+        credential.update!(expires_at: 1.hour.from_now, serendipity_calendar_id: "stale-id")
+        allow(calendar_service_double).to receive(:insert_calendar)
+          .and_return(double("gcal", id: "recreated-id"))
+      end
+
+      it "recreates the calendar and retries the insert once" do
+        call_count = 0
+        allow(calendar_service_double).to receive(:insert_event) do |_cal_id, _ev|
+          call_count += 1
+          raise Google::Apis::ClientError.new("not found", status_code: 404) if call_count == 1
+          double("gcal_event", id: "google-event-123")
+        end
+
+        expect(calendar_service_double).to receive(:insert_calendar)
+          .and_return(double("gcal", id: "recreated-id"))
+        result = service.push_event(event, people)
+
+        expect(result.id).to eq("google-event-123")
+        expect(credential.reload.serendipity_calendar_id).to eq("recreated-id")
+      end
+    end
   end
 
   describe "#push_user_meeting" do
@@ -122,7 +169,7 @@ RSpec.describe GoogleCalendarService, type: :service do
     let(:auth_double)             { instance_double(Signet::OAuth2::Client) }
 
     before do
-      credential.update!(expires_at: 1.hour.from_now)
+      credential.update!(expires_at: 1.hour.from_now, serendipity_calendar_id: "serendipity-cal-1")
       allow(Signet::OAuth2::Client).to receive(:new).and_return(auth_double)
       allow(Google::Apis::CalendarV3::CalendarService).to receive(:new).and_return(calendar_service_double)
       allow(calendar_service_double).to receive(:authorization=)
@@ -130,8 +177,8 @@ RSpec.describe GoogleCalendarService, type: :service do
         .and_return(double("gcal_event", id: "user-meeting-1"))
     end
 
-    it "inserts the event on the primary calendar and returns it" do
-      expect(calendar_service_double).to receive(:insert_event).with("primary", anything)
+    it "inserts the event on the Serendipity calendar and returns it" do
+      expect(calendar_service_double).to receive(:insert_event).with("serendipity-cal-1", anything)
         .and_return(double("gcal_event", id: "user-meeting-1"))
       result = service.push_user_meeting(
         summary: "Intro", start_time: Time.utc(2026, 6, 1, 15, 0),
@@ -210,9 +257,37 @@ RSpec.describe GoogleCalendarService, type: :service do
       credential.update!(expires_at: 1.hour.from_now)
     end
 
-    it "returns busy [start, end] pairs from the primary calendar" do
+    it "returns busy [start, end] pairs from the primary calendar by default" do
       cal      = double("calendar", errors: [], busy: [double(start: t1, end: t2)])
       response = double("freebusy", calendars: { "primary" => cal })
+      allow(calendar_service_double).to receive(:query_freebusy).and_return(response)
+
+      expect(service.busy_intervals(window_days: 7)).to eq([[t1, t2]])
+    end
+
+    it "pools busy pairs across the chosen conflict calendars and queries them all" do
+      credential.update!(availability_calendar_ids: ["work@example.com", "home@example.com"])
+      t3 = Time.utc(2026, 5, 1, 16, 0, 0)
+      t4 = Time.utc(2026, 5, 1, 17, 0, 0)
+      cal_a    = double("cal_a", errors: [], busy: [double(start: t1, end: t2)])
+      cal_b    = double("cal_b", errors: [], busy: [double(start: t3, end: t4)])
+      response = double("freebusy", calendars: { "work@example.com" => cal_a, "home@example.com" => cal_b })
+
+      captured = nil
+      allow(calendar_service_double).to receive(:query_freebusy) do |request|
+        captured = request
+        response
+      end
+
+      expect(service.busy_intervals(window_days: 7)).to contain_exactly([t1, t2], [t3, t4])
+      expect(captured.items.map { |i| i.respond_to?(:id) ? i.id : i[:id] })
+        .to contain_exactly("work@example.com", "home@example.com")
+    end
+
+    it "skips a calendar that returned errors" do
+      ok      = double("ok", errors: [], busy: [double(start: t1, end: t2)])
+      errored = double("errored", errors: [{ "domain" => "global" }], busy: [])
+      response = double("freebusy", calendars: { "primary" => ok, "bad@example.com" => errored })
       allow(calendar_service_double).to receive(:query_freebusy).and_return(response)
 
       expect(service.busy_intervals(window_days: 7)).to eq([[t1, t2]])
@@ -221,6 +296,36 @@ RSpec.describe GoogleCalendarService, type: :service do
     it "returns [] when the free/busy query raises" do
       allow(calendar_service_double).to receive(:query_freebusy).and_raise(StandardError)
       expect(service.busy_intervals(window_days: 7)).to eq([])
+    end
+  end
+
+  describe "#list_calendars" do
+    let(:calendar_service_double) { instance_double(Google::Apis::CalendarV3::CalendarService) }
+    let(:auth_double)             { instance_double(Signet::OAuth2::Client) }
+
+    before do
+      allow(Signet::OAuth2::Client).to receive(:new).and_return(auth_double)
+      allow(auth_double).to receive(:refresh!)
+      allow(auth_double).to receive(:access_token).and_return("new-access-token")
+      allow(auth_double).to receive(:expires_at).and_return(1.hour.from_now.to_i)
+      allow(Google::Apis::CalendarV3::CalendarService).to receive(:new).and_return(calendar_service_double)
+      allow(calendar_service_double).to receive(:authorization=)
+      credential.update!(expires_at: 1.hour.from_now)
+    end
+
+    it "returns [summary, id] pairs for the user's calendars" do
+      list = double("calendar_list", items: [
+        double(summary: "Personal", id: "primary"),
+        double(summary: "Work",     id: "work@example.com")
+      ])
+      allow(calendar_service_double).to receive(:list_calendar_lists).and_return(list)
+
+      expect(service.list_calendars).to eq([["Personal", "primary"], ["Work", "work@example.com"]])
+    end
+
+    it "returns [] when listing raises" do
+      allow(calendar_service_double).to receive(:list_calendar_lists).and_raise(StandardError)
+      expect(service.list_calendars).to eq([])
     end
   end
 
