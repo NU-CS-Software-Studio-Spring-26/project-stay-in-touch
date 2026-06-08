@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_08_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_08_000004) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -104,6 +104,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000002) do
     t.index ["requester_id"], name: "index_meeting_proposals_on_requester_id"
   end
 
+  create_table "outreach_drafts", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "person_id", "created_at"], name: "index_outreach_drafts_on_user_id_and_person_id_and_created_at"
+  end
+
   create_table "people", force: :cascade do |t|
     t.date "birthday"
     t.datetime "created_at", null: false
@@ -142,6 +151,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000002) do
     t.index ["person_id", "tag_id"], name: "index_person_tags_on_person_id_and_tag_id", unique: true
     t.index ["person_id"], name: "index_person_tags_on_person_id"
     t.index ["tag_id"], name: "index_person_tags_on_tag_id"
+  end
+
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.string "auth_key", null: false
+    t.datetime "created_at", null: false
+    t.text "endpoint", null: false
+    t.string "p256dh_key", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
   end
 
   create_table "scheduling_negotiations", force: :cascade do |t|
@@ -220,10 +240,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000002) do
   add_foreign_key "google_credentials", "users"
   add_foreign_key "meeting_proposals", "users", column: "recipient_id"
   add_foreign_key "meeting_proposals", "users", column: "requester_id"
+  add_foreign_key "outreach_drafts", "people"
+  add_foreign_key "outreach_drafts", "users"
   add_foreign_key "people", "users"
   add_foreign_key "person_facts", "people"
   add_foreign_key "person_tags", "people"
   add_foreign_key "person_tags", "tags"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "scheduling_negotiations", "meeting_proposals"
   add_foreign_key "scheduling_slots", "scheduling_negotiations"
   add_foreign_key "scheduling_slots", "users", column: "confirmed_by_id"

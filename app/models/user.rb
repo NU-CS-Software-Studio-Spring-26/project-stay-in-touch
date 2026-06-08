@@ -17,6 +17,9 @@ class User < ApplicationRecord
   has_many :blocked_users,  through: :blocks, source: :blocked
   has_many :reverse_blocks, class_name: "Block", foreign_key: :blocked_id, dependent: :destroy
 
+  has_many :push_subscriptions, dependent: :destroy
+  has_many :outreach_drafts,    dependent: :destroy
+
   def blocking?(user)
     blocks.exists?(blocked: user)
   end

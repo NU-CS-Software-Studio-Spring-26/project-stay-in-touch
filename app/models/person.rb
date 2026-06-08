@@ -22,7 +22,8 @@ class Person < ApplicationRecord
   has_many :events, through: :event_participants
   has_many :person_tags, dependent: :destroy
   has_many :tags, through: :person_tags
-  has_many :person_facts, dependent: :destroy
+  has_many :person_facts,   dependent: :destroy
+  has_many :outreach_drafts, dependent: :destroy
 
   scope :favorites, -> { where(favorite: true) }
 
