@@ -18,9 +18,10 @@
 #   calendar_created          :boolean not null  default false
 class MeetingProposal < ApplicationRecord
   # Don't pitch the same ordered pair again within this window (anti-spam).
-  # DEV VALUE: shortened to 10 seconds so matchmaking can be re-run back-to-back
-  # while developing. Bump this back up (e.g. 30.days) before/when going to production.
-  RECENCY_WINDOW = 10.seconds
+  # Tunable via the MATCHMAKING_RECENCY_WINDOW_SECONDS env var so the window can be
+  # widened in production or kept short for live demos (the default lets matchmaking
+  # be re-run back-to-back).
+  RECENCY_WINDOW = ENV.fetch("MATCHMAKING_RECENCY_WINDOW_SECONDS", 10).to_i.seconds
 
   belongs_to :requester, class_name: "User"
   belongs_to :recipient, class_name: "User", optional: true
