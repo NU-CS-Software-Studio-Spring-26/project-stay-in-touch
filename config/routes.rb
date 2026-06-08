@@ -51,7 +51,8 @@ Rails.application.routes.draw do
     end
   end
   resources :events
-  resources :tags, only: %i[index update destroy]
+  resources :tags,   only: %i[index update destroy]
+  resources :blocks, only: %i[create destroy]
 
   root "dashboard#index"
 end

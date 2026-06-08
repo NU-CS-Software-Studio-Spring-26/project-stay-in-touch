@@ -104,8 +104,12 @@ module Matchmaking
 
     # Opted-in users other than the requester, excluding pairs proposed recently.
     def eligible_candidates
+      blocked_ids  = @requester.blocked_users.pluck(:id)
+      blocking_ids = Block.where(blocked: @requester).pluck(:blocker_id)
+      excluded_ids = (blocked_ids + blocking_ids + [ @requester.id ]).uniq
+
       User.matchmaking_candidates
-          .where.not(id: @requester.id)
+          .where.not(id: excluded_ids)
           .reject { |candidate| MeetingProposal.recently_proposed_between?(@requester, candidate) }
     end
 
