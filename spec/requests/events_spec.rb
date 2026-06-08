@@ -261,6 +261,73 @@ RSpec.describe "Events", type: :request do
     end
   end
 
+  describe "GET /events/:id Google Calendar link" do
+    it "links to the calendar event when one is stored" do
+      event = create(:event, user: user, people: [person_a],
+                             calendar_event_link: "https://calendar.google.com/event?eid=abc")
+      get event_path(event)
+
+      expect(response.body).to include("Open in Google Calendar")
+      expect(response.body).to include("https://calendar.google.com/event?eid=abc")
+    end
+
+    it "offers to add to Google Calendar when connected but not yet synced" do
+      create(:google_credential, user: user)
+      event = create(:event, user: user, people: [person_a])
+      get event_path(event)
+
+      expect(response.body).to include("Add to Google Calendar")
+    end
+
+    it "shows no calendar action when not connected and not synced" do
+      event = create(:event, user: user, people: [person_a])
+      get event_path(event)
+
+      expect(response.body).not_to include("Open in Google Calendar")
+      expect(response.body).not_to include("Add to Google Calendar")
+    end
+  end
+
+  describe "POST /events/:id/sync_calendar" do
+    let(:event) { create(:event, user: user, people: [person_a]) }
+
+    it "pushes to Google Calendar and stores the event link" do
+      create(:google_credential, user: user)
+      gcal_event   = double("GoogleEvent", id: "evt_1",
+                            html_link: "https://calendar.google.com/event?eid=xyz")
+      gcal_service = instance_double(GoogleCalendarService, push_event: gcal_event)
+      allow(GoogleCalendarService).to receive(:new).with(user).and_return(gcal_service)
+
+      post sync_calendar_event_path(event)
+
+      expect(event.reload.calendar_event_link).to eq("https://calendar.google.com/event?eid=xyz")
+      expect(event.calendar_event_id).to eq("evt_1")
+      expect(response).to redirect_to(event_path(event))
+    end
+
+    it "redirects with an alert when Google Calendar is not connected" do
+      post sync_calendar_event_path(event)
+
+      expect(event.reload.calendar_event_link).to be_nil
+      follow_redirect!
+      expect(response.body).to include("Connect Google Calendar")
+    end
+  end
+
+  describe "POST /events stores the calendar link" do
+    it "stamps the Google Calendar link on the created event" do
+      create(:google_credential, user: user)
+      gcal_event   = double("GoogleEvent", id: "evt_9",
+                            html_link: "https://calendar.google.com/event?eid=created")
+      gcal_service = instance_double(GoogleCalendarService, busy_intervals: [], push_event: gcal_event)
+      allow(GoogleCalendarService).to receive(:new).with(user).and_return(gcal_service)
+
+      post events_path, params: { event: valid_attrs }
+
+      expect(Event.last.calendar_event_link).to eq("https://calendar.google.com/event?eid=created")
+    end
+  end
+
   describe "unauthenticated access" do
     before { delete logout_path }
 

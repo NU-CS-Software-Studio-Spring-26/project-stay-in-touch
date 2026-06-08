@@ -1,5 +1,5 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: %i[show edit update destroy]
+  before_action :set_event, only: %i[show edit update destroy sync_calendar]
 
   SORTABLE_COLUMNS = %w[date title medium participants].freeze
 
@@ -105,6 +105,23 @@ class EventsController < ApplicationController
     redirect_to root_path, notice: "Event was successfully deleted.", status: :see_other
   end
 
+  # Push an already-logged event to Google Calendar on demand and store the
+  # resulting event link. Lets events created before the link was captured (or
+  # before the user connected Google) gain an "Open in Google Calendar" link.
+  def sync_calendar
+    unless current_user.google_calendar_connected?
+      redirect_to @event, alert: "Connect Google Calendar on Settings first." and return
+    end
+
+    push_to_google_calendar(@event)
+
+    if @event.calendar_event_link.present?
+      redirect_to @event, notice: "Added to Google Calendar."
+    else
+      redirect_to @event, alert: "Couldn't add to Google Calendar — please try again."
+    end
+  end
+
   private
 
   def set_event
@@ -177,7 +194,15 @@ class EventsController < ApplicationController
 
   def push_to_google_calendar(event)
     people = event.people.to_a
-    GoogleCalendarService.new(current_user).push_event(event, people)
+    gcal_event = GoogleCalendarService.new(current_user).push_event(event, people)
+    return unless gcal_event.respond_to?(:html_link)
+
+    # Stamp the calendar link/id so the event page can link straight to it.
+    # update_columns: the event is already saved and valid — just metadata.
+    event.update_columns(
+      calendar_event_id:   gcal_event.id,
+      calendar_event_link: gcal_event.html_link
+    )
   rescue StandardError => e
     Rails.logger.warn("GoogleCalendarService failed for event #{event.id}: #{e.message}")
   end
