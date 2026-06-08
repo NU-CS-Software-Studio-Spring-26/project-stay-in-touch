@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_08_000004) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_08_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -69,6 +69,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000004) do
   end
 
   create_table "events", force: :cascade do |t|
+    t.string "calendar_event_id"
+    t.string "calendar_event_link"
     t.datetime "created_at", null: false
     t.integer "duration_minutes", default: 60, null: false
     t.string "medium", null: false
@@ -83,9 +85,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000004) do
 
   create_table "google_credentials", force: :cascade do |t|
     t.string "access_token", null: false
+    t.text "availability_calendar_ids"
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
     t.string "refresh_token", null: false
+    t.string "serendipity_calendar_id"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_google_credentials_on_user_id", unique: true
@@ -99,8 +103,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000004) do
     t.text "decision_reason"
     t.datetime "meeting_at"
     t.text "pitch"
+    t.datetime "recipient_dismissed_at"
     t.integer "recipient_id"
     t.text "recipient_profile_snapshot"
+    t.datetime "requester_dismissed_at"
     t.integer "requester_id", null: false
     t.text "requester_profile_snapshot"
     t.integer "status", default: 0, null: false

@@ -1,5 +1,7 @@
 class SettingsController < ApplicationController
-  def edit; end
+  def edit
+    @calendars = current_user.google_calendar_connected? ? GoogleCalendarService.new(current_user).list_calendars : []
+  end
 
   def update
     if current_user.update(settings_params)

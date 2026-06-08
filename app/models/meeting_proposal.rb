@@ -38,6 +38,17 @@ class MeetingProposal < ApplicationRecord
   scope :for_user, ->(user) {
     where("requester_id = :id OR recipient_id = :id", id: user.id)
   }
+
+  # Proposals to show on a user's Matches screen: ones they're party to AND haven't
+  # dismissed from their OWN view. Dismissal is per-viewer — hiding a match only
+  # removes it from the dismisser's screen, not the other party's.
+  scope :visible_to, ->(user) {
+    where(
+      "(requester_id = :id AND requester_dismissed_at IS NULL) OR " \
+      "(recipient_id = :id AND recipient_dismissed_at IS NULL)",
+      id: user.id
+    )
+  }
   scope :recent, -> { order(created_at: :desc) }
 
   # Has this exact (requester -> recipient) direction been proposed recently?
@@ -59,6 +70,16 @@ class MeetingProposal < ApplicationRecord
   def other_party(user)
     return recipient if user.id == requester_id
     requester
+  end
+
+  # Hide this proposal from the given user's Matches screen (per-viewer; the other
+  # party still sees it). No-op if the user isn't party to the proposal.
+  def dismiss_for(user)
+    if requester_id == user.id
+      update!(requester_dismissed_at: Time.current)
+    elsif recipient_id == user.id
+      update!(recipient_dismissed_at: Time.current)
+    end
   end
 
   private
