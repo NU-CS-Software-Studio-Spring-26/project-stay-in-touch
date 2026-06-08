@@ -124,6 +124,25 @@ Given("an event with title {string} exists for the current user") do |title|
   @event_month = event.occurred_at.strftime("%Y-%m")
 end
 
+Given("my timezone is {string}") do |tz|
+  @current_user.update!(timezone: tz)
+end
+
+Given("an event occurring at {string} exists for the current user") do |iso|
+  @event = create(:event, user: @current_user, occurred_at: Time.iso8601(iso))
+end
+
+When("I view that event") do
+  visit event_path(@event)
+end
+
+Given("{int} contacts are overdue for the current user") do |count|
+  count.times do
+    person = create(:person, user: @current_user, frequency_weeks: 1.0)
+    create(:event, user: @current_user, people: [person], occurred_at: 100.days.ago)
+  end
+end
+
 Given("another user has an event titled {string}") do |title|
   other = create(:user, email: "other_#{SecureRandom.hex(4)}@example.com",
                         password: "Secure1!password",

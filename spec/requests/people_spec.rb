@@ -35,6 +35,31 @@ RSpec.describe "People", type: :request do
       get people_path
       expect(response.body).not_to include(other_person.name)
     end
+
+    describe "the 'Time to reach out' panel (#184)" do
+      def overdue_person!
+        person = create(:person, user: user, frequency_weeks: 1.0)
+        create(:event, user: user, people: [person], occurred_at: 100.days.ago)
+        person
+      end
+
+      it "summarises the count and shows only the most-overdue few with a 'View all' link" do
+        4.times { overdue_person! }
+        get people_path
+        expect(response.body).to include("4 people")
+        expect(response.body).to include("are due for a catch-up")
+        # Capped at 3 rows, not a wall of 4+ (panel-unique phrase)
+        expect(response.body.scan("caught up with").size).to eq(3)
+        expect(response.body).to include("View all 4")
+      end
+
+      it "omits the 'View all' link when 3 or fewer are overdue" do
+        2.times { overdue_person! }
+        get people_path
+        expect(response.body).to include("2 people")
+        expect(response.body).not_to include("View all")
+      end
+    end
   end
 
   describe "GET /people/:id" do

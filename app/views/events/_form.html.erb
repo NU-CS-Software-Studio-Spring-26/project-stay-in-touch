@@ -67,8 +67,11 @@
     <div class="d-flex flex-wrap gap-2">
       <% Event::MEDIA.each do |m| %>
         <label class="medium-pill">
-          <%= f.radio_button :medium, m, class: "medium-pill-radio",
-                required: (m == Event::MEDIA.first) %>
+          <%# No HTML5 `required` here: .medium-pill-radio is display:none, so the
+              browser can't focus it to show a validation bubble and would silently
+              block submission (#190). Medium presence is enforced by Event
+              validations and surfaced in the alert above. %>
+          <%= f.radio_button :medium, m, class: "medium-pill-radio" %>
           <i class="bi <%= medium_icons[m] %>"></i><%= m.titleize %>
         </label>
       <% end %>
