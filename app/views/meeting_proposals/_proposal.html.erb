@@ -1,10 +1,12 @@
 <% status_badge = { "accepted" => "bg-success", "declined" => "bg-secondary",
                     "pending" => "bg-warning text-dark", "error" => "bg-danger" } %>
 <% other = proposal.other_party(current_user) %>
-<%= link_to match_path(proposal), class: "list-group-item list-group-item-action",
-      id: dom_id(proposal) do %>
+<%# The row is a plain container (not a link) so the dismiss / add-to-people
+    buttons can sit beside the navigating link instead of nested inside it.
+    Keep dom_id on this element — Turbo Stream broadcasts target it. %>
+<div class="list-group-item" id="<%= dom_id(proposal) %>">
   <div class="d-flex align-items-center justify-content-between">
-    <div class="min-w-0">
+    <%= link_to match_path(proposal), class: "text-reset text-decoration-none flex-grow-1 min-w-0 me-3" do %>
       <div class="fw-semibold text-truncate">
         <% if proposal.error? %>
           <i class="bi bi-exclamation-triangle text-danger me-1"></i>Run failed
@@ -17,12 +19,31 @@
       <div class="text-muted small text-truncate">
         <%= proposal.error? ? proposal.decision_reason : proposal.pitch %>
       </div>
-    </div>
-    <div class="text-end flex-shrink-0 ms-3">
-      <span class="badge <%= status_badge[proposal.status] %>"><%= proposal.status.titleize %></span>
-      <% if proposal.calendar_created? %>
-        <div class="text-success small mt-1"><i class="bi bi-calendar-check"></i> Scheduled</div>
+    <% end %>
+
+    <div class="d-flex align-items-center flex-shrink-0">
+      <div class="text-end me-2">
+        <span class="badge <%= status_badge[proposal.status] %>"><%= proposal.status.titleize %></span>
+        <% if proposal.calendar_created? %>
+          <div class="text-success small mt-1"><i class="bi bi-calendar-check"></i> Scheduled</div>
+        <% end %>
+      </div>
+
+      <% if other %>
+        <%= button_to add_to_people_match_path(proposal), method: :post,
+              class: "btn btn-sm border-0 bg-transparent text-secondary p-1",
+              title: "Add #{other.display_label} to People",
+              aria: { label: "Add #{other.display_label} to People" } do %>
+          <i class="bi bi-person-plus"></i>
+        <% end %>
+      <% end %>
+
+      <%= button_to dismiss_match_path(proposal), method: :patch,
+            class: "btn btn-sm border-0 bg-transparent text-secondary p-1",
+            title: "Dismiss this match",
+            aria: { label: "Dismiss this match" } do %>
+        <i class="bi bi-x-lg"></i>
       <% end %>
     </div>
   </div>
-<% end %>
+</div>

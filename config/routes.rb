@@ -33,7 +33,12 @@ Rails.application.routes.draw do
   delete "/account", to: "registrations#destroy", as: :delete_account
 
   # AI-negotiated meeting matchmaking
-  resources :matches, only: %i[index show], controller: "meeting_proposals"
+  resources :matches, only: %i[index show], controller: "meeting_proposals" do
+    member do
+      patch :dismiss          # hide a match from the current user's screen
+      post  :add_to_people    # one-click add the other party to People
+    end
+  end
   post "matchmaking/run", to: "matchmaking#create", as: :run_matchmaking
 
   resources :people do

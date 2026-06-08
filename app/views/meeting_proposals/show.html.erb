@@ -11,9 +11,24 @@
 
 <div class="row justify-content-center">
   <div class="col-md-8">
-    <%= link_to matches_path, class: "btn btn-link btn-sm px-0 mb-2" do %>
-      <i class="bi bi-arrow-left me-1"></i>Back to Matches
-    <% end %>
+    <% other = @proposal.other_party(current_user) %>
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <%= link_to matches_path, class: "btn btn-link btn-sm px-0" do %>
+        <i class="bi bi-arrow-left me-1"></i>Back to Matches
+      <% end %>
+      <div class="d-flex align-items-center">
+        <% if other %>
+          <%= button_to add_to_people_match_path(@proposal), method: :post,
+                class: "btn btn-sm btn-outline-secondary me-2" do %>
+            <i class="bi bi-person-plus me-1"></i>Add to People
+          <% end %>
+        <% end %>
+        <%= button_to dismiss_match_path(@proposal), method: :patch,
+              class: "btn btn-sm btn-outline-secondary" do %>
+          <i class="bi bi-x-lg me-1"></i>Dismiss
+        <% end %>
+      </div>
+    </div>
 
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h1 class="h5 fw-bold mb-0">
@@ -88,8 +103,7 @@
       </div>
     <% end %>
 
-    <%# Block / Unblock action %>
-    <% other = @proposal.other_party(current_user) %>
+    <%# Block / Unblock action (other is set at the top of the template) %>
     <% if other %>
       <% existing_block = current_user.blocks.find_by(blocked: other) %>
       <div class="d-flex justify-content-end mb-3">
