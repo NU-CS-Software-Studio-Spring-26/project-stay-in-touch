@@ -103,8 +103,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_120000) do
     t.text "decision_reason"
     t.datetime "meeting_at"
     t.text "pitch"
+    t.datetime "recipient_dismissed_at"
     t.integer "recipient_id"
     t.text "recipient_profile_snapshot"
+    t.datetime "requester_dismissed_at"
     t.integer "requester_id", null: false
     t.text "requester_profile_snapshot"
     t.integer "status", default: 0, null: false

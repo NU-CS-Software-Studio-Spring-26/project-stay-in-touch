@@ -35,4 +35,56 @@ RSpec.describe "Matches (MeetingProposals)", type: :request do
       expect(response).to redirect_to(root_path)
     end
   end
+
+  describe "PATCH /matches/:id/dismiss" do
+    it "hides the match from the dismisser's list but leaves it for the other party" do
+      proposal = create(:meeting_proposal, requester: user, recipient: other, pitch: "Coffee soon?")
+
+      patch dismiss_match_path(proposal)
+      expect(response).to redirect_to(matches_path)
+
+      get matches_path
+      expect(response.body).not_to include("Coffee soon?")
+
+      # The other party still sees it.
+      sign_in(other)
+      get matches_path
+      expect(response.body).to include("Coffee soon?")
+    end
+
+    it "does not let a non-party dismiss a match" do
+      proposal = create(:meeting_proposal, requester: other, recipient: create(:user))
+      patch dismiss_match_path(proposal)
+      expect(response).to redirect_to(root_path)
+    end
+  end
+
+  describe "POST /matches/:id/add_to_people" do
+    let(:other) { create(:user, display_name: "Casey Jones", email: "casey@example.com") }
+
+    it "adds the other party to the current user's People and redirects to them" do
+      proposal = create(:meeting_proposal, requester: user, recipient: other)
+
+      expect { post add_to_people_match_path(proposal) }.to change(user.people, :count).by(1)
+
+      person = user.people.order(:created_at).last
+      expect(person.name).to eq("Casey Jones")
+      expect(person.email).to eq("casey@example.com")
+      expect(response).to redirect_to(person_path(person))
+    end
+
+    it "does not create a duplicate when they're already in People" do
+      proposal = create(:meeting_proposal, requester: user, recipient: other)
+      existing = create(:person, user: user, email: "casey@example.com")
+
+      expect { post add_to_people_match_path(proposal) }.not_to change(Person, :count)
+      expect(response).to redirect_to(person_path(existing))
+    end
+
+    it "does not let a non-party add from a match" do
+      proposal = create(:meeting_proposal, requester: other, recipient: create(:user))
+      expect { post add_to_people_match_path(proposal) }.not_to change(Person, :count)
+      expect(response).to redirect_to(root_path)
+    end
+  end
 end
