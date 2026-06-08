@@ -4,8 +4,7 @@ export default class extends Controller {
   static targets = ["input"]
 
   inputChanged() {
-    if (this.hasInputTarget && this.inputTarget.value === "") {
-      this.element.requestSubmit()
-    }
+    clearTimeout(this._timer)
+    this._timer = setTimeout(() => this.element.requestSubmit(), 300)
   }
 }
