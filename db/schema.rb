@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_08_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_08_000004) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -46,6 +46,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000003) do
     t.datetime "updated_at", null: false
     t.index ["blocked_id"], name: "index_blocks_on_blocked_id"
     t.index ["blocker_id", "blocked_id"], name: "index_blocks_on_blocker_id_and_blocked_id", unique: true
+  end
+
+  create_table "contact_links", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "recipient_person_id", null: false
+    t.integer "requester_person_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["recipient_person_id"], name: "index_contact_links_on_recipient_person_id", unique: true
+    t.index ["requester_person_id"], name: "index_contact_links_on_requester_person_id", unique: true
   end
 
   create_table "event_participants", force: :cascade do |t|
@@ -232,6 +242,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_000003) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "blocks", "users", column: "blocked_id"
   add_foreign_key "blocks", "users", column: "blocker_id"
+  add_foreign_key "contact_links", "people", column: "recipient_person_id"
+  add_foreign_key "contact_links", "people", column: "requester_person_id"
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "people"
   add_foreign_key "events", "users"
