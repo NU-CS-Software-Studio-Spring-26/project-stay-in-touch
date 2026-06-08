@@ -6,6 +6,8 @@ module Google
     allow_unauthenticated_access only: [ :authorize, :callback ]
     before_action :require_google_credentials, only: [ :authorize, :callback ]
 
+    # calendar.events is the least-privilege scope that covers insert_event,
+    # list_events, and freebusy queries. Do not escalate to calendar (full access).
     CALENDAR_SCOPES = %w[https://www.googleapis.com/auth/calendar.events].freeze
     SIGNIN_SCOPES   = %w[openid
                          https://www.googleapis.com/auth/userinfo.email
@@ -120,7 +122,12 @@ module Google
       return if missing.empty?
 
       Rails.logger.error("Google OAuth missing env vars: #{missing.join(', ')}")
-      redirect_to login_path, alert: "Google sign-in is not configured. Please contact support."
+      alert = if Rails.env.development?
+        "Google OAuth not configured. Copy .env.example to .env and set: #{missing.join(', ')}."
+      else
+        "Google sign-in is not configured. Please contact support."
+      end
+      redirect_to login_path, alert: alert
     end
 
     def build_client(scopes)

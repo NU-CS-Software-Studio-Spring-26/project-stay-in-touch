@@ -12,6 +12,17 @@ class User < ApplicationRecord
   has_many :received_proposals,  class_name: "MeetingProposal",
                                  foreign_key: :recipient_id, dependent: :destroy
 
+  # Blocking: a user can block others to prevent matchmaking with them.
+  has_many :blocks,         foreign_key: :blocker_id, dependent: :destroy
+  has_many :blocked_users,  through: :blocks, source: :blocked
+  has_many :reverse_blocks, class_name: "Block", foreign_key: :blocked_id, dependent: :destroy
+
+  has_many :push_subscriptions, dependent: :destroy
+
+  def blocking?(user)
+    blocks.exists?(blocked: user)
+  end
+
   has_one_attached :avatar
   validates :avatar, content_type: %i[png jpg jpeg gif],
                      size: { less_than: 5.megabytes },

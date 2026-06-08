@@ -88,16 +88,68 @@
       </div>
     <% end %>
 
+    <%# Block / Unblock action %>
+    <% other = @proposal.other_party(current_user) %>
+    <% if other %>
+      <% existing_block = current_user.blocks.find_by(blocked: other) %>
+      <div class="d-flex justify-content-end mb-3">
+        <% if existing_block %>
+          <%= button_to block_path(existing_block), method: :delete,
+                class: "btn btn-sm btn-outline-secondary",
+                form: { data: { turbo_confirm: "Unblock #{other.display_label}?" } } do %>
+            <i class="bi bi-person-check me-1"></i>Unblock <%= other.display_label %>
+          <% end %>
+        <% else %>
+          <%= button_to blocks_path,
+                method: :post,
+                params: { blocked_id: other.id },
+                class: "btn btn-sm btn-outline-danger",
+                form: { data: { turbo_confirm: "Block #{other.display_label}? They won't appear in future matchmaking rounds." } } do %>
+            <i class="bi bi-person-dash me-1"></i>Block <%= other.display_label %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
     <%# Outcome %>
     <% if @proposal.accepted? %>
-      <% if @proposal.calendar_created? %>
+      <% negotiation = @proposal.scheduling_negotiation %>
+      <% if negotiation %>
+        <% if negotiation.confirmed? %>
+          <% slot = negotiation.confirmed_slot %>
+          <div class="alert alert-success">
+            <i class="bi bi-calendar-check me-1"></i>
+            Meeting confirmed for
+            <%= slot&.starts_at&.in_time_zone(current_user.timezone)
+                  &.strftime("%A, %B %-d at %-I:%M %p %Z") %>.
+            <% link_url = @proposal.calendar_event_link.to_s %>
+            <% if link_url.start_with?("https://") %>
+              <%= link_to "Open in Google Calendar", link_url,
+                    class: "alert-link ms-1", target: "_blank", rel: "noopener noreferrer" %>
+            <% end %>
+          </div>
+        <% elsif negotiation.expired? %>
+          <div class="alert alert-secondary">
+            <i class="bi bi-clock-history me-1"></i>
+            The scheduling window expired. Run matchmaking again to try a new match.
+          </div>
+        <% else %>
+          <div class="alert alert-info d-flex align-items-center justify-content-between gap-3">
+            <div>
+              <i class="bi bi-calendar2-check me-1"></i>
+              <strong>Waiting for a time slot to be confirmed.</strong>
+              Window closes <%= negotiation.expires_at.in_time_zone(current_user.timezone)
+                                   .strftime("%b %-d at %-I:%M %p %Z") %>.
+            </div>
+            <%= link_to scheduling_negotiation_path(negotiation), class: "btn btn-primary btn-sm flex-shrink-0" do %>
+              <i class="bi bi-calendar-event me-1"></i>Choose a time
+            <% end %>
+          </div>
+        <% end %>
+      <% elsif @proposal.calendar_created? %>
         <div class="alert alert-success">
           <i class="bi bi-calendar-check me-1"></i>
           Meeting scheduled<%= " for #{l(@proposal.meeting_at, format: :short)}" if @proposal.meeting_at %>.
-          <%# Guard the href: only render the link if the stored URL is a real
-              https URL. Brakeman flags model-derived hrefs because, untrusted,
-              they could be a "javascript:" URL. The value comes from Google's
-              event.html_link, but we still verify the scheme here defensively. %>
           <% link_url = @proposal.calendar_event_link.to_s %>
           <% if link_url.start_with?("https://") %>
             <%= link_to "Open in Google Calendar", link_url,
@@ -107,7 +159,7 @@
       <% else %>
         <div class="alert alert-secondary">
           <i class="bi bi-info-circle me-1"></i>
-          Recorded only — connect Google Calendar (either party) to auto-schedule accepted matches.
+          Accepted — connect Google Calendar (either party) to get a smart slot picker for your next match.
         </div>
       <% end %>
     <% end %>

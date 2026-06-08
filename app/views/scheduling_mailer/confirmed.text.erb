@@ -1,0 +1,11 @@
+Hi <%= @recipient.display_label %>,
+
+Your meeting with <%= @other&.display_label %> has been confirmed for
+<%= @slot&.starts_at&.strftime("%A, %B %-d at %-I:%M %p %Z") %> (30 minutes).
+
+<% link_url = @proposal.calendar_event_link.to_s %>
+<% if link_url.start_with?("https://") %>
+Open in Google Calendar: <%= link_url %>
+<% end %>
+
+Enjoy your conversation!

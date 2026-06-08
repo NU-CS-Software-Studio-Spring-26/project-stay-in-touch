@@ -6,11 +6,6 @@ module Matchmaking
   # LLM-calling services stay side-effect free. Returns the proposal, or nil when no
   # proposal was made.
   class RoundOrchestratorService
-    SLOT_WINDOW_DAYS         = 7
-    SLOT_FROM_HOUR           = 9
-    SLOT_TO_HOUR             = 17
-    MEETING_DURATION_MINUTES = 30
-
     def initialize(requester)
       @requester = requester
     end
@@ -68,7 +63,11 @@ module Matchmaking
         recipient_profile_snapshot: target.meeting_interests
       )
 
-      create_calendar_event(proposal) if proposal.accepted?
+      if proposal.accepted?
+        if proposal.requester.google_calendar_connected? || proposal.recipient&.google_calendar_connected?
+          CreateSchedulingNegotiationJob.perform_later(proposal.id)
+        end
+      end
       proposal
     end
 
@@ -104,53 +103,13 @@ module Matchmaking
 
     # Opted-in users other than the requester, excluding pairs proposed recently.
     def eligible_candidates
+      blocked_ids  = @requester.blocked_users.pluck(:id)
+      blocking_ids = Block.where(blocked: @requester).pluck(:blocker_id)
+      excluded_ids = (blocked_ids + blocking_ids + [ @requester.id ]).uniq
+
       User.matchmaking_candidates
-          .where.not(id: @requester.id)
+          .where.not(id: excluded_ids)
           .reject { |candidate| MeetingProposal.recently_proposed_between?(@requester, candidate) }
-    end
-
-    # Mirrors the existing event flow: the connected party hosts (their calendar is
-    # checked and the event lands on it); the other is added purely as an attendee
-    # email. Only the host needs Google connected. Record-only fallback on any error.
-    def create_calendar_event(proposal)
-      host  = proposal.requester.google_calendar_connected? ? proposal.requester : proposal.recipient
-      return unless host.google_calendar_connected?
-
-      guest   = proposal.other_party(host)
-      service = GoogleCalendarService.new(host)
-      tz      = ActiveSupport::TimeZone[host.timezone] || Time.zone
-      busy    = service.busy_intervals(window_days: SLOT_WINDOW_DAYS)
-      start_time = GoogleCalendarService.earliest_free_slot(
-        busy:          busy,
-        window_days:   SLOT_WINDOW_DAYS,
-        from_hour:     SLOT_FROM_HOUR,
-        to_hour:       SLOT_TO_HOUR,
-        slot_duration: MEETING_DURATION_MINUTES.minutes,
-        tz:            tz
-      ) || default_slot(host)
-
-      event = service.push_user_meeting(
-        summary:          "Intro: #{proposal.requester.display_label} & #{proposal.recipient.display_label}",
-        description:      proposal.pitch,
-        start_time:       start_time,
-        duration_minutes: MEETING_DURATION_MINUTES,
-        attendee_emails:  [guest.email],
-        tz_name:          host.timezone
-      )
-
-      proposal.update!(
-        meeting_at:          start_time,
-        calendar_event_id:   event.id,
-        calendar_event_link: event.html_link,
-        calendar_created:    true
-      )
-    rescue StandardError => e
-      Rails.logger.warn("Matchmaking calendar event failed for proposal #{proposal.id}: #{e.message}")
-    end
-
-    def default_slot(host)
-      tz = ActiveSupport::TimeZone[host.timezone] || Time.zone
-      tz.now.tomorrow.change(hour: 10).utc
     end
   end
 end
