@@ -54,7 +54,7 @@ end
 
 group :test do
   # Concise validation/association matchers for RSpec
-  gem "shoulda-matchers", "~> 6.4"
+  gem "shoulda-matchers", "~> 8.0"
 
   # Cucumber BDD tests
   gem "cucumber-rails", "~> 3.1", require: false
